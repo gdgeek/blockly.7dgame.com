@@ -1,0 +1,22 @@
+{
+    "sourceFile": "vite.config.js",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1723621547001,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1723621855896,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,18 +3,17 @@\n  * Copyright 2022 Google LLC\n  * SPDX-License-Identifier: Apache-2.0\n  */\n \n-import { fileURLToPath, URL } from 'url';\n+import {fileURLToPath, URL} from 'url';\n \n-import { defineConfig } from 'vite';\n+import {defineConfig} from 'vite';\n import vue from '@vitejs/plugin-vue';\n \n-import { viteStaticCopy } from 'vite-plugin-static-copy';\n+import {viteStaticCopy} from 'vite-plugin-static-copy';\n \n // https://vitejs.dev/config/\n export default defineConfig({\n-  base: './',\n   plugins: [\n     vue({\n       template: {\n         compilerOptions: {\n"
+                }
+            ],
+            "date": 1723621547001,
+            "name": "Commit-0",
+            "content": "/**\n * @license\n * Copyright 2022 Google LLC\n * SPDX-License-Identifier: Apache-2.0\n */\n\nimport {fileURLToPath, URL} from 'url';\n\nimport {defineConfig} from 'vite';\nimport vue from '@vitejs/plugin-vue';\n\nimport {viteStaticCopy} from 'vite-plugin-static-copy';\n\n// https://vitejs.dev/config/\nexport default defineConfig({\n  base: './',\n  plugins: [\n    vue({\n      template: {\n        compilerOptions: {\n          isCustomElement: (tag) =>\n            [\n              'field',\n              'block',\n              'category',\n              'xml',\n              'mutation',\n              'value',\n              'sep',\n              'shadow',\n            ].includes(tag),\n        },\n      },\n    }),\n    viteStaticCopy({\n      targets: [\n        {\n          src: fileURLToPath(\n            new URL('./node_modules/blockly/media/*', import.meta.url),\n          ),\n          dest: 'media',\n        },\n      ],\n    }),\n  ],\n  resolve: {\n    alias: {\n      '@': fileURLToPath(new URL('./src', import.meta.url)),\n    },\n  },\n});\n"
+        }
+    ]
+}

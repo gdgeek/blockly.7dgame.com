@@ -1,0 +1,18 @@
+{
+    "sourceFile": "Dockerfile",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1723622383825,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1723622383825,
+            "name": "Commit-0",
+            "content": "FROM node:22-alpine AS build\nWORKDIR /app\nCOPY package.json ./\nRUN npm install pnpm -g\nRUN pnpm install\nCOPY . .\nRUN pnpm run build\n\nFROM nginx:1.19.0-alpine AS prod-stage\nCOPY --from=build /app/dist /usr/share/nginx/html\nEXPOSE 80\nCMD [\"nginx\",\"-g\",\"daemon off;\"]\n"
+        }
+    ]
+}
