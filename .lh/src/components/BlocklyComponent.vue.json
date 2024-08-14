@@ -1,0 +1,18 @@
+{
+    "sourceFile": "src/components/BlocklyComponent.vue",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1723619856467,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1723619856467,
+            "name": "Commit-0",
+            "content": "<script setup>\n/**\n * @license\n * Copyright 2022 Google LLC\n * SPDX-License-Identifier: Apache-2.0\n */\n\n/**\n * @fileoverview Blockly Vue Component.\n * @author dcoodien@gmail.com (Dylan Coodien)\n */\n\nimport {onMounted, ref, shallowRef} from 'vue';\nimport * as Blockly from 'blockly/core';\nimport * as En from 'blockly/msg/en';\nimport 'blockly/blocks';\n\nconst props = defineProps(['options']);\nconst blocklyToolbox = ref();\nconst blocklyDiv = ref();\nconst workspace = shallowRef();\n\ndefineExpose({workspace});\n\nonMounted(() => {\n  Blockly.setLocale(En);\n  const options = props.options || {};\n  if (!options.toolbox) {\n    options.toolbox = blocklyToolbox.value;\n  }\n  workspace.value = Blockly.inject(blocklyDiv.value, options);\n});\n</script>\n\n<template>\n  <div>\n    <div class=\"blocklyDiv\" ref=\"blocklyDiv\"></div>\n    <xml ref=\"blocklyToolbox\" style=\"display: none\">\n      <slot></slot>\n    </xml>\n  </div>\n</template>\n\n<!-- Add \"scoped\" attribute to limit CSS to this component only -->\n<style scoped>\n.blocklyDiv {\n  height: 100%;\n  width: 100%;\n  text-align: left;\n}\n</style>\n"
+        }
+    ]
+}
