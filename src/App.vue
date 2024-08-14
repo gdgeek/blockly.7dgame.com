@@ -10,21 +10,38 @@
  * @author dcoodien@google.com (Dylan Coodien)
  */
 
-import {ref} from 'vue';
-import BlocklyComponent from './components/BlocklyComponent.vue';
-import './blocks/stocks';
+import { onMounted, ref } from 'vue'
+import BlocklyComponent from './components/BlocklyComponent.vue'
+import './blocks/stocks'
 
-import {javascriptGenerator} from 'blockly/javascript';
+import { javascriptGenerator } from 'blockly/javascript'
 
-const foo = ref();
-const code = ref();
+window.URL = window.URL || window.webkitURL
+window.BlobBuilder =
+  window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder
+const handleMessage = async (e) => {
+  alert(e.data)
+}
+onMounted(() => {
+  /*
+    window.parent.postMessage(data, '*')
+  */
+  window.parent.postMessage(JSON.stringify({ type: 'ready' }), '*')
+  window.addEventListener('message', handleMessage)
+})
+window.URL = window.URL || window.webkitURL
+window.BlobBuilder =
+  window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder
+
+const foo = ref()
+const code = ref()
 const options = {
   media: 'media/',
   grid: {
     spacing: 25,
     length: 3,
     colour: '#ccc',
-    snap: true,
+    snap: true
   },
   toolbox: `<xml>
           <category name="Logic" colour="%{BKY_LOGIC_HUE}">
@@ -63,11 +80,11 @@ const options = {
             <block type="stock_buy_prog"></block>
             <block type="stock_fetch_price"></block>
           </category>
-        </xml>`,
-};
+        </xml>`
+}
 
 const showCode = () =>
-  (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace));
+  (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace))
 </script>
 
 <template>
@@ -101,7 +118,8 @@ const showCode = () =>
     <BlocklyComponent
       id="blockly2"
       :options="options"
-      ref="foo"></BlocklyComponent>
+      ref="foo"
+    ></BlocklyComponent>
     <div id="code">
       <button v-on:click="showCode()">Show JavaScript</button>
       <pre v-html="code"></pre>

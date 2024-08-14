@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 1,
+            "activePatchIndex": 2,
             "patches": [
                 {
                     "date": 1723621547001,
@@ -12,6 +12,10 @@
                 {
                     "date": 1723621855896,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -3,18 +3,17 @@\n  * Copyright 2022 Google LLC\n  * SPDX-License-Identifier: Apache-2.0\n  */\n \n-import { fileURLToPath, URL } from 'url';\n+import {fileURLToPath, URL} from 'url';\n \n-import { defineConfig } from 'vite';\n+import {defineConfig} from 'vite';\n import vue from '@vitejs/plugin-vue';\n \n-import { viteStaticCopy } from 'vite-plugin-static-copy';\n+import {viteStaticCopy} from 'vite-plugin-static-copy';\n \n // https://vitejs.dev/config/\n export default defineConfig({\n-  base: './',\n   plugins: [\n     vue({\n       template: {\n         compilerOptions: {\n"
+                },
+                {
+                    "date": 1723624241860,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -12,8 +12,16 @@\n import { viteStaticCopy } from 'vite-plugin-static-copy';\n \n // https://vitejs.dev/config/\n export default defineConfig({\n+  server: {\n+    cors: {\n+      origin: '*', // 允许任何域名\n+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'], // 允许任何请求方法\n+      allowedHeaders: '*', // 允许任何请求头\n+      credentials: true, // 如果需要支持发送凭据的跨域请求，可以设置为 true\n+    }\n+  }，\n   plugins: [\n     vue({\n       template: {\n         compilerOptions: {\n"
                 }
             ],
             "date": 1723621547001,
