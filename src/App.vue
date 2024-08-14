@@ -1,3 +1,43 @@
+<template>
+  <div id="app">
+    <img alt="Vue logo" src="./assets/logo.png" />
+    <BlocklyComponent id="blockly1">
+      <block type="controls_ifelse"></block>
+      <block type="logic_compare"></block>
+      <block type="logic_operation"></block>
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="logic_operation"></block>
+      <block type="logic_negate"></block>
+      <block type="logic_boolean"></block>
+      <block type="logic_null" disabled="true"></block>
+      <block type="logic_ternary"></block>
+      <block type="text_charAt">
+        <value name="VALUE">
+          <block type="variables_get">
+            <field name="VAR">text</field>
+          </block>
+        </value>
+      </block>
+    </BlocklyComponent>
+
+    <BlocklyComponent
+      id="blockly2"
+      :options="options"
+      ref="foo"
+    ></BlocklyComponent>
+    <div id="code">
+      <button v-on:click="showCode()">Show JavaScript</button>
+      <pre v-html="code"></pre>
+    </div>
+  </div>
+</template>
+
 <script setup>
 /**
  * @license
@@ -86,46 +126,6 @@ const options = {
 const showCode = () =>
   (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace))
 </script>
-
-<template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <BlocklyComponent id="blockly1">
-      <block type="controls_ifelse"></block>
-      <block type="logic_compare"></block>
-      <block type="logic_operation"></block>
-      <block type="controls_repeat_ext">
-        <value name="TIMES">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="logic_operation"></block>
-      <block type="logic_negate"></block>
-      <block type="logic_boolean"></block>
-      <block type="logic_null" disabled="true"></block>
-      <block type="logic_ternary"></block>
-      <block type="text_charAt">
-        <value name="VALUE">
-          <block type="variables_get">
-            <field name="VAR">text</field>
-          </block>
-        </value>
-      </block>
-    </BlocklyComponent>
-
-    <BlocklyComponent
-      id="blockly2"
-      :options="options"
-      ref="foo"
-    ></BlocklyComponent>
-    <div id="code">
-      <button v-on:click="showCode()">Show JavaScript</button>
-      <pre v-html="code"></pre>
-    </div>
-  </div>
-</template>
 
 <style>
 #app {

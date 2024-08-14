@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "blockly": "^11.0.0",
+    "element-plus": "^2.8.0",
     "vue": "^3.2.37"
   },
   "devDependencies": {
