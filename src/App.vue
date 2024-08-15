@@ -27,6 +27,7 @@
  */
 
 import { onMounted, ref } from 'vue'
+import * as Blockly from 'blockly'
 import BlocklyComponent from './components/BlocklyComponent.vue'
 import './blocks/stocks'
 import * as Custom from './custom'
@@ -78,6 +79,7 @@ onMounted(() => {
       message: {
         language: ['lua', 'js'],
         style: ['base', 'meta'],
+        data: '',
         parameters: []
       }
     }),
@@ -130,8 +132,12 @@ let options = ref()
           </category>
         </xml>`
          */
-const luaCode = () =>
-  (code.value = luaGenerator.workspaceToCode(foo.value.workspace))
+function luaCode() {
+  const state = Blockly.serialization.workspaces.save(foo.value.workspace)
+  alert(JSON.stringify(state))
+  Blockly.serialization.workspaces.load(state, foo.value.workspace)
+}
+
 const jsCode = () =>
   (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace))
 </script>
