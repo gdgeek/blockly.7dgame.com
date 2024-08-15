@@ -1,31 +1,5 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <BlocklyComponent id="blockly1">
-      <block type="controls_ifelse"></block>
-      <block type="logic_compare"></block>
-      <block type="logic_operation"></block>
-      <block type="controls_repeat_ext">
-        <value name="TIMES">
-          <shadow type="math_number">
-            <field name="NUM">10</field>
-          </shadow>
-        </value>
-      </block>
-      <block type="logic_operation"></block>
-      <block type="logic_negate"></block>
-      <block type="logic_boolean"></block>
-      <block type="logic_null" disabled="true"></block>
-      <block type="logic_ternary"></block>
-      <block type="text_charAt">
-        <value name="VALUE">
-          <block type="variables_get">
-            <field name="VAR">text</field>
-          </block>
-        </value>
-      </block>
-    </BlocklyComponent>
-
     <BlocklyComponent
       v-if="options"
       id="blockly2"
@@ -65,13 +39,24 @@ const init = (message) => {
   const toolbox = Custom.setup(message.style, message.parameters)
   options.value = {
     media: 'media/',
-    grid: {
-      spacing: 25,
-      length: 3,
-      colour: '#ccc',
-      snap: true
+    grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
+    toolbox,
+    move: {
+      scrollbars: {
+        horizontal: false,
+        vertical: true
+      },
+      drag: true,
+      wheel: false
     },
-    toolbox
+    zoom: {
+      startScale: 1.0,
+      maxScale: 3,
+      minScale: 0.3,
+      controls: true,
+      wheel: true,
+      pinch: true
+    }
   }
 }
 const handleMessage = async (message) => {
@@ -169,7 +154,7 @@ body {
   right: 0;
   bottom: 0;
   width: 50%;
-  height: 50%;
+  height: 100%;
   margin: 0;
   background-color: beige;
 }
@@ -187,6 +172,6 @@ body {
   left: 0;
   bottom: 0;
   width: 50%;
-  height: 50%;
+  height: 100%;
 }
 </style>
