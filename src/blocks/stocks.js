@@ -13,8 +13,9 @@
 // https://developers.google.com/blockly/guides/create-custom-blocks/define-blocks
 
 import * as Blockly from 'blockly/core';
-import {javascriptGenerator, Order} from 'blockly/javascript';
-
+import { javascriptGenerator, Order } from 'blockly/javascript';
+import { luaGenerator } from 'blockly/lua';
+import * as Lua from 'blockly/lua';
 Blockly.Blocks['stock_buy_simple'] = {
   init: function () {
     this.appendValueInput('Number')
@@ -56,7 +57,12 @@ Blockly.Blocks['stock_buy_prog'] = {
     this.setHelpUrl('https://example.com');
   },
 };
-
+Lua.luaGenerator.forBlock['stock_buy_prog'] = function (block, generator) {
+  const valueNumber = generator.valueToCode(block, 'Number', Lua.Order.ATOMIC);
+  const valueName = generator.valueToCode(block, 'NAME', Lua.Order.ATOMIC);
+  const code = `buy(${valueNumber},${valueName},${valueName});\n`;
+  return code;
+};
 javascriptGenerator.forBlock['stock_buy_prog'] = function (block, generator) {
   const valueNumber = generator.valueToCode(block, 'Number', Order.ATOMIC);
   const valueName = generator.valueToCode(block, 'NAME', Order.ATOMIC);

@@ -27,12 +27,14 @@
     </BlocklyComponent>
 
     <BlocklyComponent
+      v-if="options"
       id="blockly2"
       :options="options"
       ref="foo"
     ></BlocklyComponent>
     <div id="code">
-      <button v-on:click="showCode()">Show JavaScript</button>
+      <button v-on:click="luaCode()">Show Lua</button>
+      <button v-on:click="jsCode()">Show JavaScript</button>
       <pre v-html="code"></pre>
     </div>
   </div>
@@ -53,37 +55,58 @@
 import { onMounted, ref } from 'vue'
 import BlocklyComponent from './components/BlocklyComponent.vue'
 import './blocks/stocks'
-
+import * as Custom from './custom'
 import { javascriptGenerator } from 'blockly/javascript'
-
+import { luaGenerator } from 'blockly/lua'
 window.URL = window.URL || window.webkitURL
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder
-const handleMessage = async (e) => {
-  alert(e.data)
+const init = (message) => {
+  const toolbox = Custom.setup(message.style, message.parameters)
+  options.value = {
+    media: 'media/',
+    grid: {
+      spacing: 25,
+      length: 3,
+      colour: '#ccc',
+      snap: true
+    },
+    toolbox
+  }
+}
+const handleMessage = async (message) => {
+  try {
+    const data = JSON.parse(message.data)
+    if (data.type === 'init') {
+      init(data.message)
+    }
+  } catch (e) {
+    console.error(message)
+    console.error(e)
+  }
 }
 onMounted(() => {
-  /*
-    window.parent.postMessage(data, '*')
-  */
   window.parent.postMessage(JSON.stringify({ type: 'ready' }), '*')
+  window.parent.postMessage(
+    JSON.stringify({
+      type: 'init',
+      message: {
+        language: ['lua', 'js'],
+        style: ['base', 'meta'],
+        parameters: []
+      }
+    }),
+    '*'
+  )
   window.addEventListener('message', handleMessage)
 })
-window.URL = window.URL || window.webkitURL
-window.BlobBuilder =
-  window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder
 
 const foo = ref()
 const code = ref()
-const options = {
-  media: 'media/',
-  grid: {
-    spacing: 25,
-    length: 3,
-    colour: '#ccc',
-    snap: true
-  },
-  toolbox: `<xml>
+let options = ref()
+
+/*
+: `<xml>
           <category name="Logic" colour="%{BKY_LOGIC_HUE}">
             <block type="controls_if"></block>
             <block type="logic_compare"></block>
@@ -121,9 +144,10 @@ const options = {
             <block type="stock_fetch_price"></block>
           </category>
         </xml>`
-}
-
-const showCode = () =>
+         */
+const luaCode = () =>
+  (code.value = luaGenerator.workspaceToCode(foo.value.workspace))
+const jsCode = () =>
   (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace))
 </script>
 

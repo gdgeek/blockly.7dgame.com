@@ -3,11 +3,23 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 3,
             "patches": [
                 {
                     "date": 1723619856467,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1723688216966,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,14 +32,9 @@\n });\n </script>\n \n <template>\n-  <div>\n-    <div class=\"blocklyDiv\" ref=\"blocklyDiv\"></div>\n-    <xml ref=\"blocklyToolbox\" style=\"display: none\">\n-      <slot></slot>\n-    </xml>\n-  </div>\n+ \n </template>\n \n <!-- Add \"scoped\" attribute to limit CSS to this component only -->\n <style scoped>\n"
+                },
+                {
+                    "date": 1723690700769,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,4 +1,12 @@\n+<template>\n+  <div>\n+    <div class=\"blocklyDiv\" ref=\"blocklyDiv\"></div>\n+    <xml ref=\"blocklyToolbox\" style=\"display: none\">\n+      <slot></slot>\n+    </xml>\n+  </div>\n+</template>\n <script setup>\n /**\n  * @license\n  * Copyright 2022 Google LLC\n@@ -31,17 +39,10 @@\n   workspace.value = Blockly.inject(blocklyDiv.value, options)\n })\n </script>\n \n-<template>\n-  <div>\n-    <div class=\"blocklyDiv\" ref=\"blocklyDiv\"></div>\n-    <xml ref=\"blocklyToolbox\" style=\"display: none\">\n-      <slot></slot>\n-    </xml>\n-  </div>\n-</template>\n \n+\n <!-- Add \"scoped\" attribute to limit CSS to this component only -->\n <style scoped>\n .blocklyDiv {\n   height: 100%;\n"
+                },
+                {
+                    "date": 1723690710406,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,10 +1,8 @@\n <template>\n   <div>\n     <div class=\"blocklyDiv\" ref=\"blocklyDiv\"></div>\n-    <xml ref=\"blocklyToolbox\" style=\"display: none\">\n-      <slot></slot>\n-    </xml>\n+   \n   </div>\n </template>\n <script setup>\n /**\n"
                 }
             ],
             "date": 1723619856467,

@@ -3,10 +3,10 @@
  * Copyright 2022 Google LLC
  * SPDX-License-Identifier: Apache-2.0
  */
+// main.ts
+import { createApp } from 'vue'
+import App from './App.vue'
 
-import {createApp} from 'vue';
-import App from './App.vue';
+const app = createApp(App)
 
-const app = createApp(App);
-
-app.mount('#app');
+app.mount('#app')

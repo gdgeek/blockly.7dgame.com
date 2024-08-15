@@ -8,6 +8,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@blockly/field-colour": "^5.0.7",
     "blockly": "^11.0.0",
     "element-plus": "^2.8.0",
     "vue": "^3.2.37"
