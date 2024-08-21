@@ -1,14 +1,12 @@
-# 使用官方的Nginx镜像作为基础镜像
-FROM nginx:alpine
+FROM node:22-alpine AS build
+WORKDIR /app
+COPY package.json ./
+RUN npm install pnpm -g
+RUN pnpm install
+COPY . .
+RUN pnpm run build
 
-# 删除默认的Nginx配置文件
-RUN rm -rf /usr/share/nginx/html/*
-
-# 将当前目录下的所有内容复制到容器的Nginx目录中
-COPY . /usr/share/nginx/html
-
-# 暴露80端口
+FROM nginx:1.19.0-alpine AS prod-stage
+COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
-
-# 启动Nginx
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx","-g","daemon off;"]
