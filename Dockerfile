@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json ./
 RUN npm install pnpm -g
 RUN pnpm install
-COPY . .
+COPY . .    
 RUN pnpm run build
 
 FROM nginx:1.19.0-alpine AS prod-stage

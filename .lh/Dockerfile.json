@@ -3,7 +3,7 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 2,
+            "activePatchIndex": 6,
             "patches": [
                 {
                     "date": 1723622383825,
@@ -16,6 +16,22 @@
                 {
                     "date": 1724211209443,
                     "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,14 +1,12 @@\n-# 使用官方的Nginx镜像作为基础镜像\n-FROM nginx:alpine\n+FROM node:22-alpine AS build\n+WORKDIR /app\n+COPY package.json ./\n+RUN npm install pnpm -g\n+RUN pnpm install\n+COPY . .\n+RUN pnpm run build\n \n-# 删除默认的Nginx配置文件\n-RUN rm -rf /usr/share/nginx/html/*\n-\n-# 将当前目录下的所有内容复制到容器的Nginx目录中\n\\ No newline at end of file\n-COPY . /usr/share/nginx/html\n-\n-# 暴露80端口\n+FROM nginx:1.19.0-alpine AS prod-stage\n+COPY --from=build /app/dist /usr/share/nginx/html\n EXPOSE 80\n-\n-# 启动Nginx\n-CMD [\"nginx\", \"-g\", \"daemon off;\"]\n+CMD [\"nginx\",\"-g\",\"daemon off;\"]\n"
+                },
+                {
+                    "date": 1724254557379,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -5,8 +5,10 @@\n RUN pnpm install\n COPY . .\n RUN pnpm run build\n \n+\n+\n FROM nginx:1.19.0-alpine AS prod-stage\n COPY --from=build /app/dist /usr/share/nginx/html\n EXPOSE 80\n CMD [\"nginx\",\"-g\",\"daemon off;\"]\n"
+                },
+                {
+                    "date": 1724254562773,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -6,9 +6,8 @@\n COPY . .\n RUN pnpm run build\n \n \n-\n FROM nginx:1.19.0-alpine AS prod-stage\n COPY --from=build /app/dist /usr/share/nginx/html\n EXPOSE 80\n CMD [\"nginx\",\"-g\",\"daemon off;\"]\n"
+                },
+                {
+                    "date": 1724254637326,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,12 +2,11 @@\n WORKDIR /app\n COPY package.json ./\n RUN npm install pnpm -g\n RUN pnpm install\n-COPY . .\n+COPY . .  \n RUN pnpm run build\n \n-\n FROM nginx:1.19.0-alpine AS prod-stage\n COPY --from=build /app/dist /usr/share/nginx/html\n EXPOSE 80\n CMD [\"nginx\",\"-g\",\"daemon off;\"]\n"
+                },
+                {
+                    "date": 1724255047664,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -2,9 +2,9 @@\n WORKDIR /app\n COPY package.json ./\n RUN npm install pnpm -g\n RUN pnpm install\n-COPY . .  \n+COPY . .    \n RUN pnpm run build\n \n FROM nginx:1.19.0-alpine AS prod-stage\n COPY --from=build /app/dist /usr/share/nginx/html\n"
                 }
             ],
             "date": 1723622383825,
