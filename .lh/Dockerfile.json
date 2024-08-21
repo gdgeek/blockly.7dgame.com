@@ -3,11 +3,15 @@
     "activeCommit": 0,
     "commits": [
         {
-            "activePatchIndex": 0,
+            "activePatchIndex": 1,
             "patches": [
                 {
                     "date": 1723622383825,
                     "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1724210757478,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -1,12 +1,14 @@\n-FROM node:22-alpine AS build\n-WORKDIR /app\n-COPY package.json ./\n-RUN npm install pnpm -g\n-RUN pnpm install\n-COPY . .\n-RUN pnpm run build\n+# 使用官方的Nginx镜像作为基础镜像\n+FROM nginx:alpine\n \n-FROM nginx:1.19.0-alpine AS prod-stage\n-COPY --from=build /app/dist /usr/share/nginx/html\n+# 删除默认的Nginx配置文件\n+RUN rm -rf /usr/share/nginx/html/*\n+\n+# 将当前目录下的所有内容复制到容器的Nginx目录中\n+COPY . /usr/share/nginx/html\n+\n+# 暴露80端口\n EXPOSE 80\n-CMD [\"nginx\",\"-g\",\"daemon off;\"]\n+\n+# 启动Nginx\n+CMD [\"nginx\", \"-g\", \"daemon off;\"]\n\\ No newline at end of file\n"
                 }
             ],
             "date": 1723622383825,

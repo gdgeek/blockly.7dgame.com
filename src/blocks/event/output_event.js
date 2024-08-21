@@ -19,8 +19,8 @@ const block = {
           options: function () {
             let opt = [['none', '']]
 
-            if (resource && resource.events && resource.output.inputs) {
-              const output = resource.events.output
+            if (resource && resource.events && resource.events.outputs) {
+              const output = resource.events.outputs
 
               output.forEach(({ title, uuid }) => {
                 opt.push([title, uuid])

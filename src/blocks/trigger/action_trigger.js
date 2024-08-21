@@ -21,8 +21,13 @@ const block = {
             let opt = [['none', '']]
             if (resource && resource.action) {
               const action = resource.action
+              alert(JSON.stringify(action))
               action.forEach(({ name, uuid }) => {
-                opt.push([name, uuid])
+
+                if (name) {
+                  opt.push([name, uuid])
+                }
+
               })
             }
             return opt
