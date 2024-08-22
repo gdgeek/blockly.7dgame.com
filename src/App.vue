@@ -35,6 +35,7 @@ window.BlobBuilder =
 const postMessage = (message) => {
   window.parent.postMessage(JSON.stringify(message), '*')
 }
+console.error(import.meta.env.VITE_API_URL)
 const save = (message) => {
   const data = Blockly.serialization.workspaces.save(foo.value.workspace)
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
