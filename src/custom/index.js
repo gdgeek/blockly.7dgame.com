@@ -29,6 +29,8 @@ import *  as Text from '../blocks/text'
 import *  as Sound from '../blocks/sound'
 import *  as Voxel from '../blocks/voxel'
 import *  as Other from '../blocks/other'
+import *  as Signal from '../blocks/signal'
+import *  as Parameter from '../blocks/parameter'
 
 const sep = {
   kind: 'sep'
@@ -49,12 +51,15 @@ const setup = (style, parameters) => {
 
   if (style.includes('base')) {
     Data.Setup(toolbox, parameters)
+    Task.Setup(toolbox, parameters)
+    Parameter.Setup(toolbox, parameters)
   }
+
+  toolbox.contents.push(sep)
   if (style.includes('meta')) {
     Meta.Setup(toolbox, parameters)
     Trigger.Setup(toolbox, parameters)
     Event.Setup(toolbox, parameters)
-    Task.Setup(toolbox, parameters)
     toolbox.contents.push(sep)
     Entity.Setup(toolbox, parameters)
     Polygen.Setup(toolbox, parameters)
@@ -65,7 +70,8 @@ const setup = (style, parameters) => {
     Other.Setup(toolbox, parameters)
   }
   if (style.includes('verse')) {
-    toolbox.contents.push(DataCategory)
+    Signal.Setup(toolbox, parameters)
+    //toolbox.contents.push(DataCategory)
   }
   toolbox.contents.push(sep)
   toolbox.contents.push(Variable)

@@ -32,34 +32,30 @@ import { luaGenerator } from 'blockly/lua'
 window.URL = window.URL || window.webkitURL
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder
-const postMessage = (message) => {
-  window.parent.postMessage(JSON.stringify(message), '*')
+const postMessage = (action, data = {}) => {
+  window.parent.postMessage({ action, data, from: 'script.blockly' }, '*')
 }
 
 const save = (message) => {
   const data = Blockly.serialization.workspaces.save(foo.value.workspace)
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
-    postMessage({
-      type: 'post:no-change'
-    })
+    postMessage('post:no-change')
   } else {
     const script =
       message.language === 'js'
         ? javascriptGenerator.workspaceToCode(foo.value.workspace)
         : luaGenerator.workspaceToCode(foo.value.workspace)
-    postMessage({
-      type: 'post',
-      message: {
-        language: message.language,
-        script: script,
-        data: data
-      }
+    postMessage('post', {
+      language: message.language,
+      script: script,
+      data: data
     })
 
     oldValue = data
   }
 }
 const init = (message) => {
+  console.error('init', message)
   const toolbox = Custom.setup(message.style, message.parameters)
   options.value = {
     media: 'media/',
@@ -89,11 +85,23 @@ const init = (message) => {
 }
 const handleMessage = async (message) => {
   try {
-    const data = message.data
-    if (data.type === 'init') {
-      init(data.message)
-    } else if (data.type === 'save') {
-      save(data.message)
+    //alert(message.data.action)
+    if (!message.data || !message.data.action || !message.data.from) {
+      return
+    }
+    if (
+      message.data.from !== 'script.meta.web' &&
+      message.data.from !== 'script.verse.web'
+    ) {
+      return
+    }
+
+    const action = message.data.action
+    const data = message.data.data
+    if (action === 'init') {
+      init(data)
+    } else if (action === 'save') {
+      save(data)
     }
   } catch (e) {
     console.error(e)
@@ -101,7 +109,7 @@ const handleMessage = async (message) => {
 }
 onMounted(() => {
   window.addEventListener('message', handleMessage)
-  postMessage({ type: 'ready' })
+  postMessage('ready')
 })
 
 let oldValue = null

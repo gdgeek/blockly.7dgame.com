@@ -1,38 +1,19 @@
 
-
-import TriggerType from './type'
+import EventType from './type'
 
 const data = {
-  name: 'action_trigger'
+  name: 'init_signal'
 }
 const block = {
   title: data.name,
-  type: TriggerType.name,
-  colour: TriggerType.colour,
+  type: EventType.name,
+  colour: EventType.colour,
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: '动作 %1 %2 %3',
+      message0: '启动信号 %1 %2',
       args0: [
-        {
-          type: 'field_dropdown',
-          name: 'Action',
-          options: function () {
-            let opt = [['none', '']]
-            if (resource && resource.action) {
-              const action = resource.action
-              //alert(JSON.stringify(action))
-              action.forEach(({ name, uuid }) => {
 
-                if (name) {
-                  opt.push([name, uuid])
-                }
-
-              })
-            }
-            return opt
-          }
-        },
         {
           type: 'input_dummy'
         },
@@ -41,7 +22,7 @@ const block = {
           name: 'content'
         }
       ],
-      colour: TriggerType.colour,
+      colour: EventType.colour,
       tooltip: '',
       helpUrl: ''
     }
@@ -61,16 +42,15 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown_option = block.getFieldValue('Action')
       var statements_content = generator.statementToCode(block, 'content')
 
 
       var code =
-        "meta['@" + dropdown_option + "'] = function(parameter) \n\
+        "verse['#init'] = function(parameter) \n\
   is_playing = true\n\
-  print('" + dropdown_option + "')\n\
-" + statements_content + '\n\
-  is_playing = false\n\
+  print('init')\n" +
+        statements_content +
+        '  is_playing = false\n\
 end\n'
 
       return code

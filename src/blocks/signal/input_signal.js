@@ -1,36 +1,34 @@
 
-
-import TriggerType from './type'
+import EventType from './type'
 
 const data = {
-  name: 'action_trigger'
+  name: 'input_signal'
 }
 const block = {
   title: data.name,
-  type: TriggerType.name,
-  colour: TriggerType.colour,
+  type: EventType.name,
+  colour: EventType.colour,
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: '动作 %1 %2 %3',
+      message0: '接收信号 %1 %2 %3',
       args0: [
         {
           type: 'field_dropdown',
-          name: 'Action',
+          name: 'Event',
           options: function () {
             let opt = [['none', '']]
-            if (resource && resource.action) {
-              const action = resource.action
-              //alert(JSON.stringify(action))
-              action.forEach(({ name, uuid }) => {
 
-                if (name) {
-                  opt.push([name, uuid])
-                }
+            if (resource && resource.events && resource.events.outputs) {
+              const outputs = resource.events.outputs
 
+              outputs.forEach(({ title, index, uuid }) => {
+                opt.push([title, index + ':' + uuid])
               })
+
             }
             return opt
+
           }
         },
         {
@@ -41,7 +39,7 @@ const block = {
           name: 'content'
         }
       ],
-      colour: TriggerType.colour,
+      colour: EventType.colour,
       tooltip: '',
       helpUrl: ''
     }
@@ -61,16 +59,18 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown_option = block.getFieldValue('Action')
+      var dropdown_option = block.getFieldValue('Event')
       var statements_content = generator.statementToCode(block, 'content')
 
 
       var code =
-        "meta['@" + dropdown_option + "'] = function(parameter) \n\
+        "verse['#" + dropdown_option + "'] = function(parameter) \n\
   is_playing = true\n\
-  print('" + dropdown_option + "')\n\
-" + statements_content + '\n\
-  is_playing = false\n\
+  print('" +
+        dropdown_option +
+        "')\n" +
+        statements_content +
+        '  is_playing = false\n\
 end\n'
 
       return code

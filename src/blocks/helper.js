@@ -25,10 +25,55 @@ const SetupIt = (category, register) => {
   }
   return func
 }
+
+function Number(value) {
+  return '_G.argument.number(' + value + ')'
+}
+function Boolean(value) {
+  return '_G.argument.boolean(' + value + ')'
+}
+function String(value) {
+  return '_G.argument.string(' + value + ')'
+}
+
+
+function Point(value) {
+  return '_G.argument.point(' + value + ')'
+}
+
+function Player(type, value) {
+  switch (type) {
+    case 'index':
+      return '_G.argument.index_player(' + value + ')'
+    case 'id':
+      return '_G.argument.id_player(' + value + ')'
+    case 'server':
+      return '_G.argument.server_player()'
+    case 'random_client':
+      return '_G.argument.random_player()'
+  }
+  return '_G.argument.server_player()'
+}
+
+function Anchor(key) {
+  return "_G.argument.anchor('" + key + "')"
+}
+function Range(anchor, radius) {
+  return '_G.argument.range(' + anchor + ', ' + radius + ')'
+}
+
+
 export {
   RegisterData,
   Handler,
   InputEvent,
   OutputEvent,
-  SetupIt
+  SetupIt,
+  Number,
+  String,
+  Boolean,
+  Range,
+  Anchor,
+  Player,
+  Point
 }
