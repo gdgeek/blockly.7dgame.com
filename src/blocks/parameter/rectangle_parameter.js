@@ -1,7 +1,6 @@
-import Blockly from 'blockly'
+
 import EventType from './type'
-import Helper from '../helper'
-import Argument from '../argument'
+import * as Helper from '../helper'
 const data = {
   name: 'rectangle_parameter'
 }
@@ -9,7 +8,7 @@ const block = {
   title: data.name,
   type: EventType.name,
   colour: EventType.colour,
-  getBlockJson({ resource }) {
+  getBlockJson(parameters) {
     const json = {
       type: 'block_type',
       message0: '范围随机点 %1 中点 %2 半径 %3 ',
@@ -46,21 +45,24 @@ const block = {
     }
     return data
   },
-  getLua({ index }) {
+  getJavascript(parameters) {
+    return this.getLua(parameters)
+  },
+  getLua(parameters) {
     const lua = function (block, generator) {
-      var value_anchor = Blockly.Lua.valueToCode(
+      var value_anchor = generator.valueToCode(
         block,
         'Anchor',
-        Blockly.Lua.ORDER_ATOMIC
+        generator.ORDER_ATOMIC
       )
 
       // TODO: Assemble javascript into code variable.
 
       var number_radius = block.getFieldValue('Radius')
-      var code = Argument.range(value_anchor, number_radius)
+      var code = Helper.Range(value_anchor, number_radius)
       // TODO: Change ORDER_NONE to the correct strength.
 
-      return [code, Blockly.Lua.ORDER_NONE]
+      return [code, generator.ORDER_NONE]
     }
     return lua
   },

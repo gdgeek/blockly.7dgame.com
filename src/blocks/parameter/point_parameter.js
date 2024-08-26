@@ -1,7 +1,6 @@
-import Blockly from 'blockly'
+
 import EventType from './type'
-import Helper from '../helper'
-import Argument from '../argument'
+import * as Helper from '../helper'
 const data = {
   name: 'point_parameter'
 }
@@ -38,14 +37,17 @@ const block = {
     }
     return data
   },
-  getLua() {
-    const lua = function (block) {
-      var input = Blockly.Lua.valueToCode(
+  getJavascript(parameters) {
+    return this.getLua(parameters)
+  },
+  getLua(parameters) {
+    const lua = function (block, generator) {
+      var input = generator.valueToCode(
         block,
         'Input',
-        Blockly.Lua.ORDER_NONE
+        generator.ORDER_NONE
       )
-      return [Argument.point(input), Blockly.Lua.ORDER_NONE]
+      return [Helper.Point(input), generator.ORDER_NONE]
     }
     return lua
   },

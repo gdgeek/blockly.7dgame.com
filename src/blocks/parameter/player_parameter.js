@@ -1,7 +1,6 @@
-import Blockly from 'blockly'
+
 import EventType from './type'
-import Helper from '../helper'
-import Argument from '../argument'
+import * as Helper from '../helper'
 const data = {
   name: 'player_parameter'
 }
@@ -48,17 +47,20 @@ const block = {
     }
     return data
   },
-  getLua() {
-    const lua = function (block) {
+  getJavascript(parameters) {
+    return this.getLua(parameters)
+  },
+  getLua(parameters) {
+    const lua = function (block, generator) {
       var type = block.getFieldValue('PlayerType')
 
-      var id = Blockly.Lua.valueToCode(
+      var id = generator.valueToCode(
         block,
         'Player',
-        Blockly.Lua.ORDER_ATOMIC
+        generator.ORDER_ATOMIC
       )
 
-      return [Argument.player(type, id), Blockly.Lua.ORDER_NONE]
+      return [Helper.Player(type, id), generator.ORDER_NONE]
     }
     return lua
   },

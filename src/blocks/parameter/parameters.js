@@ -1,6 +1,5 @@
-import Blockly from 'blockly'
+
 import EventType from './type'
-import Helper from '../helper'
 const data = {
   name: 'parameters'
 }
@@ -36,17 +35,20 @@ const block = {
     }
     return data
   },
-  getLua() {
-    const lua = function (block) {
-      var array = Blockly.Lua.valueToCode(
+  getJavascript(parameters) {
+    return this.getLua(parameters)
+  },
+  getLua(parameters) {
+    const lua = function (block, generator) {
+      var array = generator.valueToCode(
         block,
         'ParameterArray',
-        Blockly.Lua.ORDER_ATOMIC
+        generator.ORDER_ATOMIC
       )
 
       var code = '_G.helper.parameters(' + array + ')\n'
 
-      return [code, Blockly.Lua.ORDER_NONE]
+      return [code, generator.ORDER_NONE]
     }
     return lua
   },

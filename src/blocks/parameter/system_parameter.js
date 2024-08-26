@@ -1,4 +1,4 @@
-import Blockly from 'blockly'
+
 import EventType from './type'
 const data = {
   name: 'system_parameter'
@@ -36,12 +36,15 @@ const block = {
     }
     return data
   },
-  getLua() {
-    const lua = function (block) {
-      var input = Blockly.Lua.valueToCode(
+  getJavascript(parameters) {
+    return this.getLua(parameters)
+  },
+  getLua(parameters) {
+    const lua = function (block, generator) {
+      var input = generator.valueToCode(
         block,
         'Input',
-        Blockly.Lua.ORDER_NONE
+        generator.ORDER_NONE
       )
 
       // TODO: Assemble Lua into code variable.
@@ -49,7 +52,7 @@ const block = {
 
       code = '_G.system.parameter(' + input + ')'
 
-      return [code, Blockly.Lua.ORDER_NONE]
+      return [code, generator.ORDER_NONE]
     }
     return lua
   },
