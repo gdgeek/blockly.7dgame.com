@@ -21,7 +21,11 @@
 import { onMounted, ref, shallowRef } from 'vue'
 import * as Blockly from 'blockly/core'
 import * as En from 'blockly/msg/en'
+import * as Zh from 'blockly/msg/zh-hans'
 import 'blockly/blocks'
+const urlParams = new URLSearchParams(window.location.search)
+
+const lg = urlParams.get('language')
 
 const props = defineProps(['options'])
 const blocklyToolbox = ref()
@@ -29,9 +33,13 @@ const blocklyDiv = ref()
 const workspace = shallowRef()
 
 defineExpose({ workspace })
-
 onMounted(() => {
-  Blockly.setLocale(En)
+  if (lg && lg.includes('zh')) {
+    Blockly.setLocale(Zh)
+  } else {
+    Blockly.setLocale(En)
+  }
+
   const options = props.options || {}
   if (!options.toolbox) {
     options.toolbox = blocklyToolbox.value
