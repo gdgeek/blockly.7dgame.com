@@ -1,4 +1,4 @@
 export default {
-  name: 'Video',
-  colour: 300
-}
+  name: "Video",
+  colour: 300,
+};

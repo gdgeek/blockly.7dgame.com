@@ -1,57 +1,57 @@
-
-import EventType from './type'
+import EventType from "./type";
+import * as Blockly from "blockly";
 const data = {
-  name: 'sleep_task'
-}
+  name: "sleep_task",
+};
 const block = {
   title: data.name,
   type: EventType.name,
   colour: EventType.colour,
   getBlockJson(parameters) {
     const json = {
-      type: 'block_type',
-      message0: '休眠： %1 秒',
+      type: "block_type",
+      message0: Blockly.Msg.TASK_SLEEP[window.lg],
       args0: [
         {
-          type: 'input_value',
-          name: 'Time',
-          check: 'Number'
-        }
+          type: "input_value",
+          name: "Time",
+          check: "Number",
+        },
       ],
       inputsInline: true,
-      output: 'Task',
+      output: "Task",
       colour: EventType.colour,
-      tooltip: '',
-      helpUrl: ''
-    }
-    return json
+      tooltip: "",
+      helpUrl: "",
+    };
+    return json;
   },
   getBlock: function (parameters) {
     const data = {
       init: function () {
-        const json = block.getBlockJson(parameters)
-        this.jsonInit(json)
-      }
-    }
-    return data
+        const json = block.getBlockJson(parameters);
+        this.jsonInit(json);
+      },
+    };
+    return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters)
+    return this.getLua(parameters);
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var time = generator.valueToCode(block, 'Time', generator.ORDER_NONE)
+      var time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
 
       // TODO: Assemble Lua into code variable.
-      var code = null
-      code = '_G.task.sleep(' + time + ')'
-      return [code, generator.ORDER_NONE]
-    }
-    return lua
+      var code = null;
+      code = "_G.task.sleep(" + time + ")";
+      return [code, generator.ORDER_NONE];
+    };
+    return lua;
   },
   toolbox: {
-    kind: 'block',
-    type: data.name
-  }
-}
-export default block
+    kind: "block",
+    type: data.name,
+  },
+};
+export default block;

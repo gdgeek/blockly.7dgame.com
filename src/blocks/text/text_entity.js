@@ -1,9 +1,10 @@
+import DataType from "./type";
+import { Handler } from "../helper";
+import * as Blockly from "blockly";
 
-import DataType from './type'
-import { Handler } from '../helper'
 const data = {
-  name: 'text_entity'
-}
+  name: "text_entity",
+};
 const block = {
   title: data.name,
   type: DataType.name,
@@ -11,55 +12,55 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: '文字 %1',
+      message0: Blockly.Msg.TEXT_TEXT[window.lg],
       args0: [
         {
-          type: 'field_dropdown',
-          name: 'Text',
+          type: "field_dropdown",
+          name: "Text",
           options: function () {
-            let opt = [['none', '']]
+            let opt = [["none", ""]];
             if (resource && resource.text) {
-              const text = resource.text
-              text.forEach(t => {
-                opt.push([t.name, t.uuid])
-              })
+              const text = resource.text;
+              text.forEach((t) => {
+                opt.push([t.name, t.uuid]);
+              });
             }
-            return opt
-          }
-        }
+            return opt;
+          },
+        },
       ],
-      output: 'Text',
+      output: "Text",
       colour: DataType.colour,
-      tooltip: '',
-      helpUrl: ''
-    }
-    return json
+      tooltip: "",
+      helpUrl: "",
+    };
+    return json;
   },
   getBlock: function (parameters) {
     const data = {
       init: function () {
-        const json = block.getBlockJson(parameters)
-        this.jsonInit(json)
-      }
-    }
-    return data
+        const json = block.getBlockJson(parameters);
+        this.jsonInit(json);
+      },
+    };
+    return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters)
+    return this.getLua(parameters);
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown_text = block.getFieldValue('Text')
+      var dropdown_text = block.getFieldValue("Text");
       // TODO: Assemble Lua into code variable.
       // var code =
       // TODO: Change ORDER_NONE to the correct strength.
-      return [Handler(dropdown_text), generator.ORDER_NONE]
-    }
-    return lua
+      return [Handler(dropdown_text), generator.ORDER_NONE];
+    };
+    return lua;
   },
   toolbox: {
-    kind: 'block',
-    type: data.name
-  }
-}
-export default block
+    kind: "block",
+    type: data.name,
+  },
+};
+export default block;

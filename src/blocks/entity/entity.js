@@ -1,10 +1,9 @@
-
-import DataType from './type'
-
-import { Handler } from '../helper'
+import DataType from "./type";
+import * as Blockly from "blockly";
+import { Handler } from "../helper";
 const data = {
-  name: 'entity'
-}
+  name: "entity",
+};
 const block = {
   title: data.name,
   type: DataType.name,
@@ -12,53 +11,53 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: '实体 %1',
+      message0: Blockly.Msg.ENTITY_ENTITY[window.lg],
       args0: [
         {
-          type: 'field_dropdown',
-          name: 'Entity',
+          type: "field_dropdown",
+          name: "Entity",
           options: function () {
-            let opt = [['none', '']]
+            let opt = [["none", ""]];
             if (resource && resource.entity) {
-              const entity = resource.entity
-              entity.forEach(ent => {
-                opt.push([ent.name, ent.uuid])
-              })
+              const entity = resource.entity;
+              entity.forEach((ent) => {
+                opt.push([ent.name, ent.uuid]);
+              });
             }
-            return opt
-          }
-        }
+            return opt;
+          },
+        },
       ],
-      output: 'Entity',
+      output: "Entity",
       colour: DataType.colour,
-      tooltip: '',
-      helpUrl: ''
-    }
-    return json
+      tooltip: "",
+      helpUrl: "",
+    };
+    return json;
   },
   getBlock: function (parameters) {
     const data = {
       init: function () {
-        const json = block.getBlockJson(parameters)
-        this.jsonInit(json)
-      }
-    }
-    return data
+        const json = block.getBlockJson(parameters);
+        this.jsonInit(json);
+      },
+    };
+    return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters)
+    return this.getLua(parameters);
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown = block.getFieldValue('Entity')
+      var dropdown = block.getFieldValue("Entity");
 
-      return [Handler(dropdown), generator.ORDER_NONE]
-    }
-    return lua
+      return [Handler(dropdown), generator.ORDER_NONE];
+    };
+    return lua;
   },
   toolbox: {
-    kind: 'block',
-    type: data.name
-  }
-}
-export default block
+    kind: "block",
+    type: data.name,
+  },
+};
+export default block;

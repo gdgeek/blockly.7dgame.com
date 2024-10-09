@@ -1,4 +1,4 @@
 export default {
-  name: 'Voxel',
-  colour: 300
-}
+  name: "Voxel",
+  colour: 300,
+};

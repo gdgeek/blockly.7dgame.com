@@ -1,4 +1,4 @@
 export default {
-  name: 'Picture',
-  colour: 200
-}
+  name: "Picture",
+  colour: 200,
+};

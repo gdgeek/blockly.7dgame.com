@@ -1,82 +1,81 @@
-
-import EventType from './type'
+import EventType from "./type";
+import * as Blockly from "blockly";
 
 const data = {
-  name: 'action_execute'
-}
+  name: "action_execute",
+};
 const block = {
   title: data.name,
   type: EventType.name,
   colour: EventType.colour,
   getBlockJson({ resource }) {
     const json = {
-      type: 'block_type',
-      message0: '动作 %1 %2',
+      type: "block_type",
+      message0: Blockly.Msg.TRIGGER_ACTION_EXECUTE[window.lg],
       args0: [
         {
-          type: 'field_dropdown',
-          name: 'Action',
+          type: "field_dropdown",
+          name: "Action",
           options: function () {
-            let opt = [['none', '']]
+            let opt = [["none", ""]];
             if (resource && resource.action) {
-              const action = resource.action
+              const action = resource.action;
               action.forEach(({ name, uuid }) => {
-                opt.push([name, uuid])
-              })
+                opt.push([name, uuid]);
+              });
             }
-            return opt
-          }
+            return opt;
+          },
         },
         {
-          type: 'input_value',
-          name: 'content',
-          check: 'Task'
-        }
+          type: "input_value",
+          name: "content",
+          check: "Task",
+        },
       ],
       inputsInline: true,
       colour: EventType.colour,
-      tooltip: '',
-      helpUrl: ''
-    }
-    return json
+      tooltip: "",
+      helpUrl: "",
+    };
+    return json;
   },
   getBlock: function (parameters) {
     const data = {
       init: function () {
-        const json = block.getBlockJson(parameters)
-        this.jsonInit(json)
-      }
-    }
-    return data
+        const json = block.getBlockJson(parameters);
+        this.jsonInit(json);
+      },
+    };
+    return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters)
+    return this.getLua(parameters);
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-
-
-
       var statements_content = generator.valueToCode(
         block,
-        'content',
+        "content",
         Blockly.Lua.ORDER_NONE
-      )
+      );
 
-      var dropdown_option = block.getFieldValue('Action')
-      var execute = '  _G.task.execute(' + statements_content + ')\n'
+      var dropdown_option = block.getFieldValue("Action");
+      var execute = "  _G.task.execute(" + statements_content + ")\n";
       var code =
-        "meta['@" + dropdown_option + "'] = function(parameter) \n  " +
+        "meta['@" +
+        dropdown_option +
+        "'] = function(parameter) \n  " +
         execute +
-        'end\n'
+        "end\n";
 
-      return code
-    }
-    return lua
+      return code;
+    };
+    return lua;
   },
   toolbox: {
-    kind: 'block',
-    type: data.name
-  }
-}
-export default block
+    kind: "block",
+    type: data.name,
+  },
+};
+export default block;

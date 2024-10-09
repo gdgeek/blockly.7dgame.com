@@ -1,4 +1,4 @@
 export default {
-  name: 'Polygen',
-  colour: 100
-}
+  name: "Polygen",
+  colour: 100,
+};

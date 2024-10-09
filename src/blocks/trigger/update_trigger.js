@@ -1,8 +1,9 @@
+import TriggerType from "./type";
+import * as Blockly from "blockly";
 
-import TriggerType from './type'
 const data = {
-  name: 'update_trigger'
-}
+  name: "update_trigger",
+};
 const block = {
   title: data.name,
   type: TriggerType.name,
@@ -12,47 +13,47 @@ const block = {
       init: function () {
         this.jsonInit({
           type: data.name,
-          message0: '更新 %1 %2',
+          message0: Blockly.Msg.TRIGGER_UPDATE[window.lg],
           args0: [
             {
-              type: 'input_dummy'
+              type: "input_dummy",
             },
             {
-              type: 'input_statement',
-              name: 'content'
-            }
+              type: "input_statement",
+              name: "content",
+            },
           ],
           colour: TriggerType.colour,
-          tooltip: '',
-          helpUrl: ''
-        })
-      }
-    }
-    return block
+          tooltip: "",
+          helpUrl: "",
+        });
+      },
+    };
+    return block;
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      return 'temp'
-    }
-    return script
+      return "temp";
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var statements_content = generator.statementToCode(block, 'content')
+      var statements_content = generator.statementToCode(block, "content");
       // TODO: Assemble Lua into code variable.
       var code =
         "meta['@update'] = function(interval) \n\
   print('@update')\n" +
         statements_content +
-        'end\n'
-      return code
-    }
-    return lua
+        "end\n";
+      return code;
+    };
+    return lua;
   },
   toolbox: {
-    kind: 'block',
-    type: data.name
-  }
-}
+    kind: "block",
+    type: data.name,
+  },
+};
 
-export default block
+export default block;

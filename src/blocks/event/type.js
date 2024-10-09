@@ -1,4 +1,4 @@
 export default {
-  name: 'Event',
-  colour: 300
-}
+  name: "Event",
+  colour: 300,
+};

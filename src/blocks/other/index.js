@@ -1,16 +1,17 @@
-import Type from './type'
-import SleepEntity from './sleep'
-import { RegisterData, SetupIt } from '../helper'
+import Type from "./type";
+import SleepEntity from "./sleep";
+import { RegisterData, SetupIt } from "../helper";
 
 const HelperCategory = {
-  kind: 'category',
-  name: '其他',
+  kind: "category",
+  // name: "其他",
+  name: "Other",
   colour: Type.colour,
-  contents: [SleepEntity.toolbox]
-}
+  contents: [SleepEntity.toolbox],
+};
 
 function HelperRegister(parameters) {
-  RegisterData(SleepEntity, parameters)
+  RegisterData(SleepEntity, parameters);
 }
-const Setup = SetupIt(HelperCategory, HelperRegister)
-export { Setup }
+const Setup = SetupIt(HelperCategory, HelperRegister);
+export { Setup };

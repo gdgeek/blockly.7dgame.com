@@ -18,34 +18,38 @@
  * @author dcoodien@gmail.com (Dylan Coodien)
  */
 
-import { onMounted, ref, shallowRef } from 'vue'
-import * as Blockly from 'blockly/core'
-import * as En from 'blockly/msg/en'
-import * as Zh from 'blockly/msg/zh-hans'
-import 'blockly/blocks'
-const urlParams = new URLSearchParams(window.location.search)
+import { onMounted, ref, shallowRef } from "vue";
+import * as Blockly from "blockly/core";
+import * as En from "blockly/msg/en";
+import * as Zh from "blockly/msg/zh-hans";
+import * as JA from "blockly/msg/ja";
+import "blockly/blocks";
 
-const lg = urlParams.get('language')
+const urlParams = new URLSearchParams(window.location.search);
+const lg = urlParams.get("language");
+console.log("LG", lg);
 
-const props = defineProps(['options'])
-const blocklyToolbox = ref()
-const blocklyDiv = ref()
-const workspace = shallowRef()
+const props = defineProps(["options"]);
+const blocklyToolbox = ref();
+const blocklyDiv = ref();
+const workspace = shallowRef();
 
-defineExpose({ workspace })
+defineExpose({ workspace });
 onMounted(() => {
-  if (lg && lg.includes('zh')) {
-    Blockly.setLocale(Zh)
-  } else {
-    Blockly.setLocale(En)
+  if (lg && lg.includes("zh-cn")) {
+    Blockly.setLocale(Zh);
+  } else if (lg && lg.includes("en")) {
+    Blockly.setLocale(En);
+  } else if (lg && lg.includes("ja")) {
+    Blockly.setLocale(JA);
   }
 
-  const options = props.options || {}
+  const options = props.options || {};
   if (!options.toolbox) {
-    options.toolbox = blocklyToolbox.value
+    options.toolbox = blocklyToolbox.value;
   }
-  workspace.value = Blockly.inject(blocklyDiv.value, options)
-})
+  workspace.value = Blockly.inject(blocklyDiv.value, options);
+});
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

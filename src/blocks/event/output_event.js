@@ -1,70 +1,69 @@
-
-import EventType from './type'
+import EventType from "./type";
+import * as Blockly from "blockly";
 
 const data = {
-  name: 'output_event'
-}
+  name: "output_event",
+};
 const block = {
   title: data.name,
   type: EventType.name,
   colour: EventType.colour,
   getBlockJson({ resource }) {
     const json = {
-      type: 'block_type',
-      message0: '输出事件 %1',
+      type: "block_type",
+      message0: Blockly.Msg.EVENT_OUTPUT[window.lg],
       args0: [
         {
-          type: 'field_dropdown',
-          name: 'Output',
+          type: "field_dropdown",
+          name: "Output",
           options: function () {
-            let opt = [['none', '']]
+            let opt = [["none", ""]];
 
             if (resource && resource.events && resource.events.outputs) {
-              const output = resource.events.outputs
+              const output = resource.events.outputs;
 
               output.forEach(({ title, uuid }) => {
-                opt.push([title, uuid])
-              })
+                opt.push([title, uuid]);
+              });
             }
-            return opt
-          }
-        }
+            return opt;
+          },
+        },
       ],
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
-      tooltip: '',
-      helpUrl: ''
-    }
-    return json
+      tooltip: "",
+      helpUrl: "",
+    };
+    return json;
   },
   getBlock: function (parameters) {
     const data = {
       init: function () {
-        const json = block.getBlockJson(parameters)
-        this.jsonInit(json)
-      }
-    }
-    return data
+        const json = block.getBlockJson(parameters);
+        this.jsonInit(json);
+      },
+    };
+    return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters)
+    return this.getLua(parameters);
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var output_event = block.getFieldValue('Output')
+      var output_event = block.getFieldValue("Output");
 
       // TODO: Assemble Lua into code variable.
-      var code =
-        "_G.event.trigger(index,'" + output_event + "')\n"
+      var code = "_G.event.trigger(index,'" + output_event + "')\n";
 
-      return code
-    }
-    return lua
+      return code;
+    };
+    return lua;
   },
   toolbox: {
-    kind: 'block',
-    type: data.name
-  }
-}
-export default block
+    kind: "block",
+    type: data.name,
+  },
+};
+export default block;

@@ -1,4 +1,4 @@
 export default {
-  name: 'Trigger',
+  name: "Trigger",
   colour: 250,
-}
+};

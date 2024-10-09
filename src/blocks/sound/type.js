@@ -1,4 +1,4 @@
 export default {
-  name: 'Sound',
-  colour: 120
-}
+  name: "Sound",
+  colour: 120,
+};

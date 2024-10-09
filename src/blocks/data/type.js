@@ -1,4 +1,4 @@
 export default {
-  name: 'Data',
+  name: "Data",
   colour: 230,
-}
+};
