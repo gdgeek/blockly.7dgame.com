@@ -18,12 +18,13 @@
  * @author dcoodien@gmail.com (Dylan Coodien)
  */
 
-import { onMounted, ref, shallowRef } from "vue";
+import { onMounted, ref, shallowRef, toRaw } from "vue";
 import * as Blockly from "blockly/core";
 import * as En from "blockly/msg/en";
 import * as Zh from "blockly/msg/zh-hans";
 import * as JA from "blockly/msg/ja";
 import "blockly/blocks";
+import { luaGenerator } from "blockly/lua";
 
 const urlParams = new URLSearchParams(window.location.search);
 const lg = urlParams.get("language");
@@ -46,8 +47,10 @@ onMounted(() => {
 
   const options = props.options || {};
   if (!options.toolbox) {
-    options.toolbox = blocklyToolbox.value;
+    // options.toolbox = blocklyToolbox.value;
+    options.toolbox = toRaw(blocklyToolbox.value); // 将代理对象转换为原始对象
   }
+  console.log("工具箱内容", options.toolbox);
   workspace.value = Blockly.inject(blocklyDiv.value, options);
 });
 </script>

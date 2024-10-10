@@ -22,52 +22,52 @@
  * @author dcoodien@google.com (Dylan Coodien)
  */
 
-import { onMounted, ref, nextTick } from 'vue'
-import * as Blockly from 'blockly'
-import BlocklyComponent from './components/BlocklyComponent.vue'
-import './blocks/stocks'
-import * as Custom from './custom'
-import { javascriptGenerator } from 'blockly/javascript'
-import { luaGenerator } from 'blockly/lua'
-window.URL = window.URL || window.webkitURL
+import { onMounted, ref, nextTick, watch } from "vue";
+import * as Blockly from "blockly";
+import BlocklyComponent from "./components/BlocklyComponent.vue";
+import "./blocks/stocks";
+import * as Custom from "./custom";
+import { javascriptGenerator } from "blockly/javascript";
+import { luaGenerator } from "blockly/lua";
+window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
-  window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder
+  window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
 const postMessage = (action, data = {}) => {
-  window.parent.postMessage({ action, data, from: 'script.blockly' }, '*')
-}
+  window.parent.postMessage({ action, data, from: "script.blockly" }, "*");
+};
 
 const save = (message) => {
-  const data = Blockly.serialization.workspaces.save(foo.value.workspace)
+  const data = Blockly.serialization.workspaces.save(foo.value.workspace);
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
-    postMessage('post:no-change')
+    postMessage("post:no-change");
   } else {
     const script =
-      message.language === 'js'
+      message.language === "js"
         ? javascriptGenerator.workspaceToCode(foo.value.workspace)
-        : luaGenerator.workspaceToCode(foo.value.workspace)
-    postMessage('post', {
+        : luaGenerator.workspaceToCode(foo.value.workspace);
+    postMessage("post", {
       language: message.language,
       script: script,
-      data: data
-    })
+      data: data,
+    });
 
-    oldValue = data
+    oldValue = data;
   }
-}
+};
 const init = (message) => {
-  console.error('init', message)
-  const toolbox = Custom.setup(message.style, message.parameters)
+  console.error("init", message);
+  const toolbox = Custom.setup(message.style, message.parameters);
   options.value = {
-    media: 'media/',
-    grid: { spacing: 20, length: 3, colour: '#ccc', snap: true },
+    media: "media/",
+    grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
     toolbox,
     move: {
       scrollbars: {
         horizontal: false,
-        vertical: true
+        vertical: true,
       },
       drag: true,
-      wheel: false
+      wheel: false,
     },
     zoom: {
       startScale: 1.0,
@@ -75,59 +75,106 @@ const init = (message) => {
       minScale: 0.3,
       controls: true,
       wheel: true,
-      pinch: true
-    }
-  }
+      pinch: true,
+    },
+  };
   nextTick(() => {
-    oldValue = message.data
-    Blockly.serialization.workspaces.load(message.data, foo.value.workspace)
-  })
-}
+    oldValue = message.data;
+    Blockly.serialization.workspaces.load(message.data, foo.value.workspace);
+
+    // const allBlocks = foo.value.workspace.getAllBlocks(false);
+    // console.log("初始化工作区块内容", allBlocks); // 打印工作区的块内容
+    // allBlocks.forEach((block) => {
+    //   const blockLuaCode = luaGenerator.blockToCode(block);
+    //   console.log(`块类型: ${block.type}, Lua 代码: ${blockLuaCode}`);
+    // });
+    luaCode();
+    jsCode();
+    const script =
+      message.language === "js"
+        ? javascriptGenerator.workspaceToCode(foo.value.workspace)
+        : luaGenerator.workspaceToCode(foo.value.workspace);
+    console.log("CODE", code.value);
+    postMessage("post", {
+      language: message.language,
+      script: JSON.stringify(code.value),
+      data: oldValue,
+    });
+  });
+};
 const handleMessage = async (message) => {
   try {
     //alert(message.data.action)
     if (!message.data || !message.data.action || !message.data.from) {
-      return
+      return;
     }
     if (
-      message.data.from !== 'script.meta.web' &&
-      message.data.from !== 'script.verse.web'
+      message.data.from !== "script.meta.web" &&
+      message.data.from !== "script.verse.web"
     ) {
-      return
+      return;
     }
 
-    const action = message.data.action
-    const data = message.data.data
-    if (action === 'init') {
-      init(data)
-    } else if (action === 'save') {
-      save(data)
+    const action = message.data.action;
+    const data = message.data.data;
+    if (action === "init") {
+      init(data);
+    } else if (action === "save") {
+      save(data);
     }
   } catch (e) {
-    console.error(e)
+    console.error(e);
   }
-}
-onMounted(() => {
-  window.addEventListener('message', handleMessage)
-  postMessage('ready')
-})
+};
+onMounted(async () => {
+  await window.addEventListener("message", handleMessage);
+  await postMessage("ready");
+});
 
-let oldValue = null
-const foo = ref()
-const code = ref()
-let options = ref()
+let oldValue = null;
+const foo = ref();
+const code = ref({
+  lua: "",
+  javascript: "",
+});
+
+let options = ref();
 
 function luaCode() {
-  code.value = luaGenerator.workspaceToCode(foo.value.workspace)
+  if (foo.value && foo.value.workspace) {
+    console.log("foo.value.workspace", foo.value.workspace);
+    const blockCount = foo.value.workspace.getAllBlocks(false).length;
+    if (blockCount === 0) {
+      console.log("工作区为空，无法生成 Lua 代码");
+    } else {
+      code.value.lua = luaGenerator.workspaceToCode(foo.value.workspace);
+      console.log("Lua 代码：", code.value);
+    }
+  }
 }
 
-const jsCode = () =>
-  (code.value = javascriptGenerator.workspaceToCode(foo.value.workspace))
+function jsCode() {
+  if (foo.value && foo.value.workspace) {
+    const blockCount = foo.value.workspace.getAllBlocks(false).length;
+    if (blockCount === 0) {
+      console.log("工作区为空，无法生成 JavaScript 代码");
+    } else {
+      code.value.javascript = javascriptGenerator.workspaceToCode(
+        foo.value.workspace
+      );
+      console.log("JavaScript 代码：", code.value);
+    }
+  }
+}
+
+defineExpose({
+  code,
+});
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: "Avenir", Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
