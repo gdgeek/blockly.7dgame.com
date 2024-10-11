@@ -41,13 +41,15 @@ const save = (message) => {
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postMessage("post:no-change");
   } else {
+    luaCode();
+    jsCode();
     const script =
       message.language === "js"
         ? javascriptGenerator.workspaceToCode(foo.value.workspace)
         : luaGenerator.workspaceToCode(foo.value.workspace);
     postMessage("post", {
       language: message.language,
-      script: script,
+      script: JSON.stringify(code.value),
       data: data,
     });
 
@@ -146,6 +148,7 @@ function luaCode() {
     const blockCount = foo.value.workspace.getAllBlocks(false).length;
     if (blockCount === 0) {
       console.log("工作区为空，无法生成 Lua 代码");
+      code.value.lua = "";
     } else {
       code.value.lua = luaGenerator.workspaceToCode(foo.value.workspace);
       console.log("Lua 代码：", code.value);
@@ -158,6 +161,7 @@ function jsCode() {
     const blockCount = foo.value.workspace.getAllBlocks(false).length;
     if (blockCount === 0) {
       console.log("工作区为空，无法生成 JavaScript 代码");
+      code.value.javascript = "";
     } else {
       code.value.javascript = javascriptGenerator.workspaceToCode(
         foo.value.workspace
