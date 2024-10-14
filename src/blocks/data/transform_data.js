@@ -12,7 +12,7 @@ const block = {
       init: function () {
         this.jsonInit({
           type: data.name,
-          message0: "Position %1 Rotate %2 Scale %3",
+          message0: Blockly.Msg.DATA_TRANSFORM_DATA[window.lg],
           args0: [
             {
               type: "input_value",

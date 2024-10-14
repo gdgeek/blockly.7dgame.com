@@ -7,6 +7,13 @@ if (lg === "zh-cn") {
 }
 window.lg = lg; // 将 lg 挂载到全局 window 对象上
 
+// data
+Blockly.Msg.DATA_TRANSFORM_DATA = {
+  zh: "位置 %1 旋转 %2 缩放 %3",
+  en: "Position %1 Rotate %2 Scale %3",
+  ja: "位置 %1 回転 %2 スケール %3",
+};
+
 // 任务
 Blockly.Msg.TASK_TWEEN_TO_DATA = {
   zh: "物体 %1 移动到 %2 用时 %3 %4 差值方式 %5",
