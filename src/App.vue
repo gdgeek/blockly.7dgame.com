@@ -41,15 +41,18 @@ const save = (message) => {
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postMessage("post:no-change");
   } else {
-    luaCode();
-    jsCode();
+    // luaCode();
+    // jsCode();
     const script =
       message.language === "js"
         ? javascriptGenerator.workspaceToCode(foo.value.workspace)
         : luaGenerator.workspaceToCode(foo.value.workspace);
+
+    console.log("Script", script);
     postMessage("post", {
       language: message.language,
-      script: JSON.stringify(code.value),
+      // script: JSON.stringify(code.value),
+      script: JSON.stringify(script),
       data: data,
     });
 
@@ -90,16 +93,17 @@ const init = (message) => {
     //   const blockLuaCode = luaGenerator.blockToCode(block);
     //   console.log(`块类型: ${block.type}, Lua 代码: ${blockLuaCode}`);
     // });
-    luaCode();
-    jsCode();
+    // luaCode();
+    // jsCode();
     const script =
       message.language === "js"
         ? javascriptGenerator.workspaceToCode(foo.value.workspace)
         : luaGenerator.workspaceToCode(foo.value.workspace);
-    console.log("CODE", code.value);
+    console.log("SCRIPT", script);
     postMessage("post", {
       language: message.language,
-      script: JSON.stringify(code.value),
+      // script: JSON.stringify(code.value),
+      script: JSON.stringify(script),
       data: oldValue,
     });
   });
