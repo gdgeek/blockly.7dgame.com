@@ -93,21 +93,27 @@ const init = (message) => {
     //   const blockLuaCode = luaGenerator.blockToCode(block);
     //   console.log(`块类型: ${block.type}, Lua 代码: ${blockLuaCode}`);
     // });
-    // luaCode();
-    // jsCode();
-    const script =
-      message.language === "js"
-        ? javascriptGenerator.workspaceToCode(foo.value.workspace)
-        : luaGenerator.workspaceToCode(foo.value.workspace);
-    console.log("SCRIPT", script);
-    postMessage("post", {
-      language: message.language,
-      // script: JSON.stringify(code.value),
-      script: JSON.stringify(script),
-      data: oldValue,
-    });
+
+    // 添加工作区变化的监听器
+    foo.value.workspace.addChangeListener(onWorkspaceChange);
+    updateLuaCode();
   });
 };
+
+// 更新 Lua 代码并发送到主页面
+const updateLuaCode = () => {
+  if (foo.value && foo.value.workspace) {
+    const script = luaGenerator.workspaceToCode(foo.value.workspace);
+    console.log("更新Lua 代码：", code.value.lua);
+    postMessage("update-lua", { script: JSON.stringify(script) });
+  }
+};
+
+// 处理工作区变化
+const onWorkspaceChange = () => {
+  updateLuaCode();
+};
+
 const handleMessage = async (message) => {
   try {
     //alert(message.data.action)
