@@ -6,8 +6,44 @@ if (lg === "zh-cn") {
   lg = "zh";
 }
 window.lg = lg; // 将 lg 挂载到全局 window 对象上
+console.log("当前语言是: ", window.lg); // 在这里输出当前语言
+
+export const LOGIC_NAME = {
+  zh: "逻辑",
+  en: "Logic",
+  ja: "ロジック",
+};
+
+export const LOOP_NAME = {
+  zh: "循环",
+  en: "Loop",
+  ja: "ループ",
+};
+
+export const MATH_NAME = {
+  zh: "数学",
+  en: "Math",
+  ja: "数学",
+};
+
+export const TEXTS_NAME = {
+  zh: "文本",
+  en: "Texts",
+  ja: "テキスト",
+};
+
+export const LIST_NAME = {
+  zh: "列表",
+  en: "List",
+  ja: "リスト",
+};
 
 // data
+export const DATA_NAME = {
+  zh: "数据",
+  en: "Data",
+  ja: "データ",
+};
 Blockly.Msg.DATA_TRANSFORM_DATA = {
   zh: "位置 %1 旋转 %2 缩放 %3",
   en: "Position %1 Rotate %2 Scale %3",
@@ -15,6 +51,11 @@ Blockly.Msg.DATA_TRANSFORM_DATA = {
 };
 
 // 任务
+export const TASK_NAME = {
+  zh: "任务",
+  en: "Task",
+  ja: "タスク",
+};
 Blockly.Msg.TASK_TWEEN_TO_DATA = {
   zh: "物体 %1 移动到 %2 用时 %3 %4 差值方式 %5",
   en: "Move object %1 to %2 in %3 %4 easing method %5",
@@ -57,6 +98,11 @@ Blockly.Msg.TASK_SYSTEM_TASK = {
 };
 
 // 参数
+export const PARAMETER_NAME = {
+  zh: "参数",
+  en: "Parameter",
+  ja: "パラメーター",
+};
 Blockly.Msg.PARAMETER_BOOLEAN = {
   zh: "布尔参数! %1",
   en: "Boolean parameter! %1",
@@ -114,6 +160,11 @@ Blockly.Msg.PARAMETER_POINT = {
 };
 
 // Meta
+export const META_NAME = {
+  zh: "组件",
+  en: "Meta",
+  ja: "メタ",
+};
 Blockly.Msg.META_ACTION = {
   zh: "动作 %1 %2 %3",
   en: "Action %1 %2 %3",
@@ -126,6 +177,11 @@ Blockly.Msg.META_RUN = {
 };
 
 // Trigger
+export const TRIGGER_NAME = {
+  zh: "动作",
+  en: "Action",
+  ja: "アクション",
+};
 Blockly.Msg.TRIGGER_ACTION_EXECUTE = {
   zh: "动作 %1 %2",
   en: "Action %1 %2",
@@ -153,6 +209,11 @@ Blockly.Msg.TRIGGER_UPDATE = {
 };
 
 // Event
+export const EVENT_NAME = {
+  zh: "事件",
+  en: "Event",
+  ja: "イベント",
+};
 Blockly.Msg.EVENT_INPUT = {
   zh: "输入事件 %1 %2 %3",
   en: "Input Event %1 %2 %3",
@@ -165,6 +226,11 @@ Blockly.Msg.EVENT_OUTPUT = {
 };
 
 // 实体entity
+export const ENTITY_NAME = {
+  zh: "实体",
+  en: "Entity",
+  ja: "エンティティ",
+};
 Blockly.Msg.ENTITY_ENTITY = {
   zh: "实体 %1",
   en: "Entity %1",
@@ -177,6 +243,11 @@ Blockly.Msg.ENTITY_VISUAL_EXECUTE = {
 };
 
 // 模型ploygen
+export const POLYGEN_NAME = {
+  zh: "模型",
+  en: "Polygen",
+  ja: "ポリゴン",
+};
 Blockly.Msg.POLYGEN_POLYGEN_ENTITY = {
   zh: "模型 %1",
   en: "Polygen %1",
@@ -189,6 +260,11 @@ Blockly.Msg.POLYGEN_PLAY_ANIMATION = {
 };
 
 // 图片picture
+export const PICTURE_NAME = {
+  zh: "图片",
+  en: "Picture",
+  ja: "画像",
+};
 Blockly.Msg.PICTURE_PICTURE = {
   zh: "图片 %1",
   en: "Picture %1",
@@ -196,6 +272,11 @@ Blockly.Msg.PICTURE_PICTURE = {
 };
 
 // 文字text
+export const TEXT_NAME = {
+  zh: "文字",
+  en: "Text",
+  ja: "テキスト",
+};
 Blockly.Msg.TEXT_TEXT = {
   zh: "文字 %1",
   en: "Text %1",
@@ -208,6 +289,11 @@ Blockly.Msg.TEXT_SET = {
 };
 
 // 音频sound
+export const SOUND_NAME = {
+  zh: "音频",
+  en: "Audio",
+  ja: "サウンド",
+};
 Blockly.Msg.SOUND_SOUND = {
   zh: "音频 %1",
   en: "Audio %1",
@@ -220,6 +306,11 @@ Blockly.Msg.SOUND_PLAY = {
 };
 
 // 体素voxel
+export const VOXEL_NAME = {
+  zh: "体素",
+  en: "Voxel",
+  ja: "ボクセル",
+};
 Blockly.Msg.VOXEL_VOXEL = {
   zh: "体素 %1",
   en: "Voxel %1",
@@ -227,6 +318,11 @@ Blockly.Msg.VOXEL_VOXEL = {
 };
 
 // 其他other
+export const OTHER_NAME = {
+  zh: "其他",
+  en: "Other",
+  ja: "その他",
+};
 Blockly.Msg.OTHER_SLEEP = {
   zh: "休眠 %1 秒",
   en: "Sleep %1 seconds",
@@ -234,6 +330,11 @@ Blockly.Msg.OTHER_SLEEP = {
 };
 
 // 信号signal
+export const SIGNAL_NAME = {
+  zh: "信号",
+  en: "Signal",
+  ja: "シグナル",
+};
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
   zh: "触发信号 %1",
   en: "Trigger signal %1",
@@ -253,4 +354,16 @@ Blockly.Msg.SIGNAL_INIT_SIGNAL = {
   zh: "启动信号 %1 %2",
   en: "Start signal %1 %2",
   ja: "信号 %1 を開始する",
+};
+
+export const VARIABLE_NAME = {
+  zh: "变量",
+  en: "Variable",
+  ja: "変数",
+};
+
+export const PROCEDURE_NAME = {
+  zh: "函数",
+  en: "Procedure",
+  ja: "プロシージャ",
 };

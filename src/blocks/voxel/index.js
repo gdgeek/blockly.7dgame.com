@@ -1,11 +1,11 @@
 import Type from "./type";
 import VoxelEntity from "./voxel_entity";
 import { RegisterData, SetupIt } from "../helper";
-
+import { VOXEL_NAME } from "../../localization/index";
 const VoxelCategory = {
   kind: "category",
   // name: "体素",
-  name: "Voxel",
+  name: VOXEL_NAME[window.lg],
   colour: Type.colour,
   contents: [VoxelEntity.toolbox],
 };

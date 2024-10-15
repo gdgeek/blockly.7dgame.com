@@ -1,13 +1,13 @@
 import Type from "./type";
 import { RegisterData, SetupIt } from "../helper";
-
+import { TRIGGER_NAME } from "../../localization/index";
 import ActionTrigger from "./action_trigger";
 //import ActionExecute from "./action_execute";
 import InitTrigger from "./init_trigger";
 
 const Category = {
   kind: "category",
-  name: "Action",
+  name: TRIGGER_NAME[window.lg],
   colour: Type.colour,
   contents: [
     ActionTrigger.toolbox,
