@@ -1,10 +1,11 @@
 import Type from "./type";
 import PictureEntity from "./picture_entity";
 import { RegisterData, SetupIt } from "../helper";
+import { PICTURE_NAME } from "../../localization/index";
 const Category = {
   kind: "category",
   // name: "图片",
-  name: "Picture",
+  name: PICTURE_NAME[window.lg],
   colour: Type.colour,
   contents: [PictureEntity.toolbox],
 };

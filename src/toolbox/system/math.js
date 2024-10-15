@@ -4,210 +4,209 @@
      
     </category>
 */
-
+import { MATH_NAME } from "../../localization/index";
 export default {
-  kind: 'category',
-  name: 'Math',
-  colour: '%{BKY_MATH_HUE}',
+  kind: "category",
+  name: MATH_NAME[window.lg],
+  colour: "%{BKY_MATH_HUE}",
 
   contents: [
     {
-      kind: 'block',
-      type: 'math_number',
+      kind: "block",
+      type: "math_number",
       fields: {
-        NUM: 123
-      }
+        NUM: 123,
+      },
     },
     {
-      kind: 'block',
-      type: 'math_arithmetic',
+      kind: "block",
+      type: "math_arithmetic",
       fields: {
-        OP: 'ADD'
+        OP: "ADD",
       },
       inputs: {
         A: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 1
-            }
-          }
+              NUM: 1,
+            },
+          },
         },
         B: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 1
-            }
-          }
-        }
-      }
+              NUM: 1,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_single',
+      kind: "block",
+      type: "math_single",
       inputs: {
         NUM: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 9
-            }
-          }
-        }
-      }
+              NUM: 9,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_trig',
+      kind: "block",
+      type: "math_trig",
       inputs: {
         NUM: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 45
-            }
-          }
-        }
-      }
+              NUM: 45,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_constant'
+      kind: "block",
+      type: "math_constant",
     },
     {
-      kind: 'block',
-      type: 'math_number_property',
+      kind: "block",
+      type: "math_number_property",
       inputs: {
         NUMBER_TO_CHECK: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 0
-            }
-          }
-        }
-      }
+              NUM: 0,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_round',
+      kind: "block",
+      type: "math_round",
       inputs: {
         NUM: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 3.1
-            }
-          }
-        }
-      }
+              NUM: 3.1,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_on_list'
+      kind: "block",
+      type: "math_on_list",
     },
     {
-      kind: 'block',
-      type: 'math_modulo',
+      kind: "block",
+      type: "math_modulo",
       inputs: {
         DIVIDEND: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 64
-            }
-          }
+              NUM: 64,
+            },
+          },
         },
         DIVISOR: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 10
-            }
-          }
-        }
-      }
+              NUM: 10,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_constrain',
+      kind: "block",
+      type: "math_constrain",
       inputs: {
         VALUE: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 50
-            }
-          }
+              NUM: 50,
+            },
+          },
         },
         LOW: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 1
-            }
-          }
+              NUM: 1,
+            },
+          },
         },
         HIGH: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 100
-            }
-          }
-        }
-      }
+              NUM: 100,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'math_random_int',
+      kind: "block",
+      type: "math_random_int",
       inputs: {
         FROM: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 1
-            }
-          }
+              NUM: 1,
+            },
+          },
         },
         TO: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 100
-            }
-          }
-        }
-      }
+              NUM: 100,
+            },
+          },
+        },
+      },
     },
 
     {
-      kind: 'block',
-      type: 'math_random_float'
+      kind: "block",
+      type: "math_random_float",
     },
     {
-      kind: 'block',
-      type: 'math_atan2',
+      kind: "block",
+      type: "math_atan2",
       inputs: {
         X: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 1
-            }
-          }
+              NUM: 1,
+            },
+          },
         },
         Y: {
           shadow: {
-            type: 'math_number',
+            type: "math_number",
             fields: {
-              NUM: 1
-            }
-          }
-        }
-      }
-    }
-  ]
-
-}
+              NUM: 1,
+            },
+          },
+        },
+      },
+    },
+  ],
+};

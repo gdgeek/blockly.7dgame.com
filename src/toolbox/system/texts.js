@@ -1,169 +1,168 @@
-
-
+import { TEXTS_NAME } from "../../localization/index";
 export default {
-  kind: 'category',
-  name: 'Texts',
-  colour: '%{BKY_TEXTS_HUE}',
+  kind: "category",
+  name: TEXTS_NAME[window.lg],
+  colour: "%{BKY_TEXTS_HUE}",
 
   contents: [
     {
-      kind: 'block',
-      type: 'text',
+      kind: "block",
+      type: "text",
       fields: {
-        TEXT: 'abc'
-      }
+        TEXT: "abc",
+      },
     },
     {
-      kind: 'block',
-      type: 'text_join'
+      kind: "block",
+      type: "text_join",
     },
     {
-      kind: 'block',
-      type: 'text_append',
+      kind: "block",
+      type: "text_append",
       inputs: {
         TEXT: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
+              TEXT: "abc",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_length',
+      kind: "block",
+      type: "text_length",
       inputs: {
         VALUE: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
+              TEXT: "abc",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_isEmpty',
+      kind: "block",
+      type: "text_isEmpty",
       inputs: {
         VALUE: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: null
-            }
-          }
-        }
-      }
+              TEXT: null,
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_indexOf',
+      kind: "block",
+      type: "text_indexOf",
       inputs: {
         VALUE: {
           block: {
-            type: 'variables_get',
+            type: "variables_get",
             fields: {
-              VAR: 'text'
-            }
-          }
+              VAR: "text",
+            },
+          },
         },
         FIND: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
+              TEXT: "abc",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_charAt',
+      kind: "block",
+      type: "text_charAt",
       inputs: {
         VALUE: {
           block: {
-            type: 'variables_get',
+            type: "variables_get",
             fields: {
-              VAR: 'text'
-            }
-          }
-        }
-      }
+              VAR: "text",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_getSubstring',
+      kind: "block",
+      type: "text_getSubstring",
       inputs: {
         STRING: {
           block: {
-            type: 'variables_get',
+            type: "variables_get",
             fields: {
-              VAR: 'text'
-            }
-          }
-        }
-      }
+              VAR: "text",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_changeCase',
+      kind: "block",
+      type: "text_changeCase",
       inputs: {
         TEXT: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
+              TEXT: "abc",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_trim',
+      kind: "block",
+      type: "text_trim",
       inputs: {
         TEXT: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
+              TEXT: "abc",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_print',
+      kind: "block",
+      type: "text_print",
       inputs: {
         TEXT: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
+              TEXT: "abc",
+            },
+          },
+        },
+      },
     },
     {
-      kind: 'block',
-      type: 'text_prompt_ext',
+      kind: "block",
+      type: "text_prompt_ext",
       inputs: {
         TEXT: {
           shadow: {
-            type: 'text',
+            type: "text",
             fields: {
-              TEXT: 'abc'
-            }
-          }
-        }
-      }
-    }
-  ]
-}
+              TEXT: "abc",
+            },
+          },
+        },
+      },
+    },
+  ],
+};

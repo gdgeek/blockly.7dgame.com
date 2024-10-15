@@ -8,10 +8,12 @@ import PlayerParameter from "./player_parameter";
 import RectangleParameter from "./rectangle_parameter";
 import PointParameter from "./point_parameter";
 import { RegisterData, SetupIt } from "../helper";
+import { PARAMETER_NAME } from "../../localization/index";
+
 const Category = {
   kind: "category",
   // name: "参数",
-  name: "Parameter",
+  name: PARAMETER_NAME[window.lg],
   colour: Type.colour,
   contents: [
     BooleanParameter.toolbox,

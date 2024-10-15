@@ -10,17 +10,12 @@ import TaskPlaySound from "./play_sound_task";
 import RunTask from "./run_task";
 import SleepTask from "./sleep_task";
 import "../../localization/index";
-
-// const urlParams = new URLSearchParams(window.location.search);
-// let lg = urlParams.get("language");
-// if (lg === "zh-cn") {
-//   lg = "zh"; // 将 'zh-cn' 转换为 'zh'
-// }
+import { TASK_NAME } from "../../localization/index";
 
 const Category = {
   kind: "category",
   // name: "任务",
-  name: "Task",
+  name: TASK_NAME[window.lg],
   colour: Type.colour,
   contents: [
     TweenToData.toolbox,

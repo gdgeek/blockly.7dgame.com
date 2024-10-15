@@ -4,13 +4,13 @@ import OutputSignal from "./output_signal";
 import OutputSignalWithParameter from "./output_signal_with_parameter";
 import InputSignal from "./input_signal";
 import InitSignal from "./init_signal";
-
+import { SIGNAL_NAME } from "../../localization/index";
 import { RegisterData, SetupIt } from "../helper";
 
 const Category = {
   kind: "category",
   // name: "信号",
-  name: "Signal",
+  name: SIGNAL_NAME[window.lg],
   colour: Type.colour,
   contents: [
     OutputSignal.toolbox,

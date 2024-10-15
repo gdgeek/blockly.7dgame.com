@@ -104,7 +104,7 @@ const init = (message) => {
 const updateLuaCode = () => {
   if (foo.value && foo.value.workspace) {
     const script = luaGenerator.workspaceToCode(foo.value.workspace);
-    console.log("更新Lua 代码：", code.value.lua);
+    console.log("更新Lua 代码：", script);
     postMessage("update-lua", { script: JSON.stringify(script) });
   }
 };
