@@ -5,7 +5,7 @@ import OutputEvent from "./output_event.js";
 import { RegisterData, SetupIt } from "../helper";
 const Category = {
   kind: "category",
-  name: "Event",
+  name: "Signal",
   colour: Type.colour,
   contents: [InputEvent.toolbox, OutputEvent.toolbox],
 };

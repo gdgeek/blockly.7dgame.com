@@ -18,7 +18,7 @@ const Procedure = {
   custom: 'PROCEDURE'
 }
 import *  as Data from '../blocks/data'
-import *  as Meta from '../blocks/meta'
+//import *  as Meta from '../blocks/meta'
 import *  as Trigger from '../blocks/trigger'
 import *  as Event from '../blocks/event'
 import *  as Task from '../blocks/task'
@@ -28,7 +28,7 @@ import *  as Picture from '../blocks/picture'
 import *  as Text from '../blocks/text'
 import *  as Sound from '../blocks/sound'
 import *  as Voxel from '../blocks/voxel'
-import *  as Other from '../blocks/other'
+//import *  as Other from '../blocks/other'
 import *  as Signal from '../blocks/signal'
 import *  as Parameter from '../blocks/parameter'
 
@@ -57,7 +57,6 @@ const setup = (style, parameters) => {
 
   toolbox.contents.push(sep)
   if (style.includes('meta')) {
-    Meta.Setup(toolbox, parameters)
     Trigger.Setup(toolbox, parameters)
     Event.Setup(toolbox, parameters)
     toolbox.contents.push(sep)
@@ -67,7 +66,7 @@ const setup = (style, parameters) => {
     Text.Setup(toolbox, parameters)
     Sound.Setup(toolbox, parameters)
     Voxel.Setup(toolbox, parameters)
-    Other.Setup(toolbox, parameters)
+    // Other.Setup(toolbox, parameters)
   }
   if (style.includes('verse')) {
     Signal.Setup(toolbox, parameters)
