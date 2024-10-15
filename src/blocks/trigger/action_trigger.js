@@ -20,10 +20,11 @@ const block = {
             let opt = [["none", ""]];
             if (resource && resource.action) {
               const action = resource.action;
-              //alert(JSON.stringify(action))
               action.forEach(({ name, uuid }) => {
                 if (name) {
                   opt.push([name, uuid]);
+                } else {
+                  opt.push([uuid, uuid]);
                 }
               });
             }

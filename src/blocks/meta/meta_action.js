@@ -9,16 +9,17 @@ const block = {
   type: TriggerType.name,
   colour: TriggerType.colour,
   getBlockJson({ resource }) {
+
+    alert(JSON.stringify(resource))
     const json = {
       type: data.name,
-      message0: Blockly.Msg.META_ACTION[window.lg],
+      message0: Blockly.Msg.META_ACTION[window.lg] + "!",
       args0: [
         {
           type: "field_dropdown",
           name: "Action",
           options: function () {
             let opt = [["none", ""]];
-
             if (resource && resource.action) {
               const action = resource.action;
               action.forEach(({ name, uuid }) => {
