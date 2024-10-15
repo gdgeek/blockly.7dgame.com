@@ -178,9 +178,9 @@ Blockly.Msg.META_RUN = {
 
 // Trigger
 export const TRIGGER_NAME = {
-  zh: "触发",
-  en: "Trigger",
-  ja: "トリガー",
+  zh: "动作",
+  en: "Action",
+  ja: "アクション",
 };
 Blockly.Msg.TRIGGER_ACTION_EXECUTE = {
   zh: "动作 %1 %2",

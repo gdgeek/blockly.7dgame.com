@@ -14,25 +14,25 @@ const Variable = {
   custom: "VARIABLE",
 };
 const Procedure = {
-  kind: 'category',
-  name: 'Procedure',
-  colour: '%{BKY_PROCEDURES_HUE}',
-  custom: 'PROCEDURE'
-}
-import *  as Data from '../blocks/data'
+  kind: "category",
+  name: PROCEDURE_NAME[window.lg],
+  colour: "%{BKY_PROCEDURES_HUE}",
+  custom: "PROCEDURE",
+};
+import * as Data from "../blocks/data";
 //import *  as Meta from '../blocks/meta'
-import *  as Trigger from '../blocks/trigger'
-import *  as Event from '../blocks/event'
-import *  as Task from '../blocks/task'
-import *  as Entity from '../blocks/entity'
-import *  as Polygen from '../blocks/polygen'
-import *  as Picture from '../blocks/picture'
-import *  as Text from '../blocks/text'
-import *  as Sound from '../blocks/sound'
-import *  as Voxel from '../blocks/voxel'
+import * as Trigger from "../blocks/trigger";
+import * as Event from "../blocks/event";
+import * as Task from "../blocks/task";
+import * as Entity from "../blocks/entity";
+import * as Polygen from "../blocks/polygen";
+import * as Picture from "../blocks/picture";
+import * as Text from "../blocks/text";
+import * as Sound from "../blocks/sound";
+import * as Voxel from "../blocks/voxel";
 //import *  as Other from '../blocks/other'
-import *  as Signal from '../blocks/signal'
-import *  as Parameter from '../blocks/parameter'
+import * as Signal from "../blocks/signal";
+import * as Parameter from "../blocks/parameter";
 
 const sep = {
   kind: "sep",
@@ -49,17 +49,17 @@ const setup = (style, parameters) => {
     Parameter.Setup(toolbox, parameters);
   }
 
-  toolbox.contents.push(sep)
-  if (style.includes('meta')) {
-    Trigger.Setup(toolbox, parameters)
-    Event.Setup(toolbox, parameters)
-    toolbox.contents.push(sep)
-    Entity.Setup(toolbox, parameters)
-    Polygen.Setup(toolbox, parameters)
-    Picture.Setup(toolbox, parameters)
-    Text.Setup(toolbox, parameters)
-    Sound.Setup(toolbox, parameters)
-    Voxel.Setup(toolbox, parameters)
+  toolbox.contents.push(sep);
+  if (style.includes("meta")) {
+    Trigger.Setup(toolbox, parameters);
+    Event.Setup(toolbox, parameters);
+    toolbox.contents.push(sep);
+    Entity.Setup(toolbox, parameters);
+    Polygen.Setup(toolbox, parameters);
+    Picture.Setup(toolbox, parameters);
+    Text.Setup(toolbox, parameters);
+    Sound.Setup(toolbox, parameters);
+    Voxel.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
   }
   if (style.includes("verse")) {

@@ -7,7 +7,7 @@ import InitTrigger from "./init_trigger";
 
 const Category = {
   kind: "category",
-  name: "Action",
+  name: TRIGGER_NAME[window.lg],
   colour: Type.colour,
   contents: [
     ActionTrigger.toolbox,

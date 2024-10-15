@@ -1,11 +1,11 @@
 import Type from "./type";
-import { EVENT_NAME } from "../../localization/index";
+import { SIGNAL_NAME } from "../../localization/index";
 import InputEvent from "./input_event.js";
 import OutputEvent from "./output_event.js";
 import { RegisterData, SetupIt } from "../helper";
 const Category = {
   kind: "category",
-  name: "Signal",
+  name: SIGNAL_NAME[window.lg],
   colour: Type.colour,
   contents: [InputEvent.toolbox, OutputEvent.toolbox],
 };
