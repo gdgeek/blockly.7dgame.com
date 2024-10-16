@@ -37,23 +37,16 @@ const postMessage = (action, data = {}) => {
 }
 
 const save = (message) => {
-  //alert(JSON.stringify(message))
   const data = Blockly.serialization.workspaces.save(foo.value.workspace)
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postMessage('post:no-change')
   } else {
-    /*const script =
-      message.language === 'js'
-        ? javascriptGenerator.workspaceToCode(foo.value.workspace)
-        : luaGenerator.workspaceToCode(foo.value.workspace)
-
-    console.log('Script', script)
-    */
     postMessage('post', {
       js: javascriptGenerator.workspaceToCode(foo.value.workspace),
       lua: luaGenerator.workspaceToCode(foo.value.workspace),
       data: data
     })
+    //alert(luaGenerator.workspaceToCode(foo.value.workspace))
 
     oldValue = data
   }
@@ -84,6 +77,8 @@ const init = (message) => {
   }
   nextTick(() => {
     oldValue = message.data
+
+    console.error(message.data)
     Blockly.serialization.workspaces.load(message.data, foo.value.workspace)
 
     // const allBlocks = foo.value.workspace.getAllBlocks(false);
@@ -129,7 +124,7 @@ const handleMessage = async (message) => {
 
     const action = message.data.action
     const data = message.data.data
-    //alert(JSON.stringify(data))
+
     if (action === 'init') {
       init(data)
     } else if (action === 'save') {
