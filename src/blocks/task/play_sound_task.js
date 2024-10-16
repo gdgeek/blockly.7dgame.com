@@ -41,8 +41,8 @@ const block = {
   getLua(parameters) {
     const lua = function (block, generator) {
       var sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-
-      return "_G.sound.play_task(" + sound + ")\n";
+      var code = "_G.sound.play_task(" + sound + ")\n";
+      return [code, generator.ORDER_NONE];
     };
     return lua;
   },
