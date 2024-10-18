@@ -356,9 +356,9 @@ Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_WITH_PARAMETER = {
   ja: "信号 %1 パラメーター %2 をトリガーする",
 };
 Blockly.Msg.SIGNAL_INIT_SIGNAL = {
-  zh: "启动信号 %1 %2",
-  en: "Start signal %1 %2",
-  ja: "信号 %1 を開始する",
+  zh: "初始化 %1 %2",
+  en: "Initialize %1 %2",
+  ja: "初期化 %1 %2",
 };
 
 export const VARIABLE_NAME = {
