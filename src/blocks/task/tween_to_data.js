@@ -67,6 +67,7 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
+
       var time = block.getFieldValue("Time");
       var easy = block.getFieldValue("Easy");
 
@@ -77,7 +78,7 @@ const block = {
         "Transform",
         generator.ORDER_ATOMIC
       );
-      // TODO: Assemble Lua into code variable.
+
       var code =
         "_G.tween.to_data(" +
         from +

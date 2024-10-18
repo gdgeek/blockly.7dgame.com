@@ -7,7 +7,7 @@ const data = {
 const block = {
   title: data.name,
   type: DataType.name,
-  getBlock({}) {
+  getBlock({ }) {
     const block = {
       init: function () {
         this.jsonInit({
@@ -40,14 +40,15 @@ const block = {
     };
     return block;
   },
-  getJavascript({}) {
+  getJavascript({ }) {
     const script = function (block, generator) {
-      return "aaa";
+      return ["", generator.ORDER_NONE];
     };
     return script;
   },
-  getLua({}) {
+  getLua({ }) {
     const lua = function (block, generator) {
+
       var value_position = generator.valueToCode(
         block,
         "position",
