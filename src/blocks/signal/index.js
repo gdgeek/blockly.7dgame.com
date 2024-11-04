@@ -21,6 +21,7 @@ const Category = {
 };
 
 function Register(parameters) {
+  console.log("register signal", parameters);
   RegisterData(OutputSignal, parameters);
   RegisterData(InputSignal, parameters);
   RegisterData(OutputSignalWithParameter, parameters);

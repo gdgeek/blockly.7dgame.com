@@ -18,8 +18,8 @@ const block = {
           name: "Output",
           options: function () {
             let opt = [["none", JSON.stringify({ index: "", uuid: "" })]];
-            if (resource && resource.events && resource.events.inputs) {
-              const output = resource.events.inputs;
+            if (resource && resource.events && resource.events.outputs) {
+              const output = resource.events.outputs;
 
               output.forEach(({ title, index, uuid }) => {
                 // alert(JSON.stringify({ index, uuid }))

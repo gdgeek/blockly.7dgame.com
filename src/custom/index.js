@@ -43,6 +43,7 @@ const toolbox = {
 };
 
 const setup = (style, parameters) => {
+  console.log("Parameters1", parameters);
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
     Task.Setup(toolbox, parameters);
