@@ -27,6 +27,7 @@ const block = {
                 opt.push([title, index + ":" + uuid]);
               });
             }
+            console.log("Opt", opt);
             return opt;
           },
         },

@@ -1,5 +1,6 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
+import { selectedPolygenUuid } from "./polygen_entity";
 
 const data = {
   name: "play_animation",
@@ -8,15 +9,37 @@ const block = {
   title: data.name,
   type: DataType.name,
   colour: DataType.colour,
-  getBlockJson(parameters) {
+  getBlockJson({ resource }) {
     const json = {
-      type: "block_type",
+      type: data.name,
       message0: Blockly.Msg.POLYGEN_PLAY_ANIMATION[window.lg],
       args0: [
         {
-          type: "field_input",
+          type: "field_dropdown",
           name: "animation",
-          text: "idle",
+          options: function () {
+            let opt = [["none", ""]];
+            if (resource && resource.polygen) {
+              // 如果选择了模型，则只显示该 polygen 的动画数据
+              if (selectedPolygenUuid) {
+                resource.polygen.forEach((poly) => {
+                  if (poly.uuid === selectedPolygenUuid) {
+                    poly.animations.forEach((animation) => {
+                      opt.push([animation, poly.uuid]);
+                    });
+                  }
+                });
+              } else {
+                // 如果没有绑定模型，显示所有 polygen 的动画数据
+                resource.polygen.forEach((poly) => {
+                  poly.animations.forEach((animation) => {
+                    opt.push([animation, poly.uuid]);
+                  });
+                });
+              }
+            }
+            return opt;
+          },
         },
         {
           type: "input_value",
@@ -24,6 +47,7 @@ const block = {
           check: "Polygen",
         },
       ],
+      output: "Polygen",
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
@@ -52,7 +76,6 @@ const block = {
         "polygen",
         generator.ORDER_NONE
       );
-      // TODO: Assemble Lua into code variable.
       var code =
         "_G.polygen.play_animation(" +
         value_polygen +
