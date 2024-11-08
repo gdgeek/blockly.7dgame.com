@@ -53,7 +53,7 @@ const block = {
   getLua(parameters) {
     const lua = function (block, generator) {
       var dropdown_polygen = block.getFieldValue("Polygen");
-      console.log("Dropdown ", dropdown_polygen);
+      // console.log("Dropdown ", dropdown_polygen);
       selectedPolygenUuid = dropdown_polygen;
       return [Handler(dropdown_polygen), generator.ORDER_NONE];
     };
