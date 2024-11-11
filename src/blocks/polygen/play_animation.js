@@ -24,17 +24,21 @@ const block = {
               if (selectedPolygenUuid) {
                 resource.polygen.forEach((poly) => {
                   if (poly.uuid === selectedPolygenUuid) {
-                    poly.animations.forEach((animation) => {
-                      opt.push([animation, animation]);
-                    });
+                    if (poly.animations) {
+                      poly.animations.forEach((animation) => {
+                        opt.push([animation, animation]);
+                      });
+                    }
                   }
                 });
               } else {
                 // 如果没有绑定模型，显示所有 polygen 的动画数据
                 resource.polygen.forEach((poly) => {
-                  poly.animations.forEach((animation) => {
-                    opt.push([animation, animation]);
-                  });
+                  if (poly.animations) {
+                    poly.animations.forEach((animation) => {
+                      opt.push([animation, animation]);
+                    });
+                  }
                 });
               }
             }
