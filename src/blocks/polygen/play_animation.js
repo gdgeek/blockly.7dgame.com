@@ -29,8 +29,6 @@ const block = {
                       poly.animations.forEach((animation) => {
                         opt.push([animation, animation]);
                       });
-                    } else {
-                      opt.push(["none", ""]);
                     }
                   }
                 });
@@ -41,8 +39,6 @@ const block = {
                     poly.animations.forEach((animation) => {
                       opt.push([animation, animation]);
                     });
-                  } else {
-                    opt.push(["none", ""]);
                   }
                 });
               }
