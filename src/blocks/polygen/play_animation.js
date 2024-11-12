@@ -20,6 +20,7 @@ const block = {
           options: function () {
             let opt = [["none", ""]];
             if (resource && resource.polygen) {
+              console.log("polygenResource", resource);
               // 如果选择了模型，则只显示该 polygen 的动画数据
               if (selectedPolygenUuid) {
                 resource.polygen.forEach((poly) => {
@@ -28,6 +29,8 @@ const block = {
                       poly.animations.forEach((animation) => {
                         opt.push([animation, animation]);
                       });
+                    } else {
+                      opt.push(["none", ""]);
                     }
                   }
                 });
@@ -38,10 +41,13 @@ const block = {
                     poly.animations.forEach((animation) => {
                       opt.push([animation, animation]);
                     });
+                  } else {
+                    opt.push(["none", ""]);
                   }
                 });
               }
             }
+            console.log("opt", opt);
             return opt;
           },
         },
