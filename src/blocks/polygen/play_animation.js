@@ -26,7 +26,7 @@ const block = {
                 resource.polygen.forEach((poly) => {
                   if (poly.uuid === selectedPolygenUuid) {
                     if (poly.animations) {
-                      poly.animations.forEach((animation) => {
+                      poly.animations?.forEach((animation) => {
                         opt.push([animation, animation]);
                       });
                     }
@@ -36,7 +36,7 @@ const block = {
                 // 如果没有绑定模型，显示所有 polygen 的动画数据
                 resource.polygen.forEach((poly) => {
                   if (poly.animations) {
-                    poly.animations.forEach((animation) => {
+                    poly.animations?.forEach((animation) => {
                       opt.push([animation, animation]);
                     });
                   }
