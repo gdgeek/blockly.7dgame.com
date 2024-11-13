@@ -19,11 +19,11 @@ const block = {
           options: function () {
             let opt = [["none", ""]];
 
-            if (resource && resource.events && resource.events.outputs) {
+            if (resource && resource.events && resource.events.inputs) {
               console.log("Resource", resource);
-              const outputs = resource.events.outputs;
+              const inputs = resource.events.inputs;
 
-              outputs.forEach(({ title, index, uuid }) => {
+              inputs.forEach(({ title, index, uuid }) => {
                 opt.push([title, index + ":" + uuid]);
               });
             }
