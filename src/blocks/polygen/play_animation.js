@@ -1,10 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import { selectedPolygenUuid } from "./polygen_entity";
 
 const data = {
   name: "play_animation",
 };
+
 const block = {
   title: data.name,
   type: DataType.name,
@@ -17,35 +17,7 @@ const block = {
         {
           type: "field_dropdown",
           name: "animation",
-          options: function () {
-            let opt = [["none", ""]];
-            if (resource && resource.polygen) {
-              console.log("polygenResource", resource);
-              // 如果选择了模型，则只显示该 polygen 的动画数据
-              if (selectedPolygenUuid) {
-                resource.polygen.forEach((poly) => {
-                  if (poly.uuid === selectedPolygenUuid) {
-                    if (poly.animations && Array.isArray(poly.animations)) {
-                      poly.animations?.forEach((animation) => {
-                        opt.push([animation, animation]);
-                      });
-                    }
-                  }
-                });
-              } else {
-                // 如果没有绑定模型，显示所有 polygen 的动画数据
-                resource.polygen.forEach((poly) => {
-                  if (poly.animations && Array.isArray(poly.animations)) {
-                    poly.animations?.forEach((animation) => {
-                      opt.push([animation, animation]);
-                    });
-                  }
-                });
-              }
-            }
-            console.log("opt", opt);
-            return opt;
-          },
+          options: [["none", ""]], // 默认选项，稍后动态更新
         },
         {
           type: "input_value",
@@ -53,7 +25,6 @@ const block = {
           check: "Polygen",
         },
       ],
-      output: "Polygen",
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
@@ -67,6 +38,46 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
+
+        // 设置块的更改事件
+        this.setOnChange(() => {
+          this.updateAnimationOptions(parameters.resource);
+        });
+      },
+      updateAnimationOptions: function (resource) {
+        // 获取连接的 polygen 块
+        const polygenBlock = this.getInputTargetBlock("polygen");
+        const selectedPolygenUuid = polygenBlock
+          ? polygenBlock.getFieldValue("Polygen")
+          : "";
+
+        // 根据连接的 polygen 块的 UUID 获取动画选项
+        let animationOptions = [["none", ""]];
+        if (resource && resource.polygen) {
+          const polygen = resource.polygen.find(
+            (poly) => poly.uuid === selectedPolygenUuid
+          );
+          if (
+            polygen &&
+            polygen.animations &&
+            Array.isArray(polygen.animations)
+          ) {
+            animationOptions = polygen.animations.map((animation) => [
+              animation,
+              animation,
+            ]);
+          }
+        }
+
+        // 更新动画下拉选项
+        const dropdownField = this.getField("animation");
+        if (dropdownField) {
+          // 设置新的选项生成器
+          dropdownField.menuGenerator_ = () => animationOptions;
+
+          // 强制刷新下拉框
+          dropdownField.forceRerender();
+        }
       },
     };
     return data;
@@ -76,18 +87,15 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var text_animation = block.getFieldValue("animation");
-      var value_polygen = generator.valueToCode(
+      const text_animation = block.getFieldValue("animation");
+      const value_polygen = generator.valueToCode(
         block,
         "polygen",
         generator.ORDER_NONE
       );
-      var code =
-        "_G.polygen.play_animation(" +
-        value_polygen +
-        "," +
-        JSON.stringify(text_animation) +
-        ")\n";
+      const code = `_G.polygen.play_animation(${value_polygen}, ${JSON.stringify(
+        text_animation
+      )})\n`;
       return code;
     };
     return lua;
@@ -97,4 +105,5 @@ const block = {
     type: data.name,
   },
 };
+
 export default block;

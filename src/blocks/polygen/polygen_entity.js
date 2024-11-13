@@ -2,11 +2,10 @@ import DataType from "./type";
 import { Handler } from "../helper";
 import * as Blockly from "blockly";
 
-let selectedPolygenUuid = "";
-
 const data = {
   name: "polygen_entity",
 };
+
 const block = {
   title: data.name,
   type: DataType.name,
@@ -22,7 +21,6 @@ const block = {
           options: function () {
             let opt = [["none", ""]];
             if (resource && resource.polygen) {
-              console.log("Polygen ", resource);
               const polygen = resource.polygen;
               polygen.forEach((poly) => {
                 opt.push([poly.name, poly.uuid]);
@@ -44,6 +42,23 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
+
+        // 添加监听器以触发下游动画块的更新
+        this.setOnChange(function () {
+          const selectedUuid = this.getFieldValue("Polygen");
+          this.selectedPolygenUuid = selectedUuid;
+
+          // 触发更新事件
+          Blockly.Events.fire(
+            new Blockly.Events.BlockChange(
+              this,
+              "field",
+              "Polygen",
+              "",
+              selectedUuid
+            )
+          );
+        });
       },
     };
     return data;
@@ -54,8 +69,6 @@ const block = {
   getLua(parameters) {
     const lua = function (block, generator) {
       var dropdown_polygen = block.getFieldValue("Polygen");
-      // console.log("Dropdown ", dropdown_polygen);
-      selectedPolygenUuid = dropdown_polygen;
       return [Handler(dropdown_polygen), generator.ORDER_NONE];
     };
     return lua;
@@ -65,5 +78,5 @@ const block = {
     type: data.name,
   },
 };
-export { selectedPolygenUuid };
+
 export default block;
