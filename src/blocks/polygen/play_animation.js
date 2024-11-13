@@ -62,10 +62,9 @@ const block = {
             polygen.animations &&
             Array.isArray(polygen.animations)
           ) {
-            animationOptions = polygen.animations.map((animation) => [
-              animation,
-              animation,
-            ]);
+            polygen.animations.forEach((animation) => {
+              animationOptions.push([animation, animation]);
+            });
           }
         }
 
