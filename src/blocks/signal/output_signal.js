@@ -19,6 +19,7 @@ const block = {
           options: function () {
             let opt = [["none", JSON.stringify({ index: "", uuid: "" })]];
             if (resource && resource.events && resource.events.inputs) {
+              alert(JSON.stringify(resource.events));
               const inputs = resource.events.inputs;
               inputs.forEach(({ title, index, uuid }) => {
                 opt.push([title, JSON.stringify({ index, uuid })]);
