@@ -346,9 +346,9 @@ Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
   ja: "信号 %1 をトリガーする",
 };
 Blockly.Msg.SIGNAL_INPUT_SIGNAL = {
-  zh: "接收信号 %1 %2 %3",
-  en: "Receive signal %1 %2 %3",
-  ja: "信号 %1 %2 %3 を受信する",
+  zh: "接收信号! %1 %2 %3",
+  en: "Receive! signal %1 %2 %3",
+  ja: "信号! %1 %2 %3 を受信する",
 };
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_WITH_PARAMETER = {
   zh: "触发信号 %1 参数 %2",
