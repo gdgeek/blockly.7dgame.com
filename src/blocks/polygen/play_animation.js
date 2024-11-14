@@ -37,6 +37,7 @@ const block = {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
+        console.log("JSON: ", json);
         this.jsonInit(json);
 
         // 设置块的更改事件

@@ -41,6 +41,7 @@ const block = {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
+        console.log("PolygenJSON: ", json);
         this.jsonInit(json);
 
         // 添加监听器以触发下游动画块的更新
