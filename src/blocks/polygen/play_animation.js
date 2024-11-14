@@ -17,7 +17,37 @@ const block = {
         {
           type: "field_dropdown",
           name: "animation",
-          options: [["none", ""]], // 默认选项，稍后动态更新
+          options: function () {
+            let opt = [["none", "none"]];
+            const selectedPolygenUuid = this.selectedPolygenUuid || "";
+
+            if (resource && resource.polygen) {
+              if (selectedPolygenUuid) {
+                resource.polygen.forEach((poly) => {
+                  if (poly.uuid === selectedPolygenUuid) {
+                    if (poly.animations) {
+                      poly.animations.forEach((animation) => {
+                        opt.push([animation, animation]);
+                      });
+                    } else {
+                      opt.push(["none", "none"]);
+                    }
+                  }
+                });
+              } else {
+                resource.polygen.forEach((poly) => {
+                  if (poly.animations) {
+                    poly.animations.forEach((animation) => {
+                      opt.push([animation, animation]);
+                    });
+                  } else {
+                    opt.push(["none", "none"]);
+                  }
+                });
+              }
+            }
+            return opt;
+          },
         },
         {
           type: "input_value",
@@ -37,46 +67,43 @@ const block = {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
-        console.log("JSON: ", json);
         this.jsonInit(json);
 
-        // 设置块的更改事件
+        // 模型切换获取更新对应动画选项
         this.setOnChange(() => {
-          this.updateAnimationOptions(parameters.resource);
+          this.updateAnimationOptions(parameters.resource, block.getBlockJson);
         });
       },
-      updateAnimationOptions: function (resource) {
+      updateAnimationOptions: function (resource, getBlockJson) {
         // 获取连接的 polygen 块
         const polygenBlock = this.getInputTargetBlock("polygen");
         const selectedPolygenUuid = polygenBlock
           ? polygenBlock.getFieldValue("Polygen")
           : "";
+        this.selectedPolygenUuid = selectedPolygenUuid;
 
-        // 根据连接的 polygen 块的 UUID 获取动画选项
-        let animationOptions = [["none", ""]];
-        if (resource && resource.polygen) {
-          const polygen = resource.polygen.find(
-            (poly) => poly.uuid === selectedPolygenUuid
-          );
-          if (
-            polygen &&
-            polygen.animations &&
-            Array.isArray(polygen.animations)
-          ) {
-            polygen.animations.forEach((animation) => {
-              animationOptions.push([animation, animation]);
-            });
-          }
+        // 更新动画下拉框选项
+        const field = this.getField("animation");
+
+        // 获取新的选项
+        const newOptions = getBlockJson({ resource }).args0[0].options.bind(
+          this
+        )();
+
+        // 如果 none 选项没有在新选项中，确保它被加到选项里
+        if (!newOptions.some((opt) => opt[1] === "none")) {
+          newOptions.unshift(["none", "none"]);
         }
 
-        // 更新动画下拉选项
-        const dropdownField = this.getField("animation");
-        if (dropdownField) {
-          // 设置新的选项生成器
-          dropdownField.menuGenerator_ = () => animationOptions;
+        // 设置新的选项
+        field.menuGenerator_ = newOptions;
 
-          // 强制刷新下拉框
-          dropdownField.forceRerender();
+        // 设置字段的值，确保字段值在选项中
+        const currentValue = field.getValue();
+        if (!newOptions.some((opt) => opt[1] === currentValue)) {
+          field.setValue("none"); // 如果当前值不可用，重置为 "none"
+        } else {
+          field.setValue(currentValue); // 否则保持当前值
         }
       },
     };

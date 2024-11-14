@@ -44,26 +44,32 @@ const block = {
         console.log("PolygenJSON: ", json);
         this.jsonInit(json);
 
-        // 添加监听器以触发下游动画块的更新
+        // 监听模型切换
         this.setOnChange(function () {
           const selectedUuid = this.getFieldValue("Polygen");
-          this.selectedPolygenUuid = selectedUuid;
 
-          // 触发更新事件
-          Blockly.Events.fire(
-            new Blockly.Events.BlockChange(
-              this,
-              "field",
-              "Polygen",
-              "",
-              selectedUuid
-            )
-          );
+          // 只有在 Polygen 的 UUID 改变时，才触发更新事件
+          if (this.selectedPolygenUuid !== selectedUuid) {
+            console.log("Selected Polygen UUID: ", selectedUuid);
+            this.selectedPolygenUuid = selectedUuid;
+
+            // 触发更新事件
+            Blockly.Events.fire(
+              new Blockly.Events.BlockChange(
+                this,
+                "field",
+                "Polygen",
+                "",
+                selectedUuid
+              )
+            );
+          }
         });
       },
     };
     return data;
   },
+
   getJavascript(parameters) {
     return this.getLua(parameters);
   },
