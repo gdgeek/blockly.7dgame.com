@@ -1,6 +1,7 @@
 import * as Blockly from "blockly";
 import EventType from "./type";
 import * as Helper from "../helper";
+import * as HelperJS from "../helperJS";
 const data = {
   name: "point_parameter",
 };
@@ -38,7 +39,11 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
+      return [`HelperJS.PointJS(${input})`, generator.ORDER_NONE];
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

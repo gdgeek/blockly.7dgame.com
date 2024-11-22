@@ -62,7 +62,26 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const js = function (block, generator) {
+      var time = block.getFieldValue("Time");
+      var easy = block.getFieldValue("Easy");
+
+      var from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
+      var to = generator.valueToCode(block, "To", generator.ORDER_ATOMIC);
+      // 组装 JavaScript 代码
+      var code =
+        "tween.to_object(" +
+        from +
+        ", " +
+        to +
+        ", " +
+        time +
+        ', "' +
+        easy +
+        '");';
+      return [code, generator.ORDER_NONE];
+    };
+    return js;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

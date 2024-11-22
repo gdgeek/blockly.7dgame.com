@@ -37,7 +37,20 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var statements_content = generator.statementToCode(block, "content");
+
+      var code =
+        "function init(parameter) {\n" +
+        "  let isPlaying = true;\n" +
+        "  console.log('init');\n" +
+        statements_content +
+        "  isPlaying = false;\n" +
+        "}\n";
+
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

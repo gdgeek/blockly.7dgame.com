@@ -42,7 +42,23 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const javascript = function (block, generator) {
+      var input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
+      var parameter = generator.valueToCode(
+        block,
+        "Parameter",
+        generator.ORDER_ATOMIC
+      );
+      var code = null;
+      if (parameter) {
+        code = "system.task(" + input + ", " + parameter + ");";
+      } else {
+        code = "system.task(" + input + ");";
+      }
+
+      return [code, generator.ORDER_NONE];
+    };
+    return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
@@ -53,10 +69,9 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      // TODO: Assemble Lua into code variable.
       var code = null;
       if (parameter) {
-        code = "_G.system.task(" + input + "," + parameter + ")";
+        code = "_G.system.task(" + input + ", " + parameter + ")";
       } else {
         code = "_G.system.task(" + input + ")";
       }

@@ -46,7 +46,19 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var value_anchor = generator.valueToCode(
+        block,
+        "Anchor",
+        generator.ORDER_ATOMIC
+      );
+
+      var number_radius = block.getFieldValue("Radius");
+      var code = `Helper.Range(${value_anchor}, ${number_radius});\n`;
+
+      return [code, generator.ORDER_NONE];
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

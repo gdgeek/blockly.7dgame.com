@@ -33,10 +33,18 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      return "temp";
+      const statements_content = generator.statementToCode(block, "content");
+      const code = `
+  meta['@init'] = function() {
+    console.log('@init');
+    ${statements_content}
+  };
+  `;
+      return code;
     };
     return script;
   },
+
   getLua(parameters) {
     const lua = function (block, generator) {
       var statements_content = generator.statementToCode(block, "content");

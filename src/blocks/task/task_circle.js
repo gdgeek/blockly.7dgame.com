@@ -44,7 +44,18 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const js = function (block, generator) {
+      var number_times = block.getFieldValue("Times");
+      var array = generator.valueToCode(
+        block,
+        "TaskArray",
+        generator.ORDER_ATOMIC
+      );
+
+      var code = `task.circle(${number_times}, ${array});\n`;
+      return [code, generator.ORDER_NONE];
+    };
+    return js;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

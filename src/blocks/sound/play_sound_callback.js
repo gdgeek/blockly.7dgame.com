@@ -37,7 +37,16 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var value_sound = generator.valueToCode(
+        block,
+        "sound",
+        generator.ORDER_NONE
+      );
+      var code = `const audio = new Audio(${value_sound});\naudio.play();\n`;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

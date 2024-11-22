@@ -70,8 +70,18 @@ const block = {
     return data;
   },
 
+  // getJavascript(parameters) {
+  //   return this.getLua(parameters);
+  // },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const javascript = function (block, generator) {
+      var dropdown_polygen = block.getFieldValue("Polygen");
+      return [
+        `handlePolygen(${JSON.stringify(dropdown_polygen)});`,
+        generator.ORDER_NONE,
+      ];
+    };
+    return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

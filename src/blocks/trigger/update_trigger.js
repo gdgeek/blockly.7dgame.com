@@ -33,7 +33,14 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      return "temp";
+      const statements_content = generator.statementToCode(block, "content");
+      const code = `
+  meta['@update'] = function(interval) {
+    console.log('@update');
+    ${statements_content}
+  };
+  `;
+      return code;
     };
     return script;
   },

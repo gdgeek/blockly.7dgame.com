@@ -9,8 +9,7 @@ const block = {
   type: TriggerType.name,
   colour: TriggerType.colour,
   getBlockJson({ resource }) {
-
-    alert(JSON.stringify(resource))
+    // alert(JSON.stringify(resource));
     const json = {
       type: data.name,
       message0: Blockly.Msg.META_ACTION[window.lg] + "!",
@@ -54,7 +53,18 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      return "temp";
+      const dropdown_option = block.getFieldValue("Action");
+      const statements_content = generator.statementToCode(block, "content");
+
+      const code = `
+  meta['@${dropdown_option}'] = function(parameter) {
+    let isPlaying = true;
+    console.log('${dropdown_option}');
+    ${statements_content}
+    isPlaying = false;
+  };
+  `;
+      return code;
     };
     return script;
   },

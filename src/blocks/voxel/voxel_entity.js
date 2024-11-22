@@ -1,5 +1,6 @@
 import DataType from "./type";
 import { Handler } from "../helper";
+import { HandlerJS } from "../helperJS";
 import * as Blockly from "blockly";
 
 const data = {
@@ -46,7 +47,11 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var dropdown = block.getFieldValue("Voxel");
+      return [HandlerJS(dropdown), generator.ORDER_NONE];
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

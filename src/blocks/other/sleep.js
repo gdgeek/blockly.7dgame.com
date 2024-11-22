@@ -40,7 +40,12 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      const time = block.getFieldValue("time");
+      const code = `helper.sync_sleep(${time});\n`;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

@@ -38,7 +38,11 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
+      return [`Helper.Number(${input})`, generator.ORDER_NONE];
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

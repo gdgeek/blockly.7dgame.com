@@ -48,7 +48,13 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      const output_event = block.getFieldValue("Output");
+
+      const code = `event.trigger(index, '${output_event}');\n`;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

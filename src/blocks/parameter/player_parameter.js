@@ -1,5 +1,6 @@
 import EventType from "./type";
 import * as Helper from "../helper";
+import * as HelperJS from "../helperJS";
 import * as Blockly from "blockly";
 const data = {
   name: "player_parameter",
@@ -51,7 +52,12 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var type = block.getFieldValue("PlayerType");
+      var id = generator.valueToCode(block, "Player", generator.ORDER_ATOMIC);
+      return [`HelperJS.PlayerJS(${type}, ${id})`, generator.ORDER_NONE];
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

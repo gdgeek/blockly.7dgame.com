@@ -34,7 +34,14 @@ const block = {
   },
   getJavascript({}) {
     const script = function (block, generator) {
-      return "temp";
+      const statements_content = generator.statementToCode(block, "content");
+      const code = `
+  meta['@destroy'] = function() {
+    console.log('@destroy');
+    ${statements_content}
+  };
+  `;
+      return code;
     };
     return script;
   },

@@ -41,9 +41,20 @@ const block = {
     };
     return block;
   },
+  // getJavascript({}) {
+  //   const javascript = function (block, generator) {
+  //     return "aaa";
+  //   };
+  //   return javascript;
+  // },
   getJavascript({}) {
     const javascript = function (block, generator) {
-      return "aaa";
+      const value_x = generator.valueToCode(block, "X", generator.ORDER_ATOMIC);
+      const value_y = generator.valueToCode(block, "Y", generator.ORDER_ATOMIC);
+      const value_z = generator.valueToCode(block, "Z", generator.ORDER_ATOMIC);
+      // Assemble JavaScript code
+      const code = `new Vector3(${value_x}, ${value_y}, ${value_z});`;
+      return [code, generator.ORDER_NONE];
     };
     return javascript;
   },

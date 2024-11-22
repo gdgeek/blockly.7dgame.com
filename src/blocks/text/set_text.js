@@ -42,7 +42,13 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const js = function (block, generator) {
+      var value = block.getFieldValue("value");
+      var text = generator.valueToCode(block, "text", generator.ORDER_NONE);
+      var code = `setText(${text}, ${JSON.stringify(value)});\n`;
+      return code;
+    };
+    return js;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

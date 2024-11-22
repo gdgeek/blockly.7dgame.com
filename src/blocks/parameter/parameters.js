@@ -36,7 +36,16 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var array = generator.valueToCode(
+        block,
+        "ParameterArray",
+        generator.ORDER_ATOMIC
+      );
+      const code = `helper.parameters(${array});\n`;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

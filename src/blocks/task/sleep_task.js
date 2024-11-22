@@ -35,8 +35,17 @@ const block = {
     };
     return data;
   },
+  // getJavascript(parameters) {
+  //   return this.getLua(parameters);
+  // },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const javascript = function (block, generator) {
+      const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
+      // Assemble JavaScript code
+      const code = `task.sleep(${time});`;
+      return [code, generator.ORDER_NONE];
+    };
+    return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

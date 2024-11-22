@@ -35,8 +35,20 @@ const block = {
     };
     return data;
   },
+  // getJavascript(parameters) {
+  //   return this.getLua(parameters);
+  // },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const javascript = function (block, generator) {
+      const animation = generator.valueToCode(
+        block,
+        "animation",
+        generator.ORDER_NONE
+      );
+      const code = `animation.playTask(${animation});\n`;
+      return [code, generator.ORDER_NONE];
+    };
+    return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

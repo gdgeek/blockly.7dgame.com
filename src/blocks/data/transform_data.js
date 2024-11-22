@@ -7,7 +7,7 @@ const data = {
 const block = {
   title: data.name,
   type: DataType.name,
-  getBlock({ }) {
+  getBlock({}) {
     const block = {
       init: function () {
         this.jsonInit({
@@ -40,15 +40,38 @@ const block = {
     };
     return block;
   },
-  getJavascript({ }) {
+  // getJavascript({}) {
+  //   const script = function (block, generator) {
+  //     return ["", generator.ORDER_NONE];
+  //   };
+  //   return script;
+  // },
+  getJavascript({}) {
     const script = function (block, generator) {
-      return ["", generator.ORDER_NONE];
+      const value_position = generator.valueToCode(
+        block,
+        "position",
+        generator.ORDER_ATOMIC
+      );
+      const value_scale = generator.valueToCode(
+        block,
+        "scale",
+        generator.ORDER_ATOMIC
+      );
+      const value_rotate = generator.valueToCode(
+        block,
+        "rotate",
+        generator.ORDER_ATOMIC
+      );
+      // TODO: Assemble JavaScript into code variable.
+      const code = `transform(${value_position}, ${value_rotate}, ${value_scale});`;
+      // TODO: Change ORDER_NONE to the correct strength.
+      return [code, generator.ORDER_NONE];
     };
     return script;
   },
-  getLua({ }) {
+  getLua({}) {
     const lua = function (block, generator) {
-
       var value_position = generator.valueToCode(
         block,
         "position",

@@ -56,7 +56,20 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var dropdown_option = block.getFieldValue("Event");
+      var statements_content = generator.statementToCode(block, "content");
+
+      var code = `function ${dropdown_option}(parameter) {
+    let isPlaying = true;
+    console.log('${dropdown_option}');
+    ${statements_content}
+    isPlaying = false;
+  }\n`;
+
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

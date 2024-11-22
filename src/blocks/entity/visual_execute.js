@@ -45,7 +45,22 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      const value_entity = generator.valueToCode(
+        block,
+        "entity",
+        generator.ORDER_NONE
+      );
+      const value_bool = generator.valueToCode(
+        block,
+        "bool",
+        generator.ORDER_ATOMIC
+      );
+
+      const code = `point.setVisual(${value_entity}, ${value_bool});\n`;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

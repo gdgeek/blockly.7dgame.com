@@ -50,7 +50,25 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const javascript = function (block, generator) {
+      var statements_content = generator.valueToCode(
+        block,
+        "content",
+        Blockly.JavaScript.ORDER_NONE
+      );
+
+      var dropdown_option = block.getFieldValue("Action");
+      var execute = "  task.execute(" + statements_content + ");\n";
+      var code =
+        "meta['@" +
+        dropdown_option +
+        "'] = function(parameter) {\n" +
+        execute +
+        "};\n";
+
+      return code;
+    };
+    return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

@@ -63,11 +63,33 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const js = function (block, generator) {
+      var time = block.getFieldValue("Time");
+      var easy = block.getFieldValue("Easy");
+
+      var from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
+      var transform = generator.valueToCode(
+        block,
+        "Transform",
+        generator.ORDER_ATOMIC
+      );
+
+      var code =
+        "tween.to_data(" +
+        from +
+        ", " +
+        transform +
+        ", " +
+        time +
+        ', "' +
+        easy +
+        '");';
+      return [code, generator.ORDER_NONE];
+    };
+    return js;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-
       var time = block.getFieldValue("Time");
       var easy = block.getFieldValue("Easy");
 

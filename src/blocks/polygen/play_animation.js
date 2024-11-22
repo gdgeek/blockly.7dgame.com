@@ -109,8 +109,23 @@ const block = {
     };
     return data;
   },
+  // getJavascript(parameters) {
+  //   return this.getLua(parameters);
+  // },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const javascript = function (block, generator) {
+      const text_animation = block.getFieldValue("animation");
+      const value_polygen = generator.valueToCode(
+        block,
+        "polygen",
+        generator.ORDER_NONE
+      );
+      const code = `polygen.playAnimation(${value_polygen}, ${JSON.stringify(
+        text_animation
+      )});\n`;
+      return code;
+    };
+    return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

@@ -52,7 +52,21 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      const dropdown_option = block.getFieldValue("Event");
+      const statements_content = generator.statementToCode(block, "content");
+
+      const code = `
+  meta['#${dropdown_option}'] = function(parameter) {
+    let isPlaying = true;
+    console.log('${dropdown_option}');
+    ${statements_content}
+    isPlaying = false;
+  };
+  `;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {

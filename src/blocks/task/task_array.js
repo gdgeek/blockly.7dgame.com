@@ -44,24 +44,37 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
-  },
-  getLua() {
-    const lua = function (block, generator) {
-      var type = block.getFieldValue("ArrayType");
-
-      var array = generator.valueToCode(
+    const javascript = function (block, generator) {
+      const type = block.getFieldValue("ArrayType");
+      const array = generator.valueToCode(
         block,
         "TaskArray",
         generator.ORDER_ATOMIC
       );
 
-      var code = '_G.task.array("' + type + '",' + array + ")\n";
+      const code = `task.array("${type}", ${array});\n`;
+
+      return [code, generator.ORDER_NONE];
+    };
+    return javascript;
+  },
+
+  getLua() {
+    const lua = function (block, generator) {
+      const type = block.getFieldValue("ArrayType");
+      const array = generator.valueToCode(
+        block,
+        "TaskArray",
+        generator.ORDER_ATOMIC
+      );
+
+      const code = `_G.task.array("${type}", ${array})\n`;
 
       return [code, generator.ORDER_NONE];
     };
     return lua;
   },
+
   toolbox: {
     kind: "block",
     type: data.name,

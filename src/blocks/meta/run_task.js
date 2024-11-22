@@ -39,7 +39,13 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      return "temp";
+      const statements_content = generator.valueToCode(
+        block,
+        "content",
+        generator.ORDER_NONE
+      );
+      const code = `task.execute(${statements_content});\n`;
+      return code;
     };
     return script;
   },

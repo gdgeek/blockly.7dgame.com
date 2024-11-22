@@ -54,7 +54,19 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var output_event = block.getFieldValue("Output");
+      const data = JSON.parse(output_event); // 解析 JSON 字符串
+      var parameter = generator.valueToCode(
+        block,
+        "Parameter",
+        generator.ORDER_ATOMIC
+      );
+
+      var code = `event.signal('${data.index}', '${data.uuid}', ${parameter});\n`;
+      return code;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
