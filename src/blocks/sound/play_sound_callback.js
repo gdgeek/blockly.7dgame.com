@@ -43,7 +43,7 @@ const block = {
         "sound",
         generator.ORDER_NONE
       );
-      var code = `const audio = new Audio(${value_sound});\naudio.play();\n`;
+      var code = `const audio = new Audio(${value_sound});\n  audio.play();\n`;
       return code;
     };
     return script;

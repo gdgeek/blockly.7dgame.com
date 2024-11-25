@@ -25,23 +25,19 @@ const block = {
               if (selectedPolygenUuid) {
                 resource.polygen.forEach((poly) => {
                   if (poly.uuid === selectedPolygenUuid) {
-                    if (poly.animations) {
+                    if (poly.animations && poly.animations.length > 0) {
                       poly.animations.forEach((animation) => {
                         opt.push([animation, animation]);
                       });
-                    } else {
-                      opt.push(["none", "none"]);
                     }
                   }
                 });
               } else {
                 resource.polygen.forEach((poly) => {
-                  if (poly.animations) {
+                  if (poly.animations && poly.animations.length > 0) {
                     poly.animations.forEach((animation) => {
                       opt.push([animation, animation]);
                     });
-                  } else {
-                    opt.push(["none", "none"]);
                   }
                 });
               }
@@ -90,11 +86,6 @@ const block = {
           this
         )();
 
-        // 如果 none 选项没有在新选项中，确保它被加到选项里
-        if (!newOptions.some((opt) => opt[1] === "none")) {
-          newOptions.unshift(["none", "none"]);
-        }
-
         // 设置新的选项
         field.menuGenerator_ = newOptions;
 
@@ -120,7 +111,7 @@ const block = {
         "polygen",
         generator.ORDER_NONE
       );
-      const code = `polygen.playAnimation(${value_polygen}, ${JSON.stringify(
+      const code = `  polygen.playAnimation(${value_polygen}, ${JSON.stringify(
         text_animation
       )});\n`;
       return code;
