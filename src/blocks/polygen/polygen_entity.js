@@ -77,7 +77,7 @@ const block = {
     const javascript = function (block, generator) {
       var dropdown_polygen = block.getFieldValue("Polygen");
       return [
-        `handlePolygen(${JSON.stringify(dropdown_polygen)});`,
+        `handlePolygen(${JSON.stringify(dropdown_polygen)})`,
         generator.ORDER_NONE,
       ];
     };

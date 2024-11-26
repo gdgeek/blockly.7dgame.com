@@ -42,12 +42,17 @@ const block = {
   // },
   getJavascript(parameters) {
     const javascript = function (block, generator) {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const code = `sound.playTask(${sound});\n`;
-      return [code, generator.ORDER_NONE];
+      var statements_content = generator.valueToCode(
+        block,
+        "content",
+        generator.ORDER_NONE
+      );
+      var execute = `task.execute(${statements_content});\n`;
+      return execute;
     };
     return javascript;
   },
+
   getLua(parameters) {
     const lua = function (block, generator) {
       var statements_content = generator.valueToCode(
