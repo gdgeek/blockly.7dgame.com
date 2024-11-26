@@ -44,7 +44,7 @@ const block = {
         "content",
         generator.ORDER_NONE
       );
-      const code = `task.execute(${statements_content});\n`;
+      const code = `task.execute(${statements_content})\n`;
       return code;
     };
     return script;

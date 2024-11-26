@@ -57,7 +57,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      const code = `point.setVisual(${value_entity}, ${value_bool});\n`;
+      const code = `point.setVisual(${value_entity}, ${value_bool})\n`;
       return code;
     };
     return script;

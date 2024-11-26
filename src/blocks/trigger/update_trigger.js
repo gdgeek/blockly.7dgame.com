@@ -36,9 +36,9 @@ const block = {
       const statements_content = generator.statementToCode(block, "content");
       const code = `
   meta['@update'] = function(interval) {
-    console.log('@update');
+    console.log('@update')
     ${statements_content}
-  };
+  }
   `;
       return code;
     };

@@ -12,15 +12,15 @@ function RegisterData(data, parameters) {
 
 // Helper function to generate code for different events and handlers
 function HandlerJS(uuid) {
-  return `helperJS.handlerJS(index, '${uuid}')`; // JavaScript style
+  return `helper.handler(index, '${uuid}')`; // JavaScript style
 }
 
 function InputEventJS(uuid) {
-  return `helperJS.inputEventJS(index, '${uuid}')`;
+  return `helper.inputEvent(index, '${uuid}')`;
 }
 
 function OutputEventJS(uuid) {
-  return `helperJS.outputEventJS(index, '${uuid}')`;
+  return `helper.outputEvent(index, '${uuid}')`;
 }
 
 // Number function to generate argument code

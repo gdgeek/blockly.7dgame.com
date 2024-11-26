@@ -47,7 +47,7 @@ const block = {
         "content",
         generator.ORDER_NONE
       );
-      var execute = `task.execute(${statements_content});\n`;
+      var execute = `task.execute(${statements_content})\n`;
       return execute;
     };
     return javascript;

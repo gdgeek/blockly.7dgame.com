@@ -42,7 +42,7 @@ const block = {
     const javascript = function (block, generator) {
       const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
       // Assemble JavaScript code
-      const code = `task.sleep(${time});`;
+      const code = `task.sleep(${time})`;
       return [code, generator.ORDER_NONE];
     };
     return javascript;

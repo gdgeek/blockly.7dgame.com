@@ -37,9 +37,9 @@ const block = {
       const statements_content = generator.statementToCode(block, "content");
       const code = `
   meta['@destroy'] = function() {
-    console.log('@destroy');
+    console.log('@destroy')
     ${statements_content}
-  };
+  }
   `;
       return code;
     };

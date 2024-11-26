@@ -54,7 +54,7 @@ const block = {
       );
 
       var number_radius = block.getFieldValue("Radius");
-      var code = `Helper.Range(${value_anchor}, ${number_radius});\n`;
+      var code = `Helper.Range(${value_anchor}, ${number_radius})\n`;
 
       return [code, generator.ORDER_NONE];
     };

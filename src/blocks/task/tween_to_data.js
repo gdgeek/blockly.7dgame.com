@@ -83,7 +83,7 @@ const block = {
         time +
         ', "' +
         easy +
-        '");';
+        '")';
       return [code, generator.ORDER_NONE];
     };
     return js;

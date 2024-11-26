@@ -41,7 +41,7 @@ const block = {
   getJavascript(parameters) {
     const javascript = function (block, generator) {
       const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const code = `sound.playTask(${sound});\n`;
+      const code = `sound.playTask(${sound})\n`;
       return [code, generator.ORDER_NONE];
     };
     return javascript;

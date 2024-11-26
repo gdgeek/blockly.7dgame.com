@@ -42,7 +42,7 @@ const block = {
         "ParameterArray",
         generator.ORDER_ATOMIC
       );
-      const code = `helper.parameters(${array});\n`;
+      const code = `helper.parameters(${array})\n`;
       return code;
     };
     return script;

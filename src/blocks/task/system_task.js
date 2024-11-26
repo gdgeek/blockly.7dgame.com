@@ -51,9 +51,9 @@ const block = {
       );
       var code = null;
       if (parameter) {
-        code = "system.task(" + input + ", " + parameter + ");";
+        code = "system.task(" + input + ", " + parameter + ")";
       } else {
-        code = "system.task(" + input + ");";
+        code = "system.task(" + input + ")";
       }
 
       return [code, generator.ORDER_NONE];

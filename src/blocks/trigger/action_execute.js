@@ -58,13 +58,13 @@ const block = {
       );
 
       var dropdown_option = block.getFieldValue("Action");
-      var execute = "  task.execute(" + statements_content + ");\n";
+      var execute = "  task.execute(" + statements_content + ")\n";
       var code =
         "meta['@" +
         dropdown_option +
         "'] = function(parameter) {\n" +
         execute +
-        "};\n";
+        "}\n";
 
       return code;
     };

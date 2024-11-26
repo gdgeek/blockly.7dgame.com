@@ -58,11 +58,11 @@ const block = {
 
       const code = `
   meta['@${dropdown_option}'] = function(parameter) {
-    let isPlaying = true;
-    console.log('${dropdown_option}');
+    let isPlaying = true
+    console.log('${dropdown_option}')
     ${statements_content}
-    isPlaying = false;
-  };
+    isPlaying = false
+  }
   `;
       return code;
     };

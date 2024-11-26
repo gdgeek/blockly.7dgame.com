@@ -52,7 +52,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      const code = `task.array("${type}", ${array});\n`;
+      const code = `task.array("${type}", ${array})\n`;
 
       return [code, generator.ORDER_NONE];
     };

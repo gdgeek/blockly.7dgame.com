@@ -45,7 +45,7 @@ const block = {
         "animation",
         generator.ORDER_NONE
       );
-      const code = `animation.playTask(${animation});\n`;
+      const code = `animation.playTask(${animation})\n`;
       return [code, generator.ORDER_NONE];
     };
     return javascript;

@@ -52,7 +52,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      var code = `task.circle(${number_times}, ${array});\n`;
+      var code = `task.circle(${number_times}, ${array})\n`;
       return [code, generator.ORDER_NONE];
     };
     return js;

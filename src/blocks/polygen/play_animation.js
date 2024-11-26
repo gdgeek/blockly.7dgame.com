@@ -113,7 +113,7 @@ const block = {
       );
       const code = `  polygen.playAnimation(${value_polygen}, ${JSON.stringify(
         text_animation
-      )});\n`;
+      )})\n`;
       return code;
     };
     return javascript;

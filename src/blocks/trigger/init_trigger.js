@@ -36,9 +36,9 @@ const block = {
       const statements_content = generator.statementToCode(block, "content");
       const code = `
   meta['@init'] = function() {
-    console.log('@init');
+    console.log('@init')
     ${statements_content}
-  };
+  }
   `;
       return code;
     };
