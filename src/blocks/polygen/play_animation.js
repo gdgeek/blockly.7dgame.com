@@ -33,12 +33,16 @@ const block = {
                   }
                 });
               } else {
+                const allAnimations = new Set();
                 resource.polygen.forEach((poly) => {
                   if (poly.animations && poly.animations.length > 0) {
                     poly.animations.forEach((animation) => {
-                      opt.push([animation, animation]);
+                      allAnimations.add(animation);
                     });
                   }
+                });
+                Array.from(allAnimations).forEach((animation) => {
+                  opt.push([animation, animation]);
                 });
               }
             }
