@@ -64,7 +64,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
       // TODO: Assemble JavaScript into code variable.
-      const code = `transform(${value_position}, ${value_rotate}, ${value_scale});`;
+      const code = `transform(${value_position}, ${value_rotate}, ${value_scale})`;
       // TODO: Change ORDER_NONE to the correct strength.
       return [code, generator.ORDER_NONE];
     };

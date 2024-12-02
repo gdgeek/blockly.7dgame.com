@@ -49,16 +49,19 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      var dropdown = block.getFieldValue("Sound");
-      return [HandlerJS(dropdown), generator.ORDER_NONE];
+      var dropdown_polygen = block.getFieldValue("Sound");
+      return [
+        `handleSound(${JSON.stringify(dropdown_polygen)})`,
+        generator.ORDER_NONE,
+      ];
     };
     return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown = block.getFieldValue("Sound");
+      var dropdown_polygen = block.getFieldValue("Sound");
 
-      return [Handler(dropdown), generator.ORDER_NONE];
+      return [Handler(dropdown_polygen), generator.ORDER_NONE];
     };
     return lua;
   },

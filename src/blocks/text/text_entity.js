@@ -49,8 +49,7 @@ const block = {
   getJavascript(parameters) {
     const javascript = function (block, generator) {
       const dropdown_text = block.getFieldValue("Text");
-      const code = `HandlerJS("${dropdown_text}")`;
-      return [code, generator.ORDER_NONE];
+      return [HandlerJS(dropdown_text), generator.ORDER_NONE];
     };
     return javascript;
   },

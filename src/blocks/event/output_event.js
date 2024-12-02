@@ -51,7 +51,7 @@ const block = {
     const script = function (block, generator) {
       const output_event = block.getFieldValue("Output");
 
-      const code = `event.trigger(index, '${output_event}')\n`;
+      const code = `event.trigger(index, '${output_event}');`;
       return code;
     };
     return script;

@@ -57,12 +57,12 @@ const block = {
       const statements_content = generator.statementToCode(block, "content");
 
       const code = `
-  meta['#${dropdown_option}'] = function(parameter) {
-    let isPlaying = true;
-    console.log('${dropdown_option}');
-    ${statements_content}
-    isPlaying = false;
-  };
+meta['#${dropdown_option}'] = function(parameter) {
+  let isPlaying = true;
+  console.log('${dropdown_option}');
+  ${statements_content}
+  isPlaying = false;
+};
   `;
       return code;
     };

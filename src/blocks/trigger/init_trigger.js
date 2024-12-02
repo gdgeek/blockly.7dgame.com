@@ -35,10 +35,10 @@ const block = {
     const script = function (block, generator) {
       const statements_content = generator.statementToCode(block, "content");
       const code = `
-  meta['@init'] = function() {
-    console.log('@init')
-    ${statements_content}
-  }
+meta['@init'] = function() {
+  console.log('@init');
+  ${statements_content}
+}\n
   `;
       return code;
     };
