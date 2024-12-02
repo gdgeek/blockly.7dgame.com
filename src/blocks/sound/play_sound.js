@@ -39,7 +39,7 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       var sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      var code = `sound.play(${sound})\n`;
+      var code = `await sound.play(${sound});\n`;
       return code;
     };
     return script;

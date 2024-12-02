@@ -58,7 +58,7 @@ const block = {
       );
 
       var dropdown_option = block.getFieldValue("Action");
-      var execute = "  task.execute(" + statements_content + ")\n";
+      var execute = "await task.execute(" + statements_content + ");\n";
       var code =
         "meta['@" +
         dropdown_option +
