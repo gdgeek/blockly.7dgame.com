@@ -3,9 +3,10 @@ import Loop from "../toolbox/system/loop";
 import Math from "../toolbox/system/math";
 import Texts from "../toolbox/system/texts";
 import List from "../toolbox/system/list";
-
+import * as Blockly from "blockly";
 import { VARIABLE_NAME } from "../localization/index";
 import { PROCEDURE_NAME } from "../localization/index";
+import { javascriptGenerator } from "blockly/javascript";
 
 const Variable = {
   kind: "category",
@@ -40,6 +41,78 @@ const sep = {
 const toolbox = {
   kind: "categoryToolbox",
   contents: [Logic, Loop, Math, Texts, List, sep],
+};
+
+// 重写Procedure生成器
+// const originalProceduresDefreturn =
+//   javascriptGenerator.forBlock["procedures_defreturn"];
+// const originalProceduresDefnoreturn =
+//   javascriptGenerator.forBlock["procedures_defnoreturn"];
+
+// 带返回值的异步函数生成器
+javascriptGenerator.forBlock["procedures_defreturn"] = function (block) {
+  const funcName = javascriptGenerator.nameDB_.getName(
+    block.getFieldValue("NAME"),
+    Blockly.Names.NameType.PROCEDURE
+  );
+
+  const args = [];
+  for (let i = 0; i < block.arguments_.length; i++) {
+    args[i] = javascriptGenerator.nameDB_.getName(
+      block.arguments_[i],
+      Blockly.Names.NameType.VARIABLE
+    );
+  }
+
+  const branch = javascriptGenerator.statementToCode(block, "STACK");
+  const returnValue =
+    javascriptGenerator.valueToCode(
+      block,
+      "RETURN",
+      javascriptGenerator.ORDER_NONE
+    ) || "";
+  let code = "";
+
+  code +=
+    "async function " + funcName + "(" + args.join(", ") + ") {\n" + branch;
+
+  if (returnValue) {
+    code += "  return " + returnValue + ";\n";
+  }
+  code += "}";
+
+  javascriptGenerator.definitions_["%" + funcName] = code;
+  return null;
+};
+
+// 不带返回值的异步函数生成器
+javascriptGenerator.forBlock["procedures_defnoreturn"] = function (block) {
+  const funcName = javascriptGenerator.nameDB_.getName(
+    block.getFieldValue("NAME"),
+    Blockly.Names.NameType.PROCEDURE
+  );
+
+  const args = [];
+  for (let i = 0; i < block.arguments_.length; i++) {
+    args[i] = javascriptGenerator.nameDB_.getName(
+      block.arguments_[i],
+      Blockly.Names.NameType.VARIABLE
+    );
+  }
+
+  const branch = javascriptGenerator.statementToCode(block, "STACK");
+
+  const code =
+    "async function " +
+    funcName +
+    "(" +
+    args.join(", ") +
+    ") {\n" +
+    branch +
+    "}";
+
+  javascriptGenerator.definitions_["%" + funcName] = code;
+  return null;
 };
 
 const setup = (style, parameters) => {
