@@ -55,7 +55,7 @@ const block = {
     const script = function (block, generator) {
       var type = block.getFieldValue("PlayerType");
       var id = generator.valueToCode(block, "Player", generator.ORDER_ATOMIC);
-      return [`HelperJS.PlayerJS(${type}, ${id})`, generator.ORDER_NONE];
+      return [HelperJS.PlayerJS(type, id), generator.ORDER_NONE];
     };
     return script;
   },

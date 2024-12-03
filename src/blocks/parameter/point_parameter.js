@@ -41,7 +41,7 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       var input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
-      return [`HelperJS.PointJS(${input})`, generator.ORDER_NONE];
+      return [HelperJS.PointJS(input), generator.ORDER_NONE];
     };
     return script;
   },
