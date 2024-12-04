@@ -8,15 +8,51 @@ const block = {
   title: data.name,
   type: DataType.name,
   colour: DataType.colour,
-  getBlockJson(parameters) {
+  getBlockJson({ resource }) {
     const json = {
-      type: "block_type",
+      type: data.name,
+      // message0: "播放动画 动画 %1 模型 %2 任务",
       message0: Blockly.Msg.TASK_PLAY_ANIMATION_TASK[window.lg],
       args0: [
         {
-          type: "input_value",
+          type: "field_dropdown",
           name: "animation",
-          check: "Animation",
+          options: function () {
+            let opt = [["none", "none"]];
+            const selectedPolygenUuid = this.selectedPolygenUuid || "";
+
+            if (resource && resource.polygen) {
+              if (selectedPolygenUuid) {
+                resource.polygen.forEach((poly) => {
+                  if (poly.uuid === selectedPolygenUuid) {
+                    if (poly.animations && poly.animations.length > 0) {
+                      poly.animations.forEach((animation) => {
+                        opt.push([animation, animation]);
+                      });
+                    }
+                  }
+                });
+              } else {
+                const allAnimations = new Set();
+                resource.polygen.forEach((poly) => {
+                  if (poly.animations && poly.animations.length > 0) {
+                    poly.animations.forEach((animation) => {
+                      allAnimations.add(animation);
+                    });
+                  }
+                });
+                Array.from(allAnimations).forEach((animation) => {
+                  opt.push([animation, animation]);
+                });
+              }
+            }
+            return opt;
+          },
+        },
+        {
+          type: "input_value",
+          name: "polygen",
+          check: "Polygen",
         },
       ],
       output: "Task",
@@ -31,33 +67,63 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
+
+        this.setOnChange(() => {
+          this.updateAnimationOptions(parameters.resource, block.getBlockJson);
+        });
+      },
+      updateAnimationOptions: function (resource, getBlockJson) {
+        const polygenBlock = this.getInputTargetBlock("polygen");
+        const selectedPolygenUuid = polygenBlock
+          ? polygenBlock.getFieldValue("Polygen")
+          : "";
+        this.selectedPolygenUuid = selectedPolygenUuid;
+
+        const field = this.getField("animation");
+        const newOptions = getBlockJson({ resource }).args0[0].options.bind(
+          this
+        )();
+        field.menuGenerator_ = newOptions;
+
+        const currentValue = field.getValue();
+        if (!newOptions.some((opt) => opt[1] === currentValue)) {
+          field.setValue("none");
+        } else {
+          field.setValue(currentValue); // 否则保持当前值
+        }
       },
     };
     return data;
   },
-  // getJavascript(parameters) {
-  //   return this.getLua(parameters);
-  // },
   getJavascript(parameters) {
     const javascript = function (block, generator) {
-      const animation = generator.valueToCode(
+      const animation = block.getFieldValue("animation");
+      const polygen = generator.valueToCode(
         block,
-        "animation",
+        "polygen",
         generator.ORDER_NONE
       );
-      const code = `animation.playTask(${animation})\n`;
+      const code = `animation.playTask(${polygen}, ${JSON.stringify(
+        animation
+      )})`;
       return [code, generator.ORDER_NONE];
     };
     return javascript;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var animation = generator.valueToCode(
+      const animation = block.getFieldValue("animation");
+      const polygen = generator.valueToCode(
         block,
-        "animation",
+        "polygen",
         generator.ORDER_NONE
       );
-      var code = "_G.animation.play_task(" + animation + ")\n";
+      const code =
+        "_G.animation.play_task(" +
+        polygen +
+        ", " +
+        JSON.stringify(animation) +
+        ")";
       return [code, generator.ORDER_NONE];
     };
     return lua;

@@ -12,6 +12,7 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
+      // message0: "播放模型动画 %1 %2",
       message0: Blockly.Msg.POLYGEN_PLAY_ANIMATION[window.lg],
       args0: [
         {
