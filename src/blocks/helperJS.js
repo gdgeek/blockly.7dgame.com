@@ -2,7 +2,6 @@ import * as Blockly from "blockly";
 import * as Lua from "blockly/lua";
 import * as Javascript from "blockly/javascript";
 
-// Register Data function for registering blocks and generators
 function RegisterData(data, parameters) {
   Blockly.Blocks[data.title] = data.getBlock(parameters);
   Lua.luaGenerator.forBlock[data.title] = data.getLua(parameters);
@@ -10,9 +9,8 @@ function RegisterData(data, parameters) {
     data.getJavascript(parameters);
 }
 
-// Helper function to generate code for different events and handlers
 function HandlerJS(uuid) {
-  return `helper.handler(index, '${uuid}')`; // JavaScript style
+  return `helper.handler(index, '${uuid}')`;
 }
 
 function InputEventJS(uuid) {
@@ -23,27 +21,22 @@ function OutputEventJS(uuid) {
   return `helper.outputEvent(index, '${uuid}')`;
 }
 
-// Number function to generate argument code
 function NumberJS(value) {
-  return `argument.number(${value})`; // JavaScript style
+  return `argument.number(${value})`;
 }
 
-// Boolean function to generate argument code
 function BooleanJS(value) {
   return `argument.boolean(${value})`;
 }
 
-// String function to generate argument code
 function StringJS(value) {
   return `argument.string(${value})`;
 }
 
-// Point function to generate argument code
 function PointJS(value) {
   return `argument.point(${value})`;
 }
 
-// Player function to generate player argument code based on type
 function PlayerJS(type, value) {
   switch (type) {
     case "index":
@@ -59,17 +52,14 @@ function PlayerJS(type, value) {
   }
 }
 
-// Anchor function to generate anchor argument code
 function AnchorJS(key) {
   return `argument.anchor('${key}')`;
 }
 
-// Range function to generate range argument code
 function RangeJS(anchor, radius) {
   return `argument.range(${anchor}, ${radius})`;
 }
 
-// Export all functions
 export {
   RegisterData,
   HandlerJS,
