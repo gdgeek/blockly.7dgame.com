@@ -41,7 +41,20 @@ const block = {
   getJavascript(parameters) {
     const javascript = function (block, generator) {
       const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const code = `sound.playTask(${sound})\n`;
+
+      // 检查这个块是否在数组赋值或变量赋值中使用
+      const parentBlock = block.getParent();
+      const isAssignment =
+        parentBlock &&
+        (parentBlock.type === "variables_set" ||
+          parentBlock.type === "math_change" ||
+          (parentBlock.type === "lists_setIndex" &&
+            block === parentBlock.getInputTargetBlock("TO")));
+
+      // 根据使用场景选择不同的方法
+      const methodName = isAssignment ? "createTask" : "playTask";
+      const code = `sound.${methodName}(${sound})`;
+
       return [code, generator.ORDER_NONE];
     };
     return javascript;

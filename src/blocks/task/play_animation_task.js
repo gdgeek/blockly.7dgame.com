@@ -103,9 +103,20 @@ const block = {
         "polygen",
         generator.ORDER_NONE
       );
-      const code = `animation.playTask(${polygen}, ${JSON.stringify(
+
+      const parentBlock = block.getParent();
+      const isAssignment =
+        parentBlock &&
+        (parentBlock.type === "variables_set" ||
+          parentBlock.type === "math_change" ||
+          (parentBlock.type === "lists_setIndex" &&
+            block === parentBlock.getInputTargetBlock("TO")));
+
+      const methodName = isAssignment ? "createTask" : "playTask";
+      const code = `animation.${methodName}(${polygen}, ${JSON.stringify(
         animation
       )})`;
+
       return [code, generator.ORDER_NONE];
     };
     return javascript;
