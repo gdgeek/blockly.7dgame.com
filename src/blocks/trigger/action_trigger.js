@@ -59,9 +59,9 @@ const block = {
       const dropdown_option = block.getFieldValue("Action");
       const statements_content = generator.statementToCode(block, "content");
       const code = `
-  meta['@${dropdown_option}'] = function(parameter) {
+  meta['@${dropdown_option}'] = async function(parameter) {
     let isPlaying = true
-    console.log('${dropdown_option}')
+    console.error('${dropdown_option}')
     ${statements_content}
     isPlaying = false
   };

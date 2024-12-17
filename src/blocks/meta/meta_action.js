@@ -18,9 +18,10 @@ const block = {
           type: "field_dropdown",
           name: "Action",
           options: function () {
-            let opt = [["none", ""]];
+            let opt = [["none", "none"]];
             if (resource && resource.action) {
               const action = resource.action;
+              console.error("action", action);
               action.forEach(({ name, uuid }) => {
                 opt.push([name, uuid]);
               });
@@ -57,7 +58,7 @@ const block = {
       const statements_content = generator.statementToCode(block, "content");
 
       const code = `
-  meta['@${dropdown_option}'] = function(parameter) {
+  meta['@${dropdown_option}'] = async function(parameter) {
     let isPlaying = true
     console.log('${dropdown_option}')
     ${statements_content}
