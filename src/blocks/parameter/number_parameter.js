@@ -1,5 +1,6 @@
 import EventType from "./type";
 import * as Helper from "../helper";
+import * as HelperJS from "../helperJS";
 import * as Blockly from "blockly";
 const data = {
   name: "number_parameter",
@@ -40,7 +41,7 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       var input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
-      return [`Helper.Number(${input})`, generator.ORDER_NONE];
+      return [HelperJS.NumberJS(input), generator.ORDER_NONE];
     };
     return script;
   },

@@ -40,15 +40,15 @@ function PointJS(value) {
 function PlayerJS(type, value) {
   switch (type) {
     case "index":
-      return `argument.index_player(${value})`;
+      return `argument.indexPlayer(${value})`;
     case "id":
-      return `argument.id_player(${value})`;
+      return `argument.idPlayer(${value})`;
     case "server":
-      return `argument.server_player()`;
+      return `argument.serverPlayer()`;
     case "random_client":
-      return `argument.random_player()`;
+      return `argument.randomPlayer()`;
     default:
-      return `argument.server_player()`;
+      return `argument.serverPlayer()`;
   }
 }
 

@@ -38,8 +38,8 @@ const block = {
 meta['@init'] = async function() {
   console.log('@init');
   ${statements_content}
-}\n
-  `;
+        }
+      `;
       return code;
     };
     return script;

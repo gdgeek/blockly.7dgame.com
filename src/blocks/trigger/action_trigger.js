@@ -19,6 +19,7 @@ const block = {
           options: function () {
             let opt = [["none", ""]];
             if (resource && resource.action) {
+              console.error("resource", resource);
               const action = resource.action;
               action.forEach(({ name, uuid }) => {
                 if (name) {

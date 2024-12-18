@@ -1,6 +1,7 @@
 import * as Blockly from "blockly";
 import EventType from "./type";
 import * as Helper from "../helper";
+import * as HelperJS from "../helperJS";
 const data = {
   name: "rectangle_parameter",
 };
@@ -54,7 +55,7 @@ const block = {
       );
 
       var number_radius = block.getFieldValue("Radius");
-      var code = `Helper.Range(${value_anchor}, ${number_radius})\n`;
+      var code = HelperJS.RangeJS(value_anchor, number_radius);
 
       return [code, generator.ORDER_NONE];
     };

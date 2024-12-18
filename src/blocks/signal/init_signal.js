@@ -40,10 +40,9 @@ const block = {
     const script = function (block, generator) {
       var statements_content = generator.statementToCode(block, "content");
 
-      var code = `
-      verse['#init'] = function(parameter) {
+      var code = `verse['#init'] = function(parameter) {
         let isPlaying = true;
-        console.log('init');
+        console.log('#init');
         ${statements_content}
         isPlaying = false;
       }
