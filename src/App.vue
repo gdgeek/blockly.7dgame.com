@@ -97,10 +97,14 @@ const init = (message) => {
 // 更新 Lua 代码并发送到主页面
 const updateCode = () => {
   if (foo.value && foo.value.workspace) {
+    const blocklyData = Blockly.serialization.workspaces.save(
+      foo.value.workspace
+    );
     console.log("更新Lua 代码：", code.value.lua);
     postMessage("update", {
       lua: luaGenerator.workspaceToCode(foo.value.workspace),
       js: javascriptGenerator.workspaceToCode(foo.value.workspace),
+      blocklyData: blocklyData,
     });
   }
 };
