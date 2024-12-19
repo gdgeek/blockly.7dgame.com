@@ -39,7 +39,13 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       var sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      var code = `await sound.play(${sound});\n`;
+      // 检查是否在 action_trigger 中调用
+      var isInActionTrigger =
+        block.getSurroundParent() &&
+        block.getSurroundParent().type === "action_trigger";
+      var code = `await sound.play(${sound}${
+        isInActionTrigger ? ", true" : ""
+      });\n`;
       return code;
     };
     return script;
