@@ -62,7 +62,7 @@ const block = {
       var code =
         "meta['@" +
         dropdown_option +
-        "'] = function(parameter) {\n" +
+        "'] = async function(parameter) {\n" +
         execute +
         "}\n";
 
