@@ -31,6 +31,7 @@ import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
 import * as Sound from "../blocks/sound";
 import * as Voxel from "../blocks/voxel";
+import * as Voice from "../blocks/voice";
 //import *  as Other from '../blocks/other'
 import * as Signal from "../blocks/signal";
 import * as Parameter from "../blocks/parameter";
@@ -134,6 +135,7 @@ const setup = (style, parameters) => {
     Text.Setup(toolbox, parameters);
     Sound.Setup(toolbox, parameters);
     Voxel.Setup(toolbox, parameters);
+    Voice.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
   }
   if (style.includes("verse")) {
