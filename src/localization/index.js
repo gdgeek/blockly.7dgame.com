@@ -246,6 +246,11 @@ Blockly.Msg.ENTITY_VISUAL_EXECUTE = {
   en: "Entity %1 Show/Hide %2 %3",
   ja: "エンティティ %1 表示/非表示 %2 %3",
 };
+Blockly.Msg.ENTITY_ENTITY_HIGHLIGHT = {
+  zh: "实体 %1 高亮 %2 %3",
+  en: "Entity %1 highlight %2 %3",
+  ja: "エンティティ %1 をハイライト %2 %3",
+}
 
 // 模型ploygen
 export const POLYGEN_NAME = {

@@ -12,6 +12,7 @@ import EntityUnxploded from "./entity_unexploded";
 import { ENTITY_NAME } from "../../localization/index";
 //import TweenExecute from './tween_execute'
 import VisualExecute from "./visual_execute";
+import EntityHighlight from "./entity_highlight"
 
 const Setup = SetupIt(
   {
@@ -24,6 +25,7 @@ const Setup = SetupIt(
       //  LineExecute.toolbox,
       // TweenExecute.toolbox,
       VisualExecute.toolbox,
+      EntityHighlight.toolbox,
       // EntityExplode.toolbox,
       // EntityUnxploded.toolbox
     ],
@@ -33,6 +35,7 @@ const Setup = SetupIt(
     // RegisterData(LineExecute, parameters)
     // RegisterData(TweenExecute, parameters)
     RegisterData(VisualExecute, parameters);
+    RegisterData(EntityHighlight, parameters);
     //RegisterData(EntityExplode, parameters)
     // RegisterData(EntityUnxploded, parameters)
     //RegisterData(root, index, TextEntity)
