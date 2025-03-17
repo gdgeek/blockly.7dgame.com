@@ -377,3 +377,39 @@ export const PROCEDURE_NAME = {
   en: "Procedure",
   ja: "プロシージャ",
 };
+
+// 语音Voice
+export const VOICE_NAME = {
+  zh: "语音",
+  en: "Voice",
+  ja: "音声",
+};
+Blockly.Msg.VOICE_TRIGGER = {
+  zh: "语音指令 %1 %2 %3",
+  en: "Voice Trigger %1 %2 %3",
+  ja: "音声トリガー %1 %2 %3",
+};
+
+Blockly.Msg.VOICE_TRIGGER_ZOOM_IN = {
+  zh: "放大",
+  en: "Zoom In",
+  ja: "ズームイン",
+};
+
+Blockly.Msg.VOICE_TRIGGER_ZOOM_OUT = {
+  zh: "缩小",
+  en: "Zoom Out",
+  ja: "ズームアウト",
+};
+
+Blockly.Msg.VOICE_TRIGGER_DECOMPOSE = {
+  zh: "分解",
+  en: "Decompose",
+  ja: "分解",
+};
+
+Blockly.Msg.VOICE_TRIGGER_RESTORE = {
+  zh: "还原",
+  en: "Restore",
+  ja: "復元",
+};
