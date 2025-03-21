@@ -14,7 +14,7 @@ const block = {
     const json = {
       type: data.name,
       // message0: "模型 %1",
-      message0: Blockly.Msg.POLYGEN_POLYGEN_POINT[window.lg],
+      message0: Blockly.Msg.POLYGEN_POLYGEN_ENTITY[window.lg],
       args0: [
         {
           type: "field_dropdown",

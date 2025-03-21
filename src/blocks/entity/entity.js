@@ -12,7 +12,7 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: Blockly.Msg.POINT_POINT[window.lg],
+      message0: Blockly.Msg.ENTITY_ENTITY[window.lg],
       args0: [
         {
           type: "field_dropdown",

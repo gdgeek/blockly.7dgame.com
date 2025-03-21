@@ -158,7 +158,7 @@ Blockly.Msg.PARAMETER_RECTANGLE = {
   en: "Random point in range %1, center %2, radius %3",
   ja: "範囲内のランダムポイント %1, 中心 %2, 半径 %3",
 };
-Blockly.Msg.PARAMETER_POINT = {
+Blockly.Msg.PARAMETER_ENTITY = {
   zh: "位置参数 %1",
   en: "Position parameter %1",
   ja: "位置パラメーター %1",
@@ -231,25 +231,25 @@ Blockly.Msg.EVENT_OUTPUT = {
 };
 
 // 节点entity
-export const POINT_NAME = {
+export const ENTITY_NAME = {
   zh: "节点",
   en: "Point",
   ja: "エンティティ",
 };
-Blockly.Msg.POINT_POINT = {
+Blockly.Msg.ENTITY_ENTITY = {
   zh: "节点 %1",
   en: "Point %1",
   ja: "エンティティ %1",
 };
-Blockly.Msg.POINT_VISUAL_EXECUTE = {
+Blockly.Msg.ENTITY_VISUAL_EXECUTE = {
   zh: "节点 %1 显示/隐藏 %2 %3",
   en: "Point %1 Show/Hide %2 %3",
   ja: "エンティティ %1 表示/非表示 %2 %3",
 };
-Blockly.Msg.POINT_POINT_HIGHLIGHT = {
-  zh: "节点 %1 高亮 %2 %3",
-  en: "Point %1 highlight %2 %3",
-  ja: "エンティティ %1 をハイライト %2 %3",
+Blockly.Msg.ENTITY_ENTITY_HIGHLIGHT = {
+  zh: "节点 %1 高亮 %2 颜色 %3",
+  en: "Point %1 highlight %2 color %3",
+  ja: "エンティティ %1 をハイライト %2 色 %3",
 }
 
 // 模型ploygen
@@ -258,7 +258,7 @@ export const POLYGEN_NAME = {
   en: "Polygen",
   ja: "ポリゴン",
 };
-Blockly.Msg.POLYGEN_POLYGEN_POINT = {
+Blockly.Msg.POLYGEN_POLYGEN_ENTITY = {
   zh: "模型 %1",
   en: "Polygen %1",
   ja: "モデル %1",
@@ -268,6 +268,11 @@ Blockly.Msg.POLYGEN_PLAY_ANIMATION = {
   en: "Play polygen Animation %1 %2",
   ja: "モデルアニメーションを再生 %1 %2",
 };
+Blockly.Msg.POLYGEN_POLYGEN_HIGHLIGHT = {
+  zh: "模型 %1 高亮 %2 颜色 %3",
+  en: "Polygen %1 highlight %2 color %3",
+  ja: "モデル %1 をハイライト %2 色 %3",
+}
 
 // 图片picture
 export const PICTURE_NAME = {

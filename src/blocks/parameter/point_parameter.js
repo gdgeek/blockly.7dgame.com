@@ -12,7 +12,7 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.PARAMETER_POINT[window.lg],
+      message0: Blockly.Msg.PARAMETER_ENTITY[window.lg],
       args0: [
         {
           type: "input_value",

@@ -2,7 +2,7 @@ import DataType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "entity_highlight",
+  name: "polygen_highlight",
 };
 
 const ALL_COLORS = [
@@ -24,12 +24,12 @@ const block = {
   getBlockJson({}) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.ENTITY_ENTITY_HIGHLIGHT[window.lg],
+      message0: Blockly.Msg.POLYGEN_POLYGEN_HIGHLIGHT[window.lg],
       args0: [
         {
           type: "input_value",
           name: "entity",
-          check: ["Entity", "Polygen", "Picture", "Video", "Text"],
+          check: ["Polygen"],
         },
         
         {
@@ -103,7 +103,7 @@ const block = {
       );
       const value_color = block.getFieldValue("colorName");
 
-      const code = `point.setHighlight(${value_entity}, ${value_bool}, "${value_color}")\n`;
+      const code = `polygen.setHighlight(${value_entity}, ${value_bool}, "${value_color}")\n`;
       return code;
     };
     return script;
@@ -121,9 +121,9 @@ const block = {
         generator.ORDER_ATOMIC
       );
       var value_color = block.getFieldValue("colorName");
-      
+        
       var code =
-        "_G.point.set_highlight(" + value_entity + ", " + value_bool + ", \"" + value_color + "\")\n";
+        "_G.polygen.set_highlight(" + value_entity + ", " + value_bool + ", \"" + value_color + "\")\n";
       return code;
     };
     return lua;
