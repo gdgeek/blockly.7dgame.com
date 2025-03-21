@@ -20,7 +20,7 @@ const block = {
         {
           type: "input_value",
           name: "To",
-          check: "Entity",
+          check: "Point",
         },
         {
           type: "field_number",
