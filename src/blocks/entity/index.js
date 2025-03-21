@@ -9,7 +9,7 @@ import { RegisterData, SetupIt } from "../helper";
 
 import EntityExplode from "../entity/entity_explode";
 import EntityUnxploded from "./entity_unexploded";
-import { ENTITY_NAME } from "../../localization/index";
+import { POINT_NAME } from "../../localization/index";
 //import TweenExecute from './tween_execute'
 import VisualExecute from "./visual_execute";
 import EntityHighlight from "./entity_highlight"
@@ -18,7 +18,7 @@ const Setup = SetupIt(
   {
     kind: "category",
     // name: "实体",
-    name: ENTITY_NAME[window.lg],
+    name: POINT_NAME[window.lg],
     colour: Type.colour,
     contents: [
       Entity.toolbox,

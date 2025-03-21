@@ -11,7 +11,7 @@ const block = {
   getBlockJson({}) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.ENTITY_VISUAL_EXECUTE[window.lg],
+      message0: Blockly.Msg.POINT_VISUAL_EXECUTE[window.lg],
       args0: [
         {
           type: "input_value",

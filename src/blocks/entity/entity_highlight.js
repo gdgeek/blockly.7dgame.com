@@ -11,7 +11,7 @@ const block = {
   getBlockJson({}) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.ENTITY_ENTITY_HIGHLIGHT[window.lg],
+      message0: Blockly.Msg.POINT_POINT_HIGHLIGHT[window.lg],
       args0: [
         {
           type: "input_value",
