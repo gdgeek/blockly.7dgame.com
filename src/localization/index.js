@@ -418,3 +418,64 @@ Blockly.Msg.VOICE_TRIGGER_RESTORE = {
   en: "Restore",
   ja: "復元",
 };
+
+// 颜色 Colors
+export const COLOR_NAME = {
+  zh: "颜色",
+  en: "Color",
+  ja: "色",
+};
+
+Blockly.Msg.COLOR_NONE = {
+  zh: "无",
+  en: "none",
+  ja: "なし",
+};
+
+Blockly.Msg.COLOR_WHITE = {
+  zh: "白色",
+  en: "white",
+  ja: "白",
+};
+
+Blockly.Msg.COLOR_RED = {
+  zh: "红色",
+  en: "red",
+  ja: "赤",
+};
+
+Blockly.Msg.COLOR_ORANGE = {
+  zh: "橙色",
+  en: "orange",
+  ja: "オレンジ",
+};
+
+Blockly.Msg.COLOR_YELLOW = {
+  zh: "黄色",
+  en: "yellow",
+  ja: "黄",
+};
+
+Blockly.Msg.COLOR_GREEN = {
+  zh: "绿色",
+  en: "green",
+  ja: "緑",
+};
+
+Blockly.Msg.COLOR_CYAN = {
+  zh: "青色",
+  en: "cyan",
+  ja: "シアン",
+};
+
+Blockly.Msg.COLOR_BLUE = {
+  zh: "蓝色",
+  en: "blue",
+  ja: "青",
+};
+
+Blockly.Msg.COLOR_PURPLE = {
+  zh: "紫色",
+  en: "purple",
+  ja: "紫",
+};

@@ -4,18 +4,19 @@ import * as Blockly from "blockly";
 const data = {
   name: "polygen_highlight",
 };
-
-const ALL_COLORS = [
-  ["none", "none"],
-  ["white", "white"],
-  ["red", "red"],
-  ["orange", "orange"],
-  ["yellow", "yellow"],
-  ["green", "green"],
-  ["cyan", "cyan"],
-  ["blue", "blue"],
-  ["purple", "purple"],
-];
+const getColorOptions = () => {
+  return [
+    [Blockly.Msg.COLOR_NONE[window.lg], "none"],
+    [Blockly.Msg.COLOR_WHITE[window.lg], "white"],
+    [Blockly.Msg.COLOR_RED[window.lg], "red"],
+    [Blockly.Msg.COLOR_ORANGE[window.lg], "orange"],
+    [Blockly.Msg.COLOR_YELLOW[window.lg], "yellow"],
+    [Blockly.Msg.COLOR_GREEN[window.lg], "green"],
+    [Blockly.Msg.COLOR_CYAN[window.lg], "cyan"],
+    [Blockly.Msg.COLOR_BLUE[window.lg], "blue"],
+    [Blockly.Msg.COLOR_PURPLE[window.lg], "purple"],
+  ];
+};
 
 const block = {
   title: data.name,
@@ -41,7 +42,7 @@ const block = {
         {
           type: "field_dropdown",
           name: "colorName",
-          options: ALL_COLORS,
+          options: getColorOptions(),
         },
       ],
       previousStatement: null,
@@ -79,7 +80,7 @@ const block = {
         if (!field) return;
 
         // 根据bool值更新选项
-        const newOptions = boolValue === 'TRUE' ? ALL_COLORS : [["none", "none"]];
+        const newOptions = boolValue === 'TRUE' ? getColorOptions() : [[Blockly.Msg.COLOR_NONE[window.lg], "none"]];
         
         // 更新下拉菜单选项
         field.menuGenerator_ = newOptions;
