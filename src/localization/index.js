@@ -6,7 +6,7 @@ if (lg === "zh-cn") {
   lg = "zh";
 }
 window.lg = lg; // 将 lg 挂载到全局 window 对象上
-console.log("当前语言是: ", window.lg); 
+console.log("当前语言是: ", window.lg);
 
 export const LOGIC_NAME = {
   zh: "逻辑",
@@ -496,4 +496,17 @@ Blockly.Msg.COLOR_PURPLE = {
   zh: "紫色",
   en: "purple",
   ja: "紫",
+};
+
+//TooltipVisual
+Blockly.Msg.TOOLTIP_VISUAL= {
+  zh: "节点 %1 的 tooltip 显示/隐藏 %2",
+  en: "Point %1 tooltip show/hide %2",
+  ja: "エンティティ %1 のツールチップを表示/非表示 %2",
+};
+
+Blockly.Msg.TOOLTIPS_VISUAL = {
+  zh: "所有节点上的 tooltip 显示/隐藏 %1",
+  en: "All Points' Tooltip show/hide %1",
+  ja: "すべてのエンティティのツールチップを表示/非表示 %1",
 };
