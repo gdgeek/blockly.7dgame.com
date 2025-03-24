@@ -15,12 +15,12 @@ const block = {
         {
           type: "input_value",
           name: "from",
-          check: "Entity",
+          check: "Point",
         },
         {
           type: "input_value",
           name: "to",
-          check: "Entity",
+          check: "Point",
         },
       ],
       inputsInline: true,

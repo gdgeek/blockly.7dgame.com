@@ -16,7 +16,7 @@ const block = {
       args0: [
         {
           type: "field_dropdown",
-          name: "Entity",
+          name: "Point",
           options: function () {
             let opt = [["none", ""]];
             if (resource && resource.entity) {
@@ -29,7 +29,7 @@ const block = {
           },
         },
       ],
-      output: "Entity",
+      output: "Point",
       colour: DataType.colour,
       tooltip: "",
       helpUrl: "",
@@ -47,7 +47,7 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      const dropdown = block.getFieldValue("Entity");
+      const dropdown = block.getFieldValue("Point");
       // const code = `HandlerJS("${dropdown}")`;
       return [HandlerJS(dropdown), generator.ORDER_NONE];
     };
@@ -55,7 +55,7 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown = block.getFieldValue("Entity");
+      var dropdown = block.getFieldValue("Point");
 
       return [Handler(dropdown), generator.ORDER_NONE];
     };
