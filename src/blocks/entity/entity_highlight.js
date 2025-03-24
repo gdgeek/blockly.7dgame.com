@@ -41,7 +41,7 @@ const block = {
         {
           type: "field_dropdown",
           name: "colorName",
-          options: [["none", "none"]], 
+          options: ALL_COLORS,
         },
       ],
       previousStatement: null,
@@ -57,6 +57,10 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
+
+        setTimeout(() => {
+          this.updateColorOptions();
+        }, 0);
 
         this.setOnChange((event) => {
           if (event.type === Blockly.Events.BLOCK_CHANGE || 
@@ -82,9 +86,12 @@ const block = {
 
         // 如果当前值不在新选项中，重置为none
         const currentValue = field.getValue();
+        
         if (!newOptions.some(opt => opt[1] === currentValue)) {
           field.setValue("none");
         }
+        
+        field.forceRerender();
       }
     };
     return data;
