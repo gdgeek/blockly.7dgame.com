@@ -12,7 +12,7 @@ const block = {
   getBlockJson({}) {
     const json = {
       type: "block_type",
-      message0: "节点 %1 的 tooltip 显示/隐藏 %2",
+      message0: Blockly.Msg.TOOLTIP_VISUAL[window.lg],
       args0: [
         {
           type: "input_value",
