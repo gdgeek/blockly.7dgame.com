@@ -395,16 +395,16 @@ Blockly.Msg.VOICE_TRIGGER = {
   ja: "音声トリガー %1 %2 %3",
 };
 
-Blockly.Msg.VOICE_TRIGGER_ZOOM_IN = {
+Blockly.Msg.VOICE_TRIGGER_SCALE_UP = {
   zh: "放大",
-  en: "Zoom In",
-  ja: "ズームイン",
+  en: "Scale Up",
+  ja: "拡大",
 };
 
-Blockly.Msg.VOICE_TRIGGER_ZOOM_OUT = {
+Blockly.Msg.VOICE_TRIGGER_SCALE_DOWN = {
   zh: "缩小",
-  en: "Zoom Out",
-  ja: "ズームアウト",
+  en: "Scale Down",
+  ja: "縮小",
 };
 
 Blockly.Msg.VOICE_TRIGGER_DECOMPOSE = {
@@ -413,10 +413,28 @@ Blockly.Msg.VOICE_TRIGGER_DECOMPOSE = {
   ja: "分解",
 };
 
-Blockly.Msg.VOICE_TRIGGER_RESTORE = {
+Blockly.Msg.VOICE_TRIGGER_RESET = {
   zh: "还原",
-  en: "Restore",
+  en: "Reset",
   ja: "復元",
+};
+
+Blockly.Msg.VOICE_TRIGGER_NEXT_STEP = {
+  zh: "下一步",
+  en: "Next Step",
+  ja: "次のステップ",
+};
+
+Blockly.Msg.VOICE_TRIGGER_RETURN_MAIN = {
+  zh: "返回主界面",
+  en: "Return to Main",
+  ja: "メインに戻る",
+};
+
+Blockly.Msg.VOICE_TRIGGER_CLOSE_TOOLTIP = {
+  zh: "关闭说明卡",
+  en: "Close Tooltip",
+  ja: "ツールチップを閉じる",
 };
 
 // 颜色 Colors

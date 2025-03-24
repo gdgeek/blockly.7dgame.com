@@ -4,6 +4,21 @@ import * as Blockly from "blockly";
 const data = {
   name: "voice_trigger",
 };
+
+function getLocalizedCommandName(name) {
+  const commandMap = {
+    "scaleUp": Blockly.Msg.VOICE_TRIGGER_SCALE_UP[window.lg],
+    "scaleDown": Blockly.Msg.VOICE_TRIGGER_SCALE_DOWN[window.lg],
+    "decompose": Blockly.Msg.VOICE_TRIGGER_DECOMPOSE[window.lg],
+    "reset": Blockly.Msg.VOICE_TRIGGER_RESET[window.lg],
+    "nextStep": Blockly.Msg.VOICE_TRIGGER_NEXT_STEP[window.lg],
+    "returnMain": Blockly.Msg.VOICE_TRIGGER_RETURN_MAIN[window.lg],
+    "closeTooltip": Blockly.Msg.VOICE_TRIGGER_CLOSE_TOOLTIP[window.lg]
+  };
+  
+  return commandMap[name] || name;
+}
+
 const block = {
   title: data.name,
   type: TriggerType.name,
@@ -22,7 +37,7 @@ const block = {
               const command = resource.command;
               command.forEach(({ name, uuid }) => {
                 if (name) {
-                  opt.push([name, uuid]);
+                  opt.push([getLocalizedCommandName(name), uuid]);
                 } else {
                   opt.push([uuid, uuid]);
                 }
