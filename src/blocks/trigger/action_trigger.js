@@ -21,11 +21,13 @@ const block = {
             if (resource && resource.action) {
               console.error("resource", resource);
               const action = resource.action;
-              action.forEach(({ name, uuid }) => {
-                if (name) {
-                  opt.push([name, uuid]);
-                } else {
-                  opt.push([uuid, uuid]);
+              action.forEach(({ name, uuid, type }) => {
+                if (type === "Action" || type === "Trigger") {
+                  if (name) {
+                    opt.push([name, uuid]);
+                  } else {
+                    opt.push([uuid, uuid]);
+                  }
                 }
               });
             }

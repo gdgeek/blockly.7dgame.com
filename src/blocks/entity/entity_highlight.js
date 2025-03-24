@@ -29,7 +29,7 @@ const block = {
         {
           type: "input_value",
           name: "entity",
-          check: ["Point", "Polygen", "Voxel", "Picture", "Video", "Text"],
+          check: ["Entity", "Polygen", "Voxel", "Picture", "Text"],
         },
         
         {
