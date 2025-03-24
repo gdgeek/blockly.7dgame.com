@@ -16,7 +16,7 @@ const block = {
         {
           type: "input_value",
           name: "From",
-          check: "Point",
+          check: "Entity",
         },
         {
           type: "input_value",

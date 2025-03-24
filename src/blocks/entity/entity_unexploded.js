@@ -15,7 +15,7 @@ const block = {
         {
           type: "input_value",
           name: "entity",
-          check: "Point",
+          check: "Entity",
         },
       ],
       previousStatement: null,

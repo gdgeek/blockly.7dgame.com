@@ -28,7 +28,7 @@ const block = {
           },
         },
       ],
-      output: "Point",
+      output: "Entity",
       colour: DataType.colour,
       tooltip: "",
       helpUrl: "",

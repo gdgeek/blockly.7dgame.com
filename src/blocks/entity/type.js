@@ -1,4 +1,4 @@
 export default {
-  name: "Point",
+  name: "Entity",
   colour: 50,
 };
