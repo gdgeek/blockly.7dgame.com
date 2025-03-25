@@ -22,17 +22,12 @@ const block = {
               console.error("resource", resource);
               const action = resource.action;
               action.forEach(({ name, uuid, type }) => {
-                // if (type === "Action" || type === "Trigger") {
-                //   if (name) {
-                //     opt.push([name, uuid]);
-                //   } else {
-                //     opt.push([uuid, uuid]);
-                //   }
-                // }
-                if (name) {
-                  opt.push([name, uuid]);
-                } else {
-                  opt.push([uuid, uuid]);
+                if (type === "Action" || type === "Trigger") {
+                  if (name) {
+                    opt.push([name, uuid]);
+                  } else {
+                    opt.push([uuid, uuid]);
+                  }
                 }
               });
             }
