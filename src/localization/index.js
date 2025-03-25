@@ -437,6 +437,12 @@ Blockly.Msg.VOICE_TRIGGER_CLOSE_TOOLTIP = {
   ja: "ツールチップを閉じる",
 };
 
+Blockly.Msg.VOICE_TRIGGER_OPEN_TOOLTIP = {
+  zh: "显示说明卡",
+  en: "Open Tooltip",
+  ja: "ツールチップを開く",
+};
+
 // 颜色 Colors
 export const COLOR_NAME = {
   zh: "颜色",
