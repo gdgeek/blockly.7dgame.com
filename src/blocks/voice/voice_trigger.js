@@ -34,13 +34,15 @@ const block = {
           name: "Voice",
           options: function () {
             let opt = [["none", ""]];
-            if (resource && resource.command) {
-              const command = resource.command;
-              command.forEach(({ name, uuid }) => {
-                if (name) {
-                  opt.push([getLocalizedCommandName(name), uuid]);
-                } else {
-                  opt.push([uuid, uuid]);
+            if (resource && resource.action) {
+              const action = resource.action;
+              action.forEach(({ name, uuid, type }) => {
+                if (type === "Voice") {
+                  if (name) {
+                    opt.push([getLocalizedCommandName(name), uuid]);
+                  } else {
+                    opt.push([uuid, uuid]);
+                  }
                 }
               });
             }
