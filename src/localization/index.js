@@ -271,8 +271,14 @@ Blockly.Msg.POLYGEN_PLAY_ANIMATION = {
 Blockly.Msg.POLYGEN_POLYGEN_HIGHLIGHT = {
   zh: "模型 %1 高亮 %2 颜色 %3",
   en: "Polygen %1 highlight %2 color %3",
-  ja: "モデル %1 をハイライト %2 色 %3",
-}
+  ja: "モデル %1 ハイライト %2 色 %3",
+};
+
+Blockly.Msg.POLYGEN_MOVABLE = {
+  zh: "筛选模型 %1 是否可移动 %2",
+  en: "Filter polygen %1 is movable %2",
+  ja: "モデルをフィルタリング %1 移動可能か %2",
+};
 
 // 图片picture
 export const PICTURE_NAME = {

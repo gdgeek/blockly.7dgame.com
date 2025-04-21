@@ -23,6 +23,7 @@ const block = {
             let opt = [["none", ""]];
             if (resource && resource.polygen) {
               const polygen = resource.polygen;
+              console.log("resource: ", resource);
               polygen.forEach((poly) => {
                 opt.push([poly.name, poly.uuid]);
               });
@@ -67,6 +68,21 @@ const block = {
           }
         });
       },
+
+      // 更新下拉选项的方法，供其他模块使用
+      updateDropdownOptions: function(options) {
+        const field = this.getField("Polygen");
+        if (!field) return;
+        
+        // 更新选项
+        field.menuGenerator_ = options;
+        
+        // 检查当前值是否在新选项中存在
+        const currentValue = field.getValue();
+        if (!options.some(opt => opt[1] === currentValue)) {
+          field.setValue("");
+        }
+      }
     };
     return data;
   },
