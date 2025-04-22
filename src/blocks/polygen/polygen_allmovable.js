@@ -78,11 +78,16 @@ const block = {
       
       let code;
       if (movableEntities.length > 0) {
-        const uuidsString = '{' + movableEntities.map(uuid => `"${uuid}"`).join(',') + '}';
-        code = `polygen.setAllMoveable(handlePolygen(${uuidsString}), ${value_movable})`;
+        // 将每个UUID单独作为参数调用handlePolygen
+        const handlerCalls = movableEntities.map(uuid => 
+          `handlePolygen("${uuid}")`
+        ).join(',\n    ');
+        
+        // 组合所有handler调用和value_movable参数
+        code = `polygen.setAllMovable(` + handlerCalls + `, ${value_movable})`;
       } else {
-        // 如果没有可移动实体，传递空数组
-        code = `polygen.setAllMoveable(handlePolygen(""), ${value_movable})`;
+        // 如果没有可移动实体，传递空字符串
+        code = `polygen.setAllMovable(handlePolygen(""), ${value_movable})`;
       }
       
       return code;
@@ -102,13 +107,16 @@ const block = {
       
       let code;
       if (movableEntities.length > 0) {
-        // 将UUID数组格式化为Lua表字符串
-        const uuidsString = '{' + movableEntities.map(uuid => `'${uuid}'`).join(',') + '}';
-        // 将整个UUID数组作为一个参数传递给helper.handler
-        code = "_G.polygen.set_all_moveable(_G.helper.handler(index, " + uuidsString + "), " + value_movable + ")";
+        // 将每个UUID单独作为参数调用_G.helper.handler
+        const handlerCalls = movableEntities.map(uuid => 
+          `_G.helper.handler(index, '${uuid}')`
+        ).join(',\n    ');
+        
+        // 组合所有handler调用和value_movable参数
+        code = "_G.polygen.set_all_movable(" + handlerCalls + ", " + value_movable + ")";
       } else {
-        // 如果没有可移动实体，传递空表
-        code = "_G.polygen.set_all_moveable(_G.helper.handler(index, ''), " + value_movable + ")";
+        // 如果没有可移动实体，传递空字符串
+        code = "_G.polygen.set_all_movable(_G.helper.handler(index, ''), " + value_movable + ")";
       }
       
       return code;
