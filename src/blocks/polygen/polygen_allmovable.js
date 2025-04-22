@@ -110,10 +110,10 @@ const block = {
         // 将每个UUID单独作为参数调用_G.helper.handler
         const handlerCalls = movableEntities.map(uuid => 
           `_G.helper.handler(index, '${uuid}')`
-        ).join(',\n    ');
+        ).join(',\n  ');
         
         // 组合所有handler调用和value_movable参数
-        code = "_G.polygen.set_all_movable(" + "{\n    " + handlerCalls + "\n}, " + value_movable + ")\n";
+        code = "_G.polygen.set_all_movable(" + "{\n  " + handlerCalls + "\n}, " + value_movable + ")\n";
       } else {
         // 如果没有可移动实体，传递空字符串
         code = "_G.polygen.set_all_movable(_G.helper.handler(index, ''), " + value_movable + ")\n";
