@@ -84,10 +84,10 @@ const block = {
         ).join(',\n    ');
         
         // 组合所有handler调用和value_movable参数
-        code = `polygen.setAllMovable(` + handlerCalls + `, ${value_movable})`;
+        code = `polygen.setAllMovable(` + handlerCalls + `, ${value_movable})\n`;
       } else {
         // 如果没有可移动实体，传递空字符串
-        code = `polygen.setAllMovable(handlePolygen(""), ${value_movable})`;
+        code = `polygen.setAllMovable(handlePolygen(""), ${value_movable})\n`;
       }
       
       return code;
@@ -113,10 +113,10 @@ const block = {
         ).join(',\n    ');
         
         // 组合所有handler调用和value_movable参数
-        code = "_G.polygen.set_all_movable(" + handlerCalls + ", " + value_movable + ")";
+        code = "_G.polygen.set_all_movable(" + handlerCalls + ", " + value_movable + ")\n";
       } else {
         // 如果没有可移动实体，传递空字符串
-        code = "_G.polygen.set_all_movable(_G.helper.handler(index, ''), " + value_movable + ")";
+        code = "_G.polygen.set_all_movable(_G.helper.handler(index, ''), " + value_movable + ")\n";
       }
       
       return code;

@@ -88,7 +88,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      const code = `polygen.setMoveable(${value_entity}, ${value_movable})`;
+      const code = `polygen.setMoveable(${value_entity}, ${value_movable})\n`;
       return code;
     };
     return script;
@@ -105,7 +105,7 @@ const block = {
         "movable",
         generator.ORDER_ATOMIC
       );
-      var code = "_G.polygen.set_moveable(" + value_entity + ", " + value_movable + ")";
+      var code = "_G.polygen.set_moveable(" + value_entity + ", " + value_movable + ")\n";
       return code;
     };
     return lua;
