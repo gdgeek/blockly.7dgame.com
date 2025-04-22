@@ -5,6 +5,7 @@ import { RegisterData, SetupIt } from "../helper";
 import { POLYGEN_NAME } from "../../localization/index";
 import PolygenHighlight from "./polygen_highlight";
 import PolygenMovable from "./polygen_movable";
+import PolygenAllMovable from "./polygen_allmovable";
 
 const Category = {
   kind: "category",
@@ -16,6 +17,7 @@ const Category = {
     PlayAnimation.toolbox, 
     PolygenHighlight.toolbox, 
     PolygenMovable.toolbox,
+    PolygenAllMovable.toolbox,
   ],
 };
 
@@ -24,6 +26,7 @@ function Register(parameters) {
   RegisterData(PlayAnimation, parameters);
   RegisterData(PolygenHighlight, parameters);
   RegisterData(PolygenMovable, parameters);
+  RegisterData(PolygenAllMovable, parameters);
 }
 const Setup = SetupIt(Category, Register);
 export { Setup };
