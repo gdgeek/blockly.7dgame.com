@@ -40,7 +40,7 @@ const block = {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
         
-        // 监听"是否可移动"输入变化
+        // 监听块变化，以便在适当时机更新实体选项
         this.setOnChange((event) => {
           if (event.type === Blockly.Events.BLOCK_CHANGE ||
               event.type === Blockly.Events.BLOCK_CREATE || 
@@ -54,25 +54,15 @@ const block = {
       updateEntityOptions: function(resource) {
         if (!resource || !resource.polygen) return;
         
-        // 获取连接的 movable 块
-        const movableBlock = this.getInputTargetBlock("movable");
-        if (!movableBlock) return;
-        
-        // 获取"是否可移动"的值
-        let isMovable = false;
-        if (movableBlock.type === "logic_boolean") {
-          isMovable = movableBlock.getFieldValue("BOOL") === "TRUE";
-        }
-        
         // 查找当前连接的实体块
         const entityBlock = this.getInputTargetBlock("entity");
         if (!entityBlock || entityBlock.type !== "polygen_entity") return;
         
-        // 筛选模型列表
+        // 筛选模型列表 - 只显示可移动的模型(moved为true)
         const filteredOptions = [["none", ""]];
         resource.polygen.forEach((poly) => {
-          // 根据 moved 属性筛选
-          if ((isMovable && poly.moved === true) || (!isMovable && poly.moved === false)) {
+          // 只筛选 moved 属性为 true 的模型
+          if (poly.moved === true) {
             filteredOptions.push([poly.name, poly.uuid]);
           }
         });

@@ -277,7 +277,7 @@ Blockly.Msg.POLYGEN_POLYGEN_HIGHLIGHT = {
 Blockly.Msg.POLYGEN_MOVABLE = {
   zh: "筛选模型 %1 是否可移动 %2",
   en: "Filter polygen %1 is movable %2",
-  ja: "モデルをフィルタリング %1 移動可能か %2",
+  ja: "モデルをフィルタリング %1 が移動可能 %2",
 };
 
 // 图片picture

@@ -15,7 +15,7 @@ const Category = {
     PolygenEntity.toolbox, 
     PlayAnimation.toolbox, 
     PolygenHighlight.toolbox, 
-    PolygenMovable.toolbox
+    PolygenMovable.toolbox,
   ],
 };
 
