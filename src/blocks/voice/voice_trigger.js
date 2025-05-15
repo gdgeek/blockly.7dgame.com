@@ -15,6 +15,10 @@ function getLocalizedCommandName(name) {
     "returnMain": Blockly.Msg.VOICE_TRIGGER_RETURN_MAIN[window.lg],
     "closeTooltip": Blockly.Msg.VOICE_TRIGGER_CLOSE_TOOLTIP[window.lg],
     "openTooltip": Blockly.Msg.VOICE_TRIGGER_OPEN_TOOLTIP[window.lg],
+    "vertical": Blockly.Msg.VOICE_TRIGGER_VERTICAL[window.lg],
+    "horizontal": Blockly.Msg.VOICE_TRIGGER_HORIZONTAL[window.lg],
+    "hidden": Blockly.Msg.VOICE_TRIGGER_HIDDEN[window.lg],
+    "visible": Blockly.Msg.VOICE_TRIGGER_VISIBLE[window.lg],
   };
 
   return commandMap[name] || name;

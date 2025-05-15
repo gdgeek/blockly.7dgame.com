@@ -454,6 +454,30 @@ Blockly.Msg.VOICE_TRIGGER_OPEN_TOOLTIP = {
   ja: "ツールチップを開く",
 };
 
+Blockly.Msg.VOICE_TRIGGER_VERTICAL = {
+  zh: "垂直展示",
+  en: "Vertical",
+  ja: "垂直展示",
+};
+
+Blockly.Msg.VOICE_TRIGGER_HORIZONTAL = {
+  zh: "水平展示",
+  en: "Horizontal",
+  ja: "水平展示",
+};
+
+Blockly.Msg.VOICE_TRIGGER_HIDDEN = {
+  zh: "隐藏模式",
+  en: "Hidden",
+  ja: "隠しモード",
+};
+
+Blockly.Msg.VOICE_TRIGGER_VISIBLE = {
+  zh: "显示模式",
+  en: "Visible",
+  ja: "表示モード",
+};
+
 // 颜色 Colors
 export const COLOR_NAME = {
   zh: "颜色",
