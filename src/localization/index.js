@@ -264,9 +264,9 @@ Blockly.Msg.POLYGEN_POLYGEN_ENTITY = {
   ja: "モデル %1",
 };
 Blockly.Msg.POLYGEN_PLAY_ANIMATION = {
-  zh: "播放模型动画 %1 %2",
-  en: "Play polygen Animation %1 %2",
-  ja: "モデルアニメーションを再生 %1 %2",
+  zh: "模型 %1 播放动画 %2",
+  en: "Polygen %1 play animation %2",
+  ja: "モデル %1 アニメーションを再生 %2",
 };
 Blockly.Msg.POLYGEN_POLYGEN_HIGHLIGHT = {
   zh: "模型 %1 高亮 %2 颜色 %3",
@@ -486,9 +486,9 @@ export const COLOR_NAME = {
 };
 
 Blockly.Msg.COLOR_NONE = {
-  zh: "无",
+  zh: "none",
   en: "none",
-  ja: "なし",
+  ja: "none",
 };
 
 Blockly.Msg.COLOR_WHITE = {

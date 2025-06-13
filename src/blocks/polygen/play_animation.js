@@ -12,9 +12,13 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      // message0: "播放模型动画 %1 %2",
       message0: Blockly.Msg.POLYGEN_PLAY_ANIMATION[window.lg],
       args0: [
+        {
+          type: "input_value",
+          name: "polygen",
+          check: "Polygen",
+        },
         {
           type: "field_dropdown",
           name: "animation",
@@ -22,40 +26,22 @@ const block = {
             let opt = [["none", "none"]];
             const selectedPolygenUuid = this.selectedPolygenUuid || "";
 
-            if (resource && resource.polygen) {
-              if (selectedPolygenUuid) {
-                resource.polygen.forEach((poly) => {
-                  if (poly.uuid === selectedPolygenUuid) {
-                    if (poly.animations && poly.animations.length > 0) {
-                      poly.animations.forEach((animation) => {
-                        opt.push([animation, animation]);
-                      });
-                    }
-                  }
-                });
-              } else {
-                const allAnimations = new Set();
-                resource.polygen.forEach((poly) => {
+            if (resource && resource.polygen && selectedPolygenUuid) {
+              resource.polygen.forEach((poly) => {
+                if (poly.uuid === selectedPolygenUuid) {
                   if (poly.animations && poly.animations.length > 0) {
                     poly.animations.forEach((animation) => {
-                      allAnimations.add(animation);
+                      opt.push([animation, animation]);
                     });
                   }
-                });
-                Array.from(allAnimations).forEach((animation) => {
-                  opt.push([animation, animation]);
-                });
-              }
+                }
+              });
             }
             return opt;
           },
         },
-        {
-          type: "input_value",
-          name: "polygen",
-          check: "Polygen",
-        },
       ],
+      inputsInline: true,
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
@@ -87,7 +73,7 @@ const block = {
         const field = this.getField("animation");
 
         // 获取新的选项
-        const newOptions = getBlockJson({ resource }).args0[0].options.bind(
+        const newOptions = getBlockJson({ resource }).args0[1].options.bind(
           this
         )();
 
