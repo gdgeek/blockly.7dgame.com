@@ -47,6 +47,19 @@ const block = {
             // 允许任何值通过验证，这样刷新时保存的值就不会被重置
             return newValue;
           };
+          
+          // 保存原始的文本渲染函数
+          const originalGetText = animationField.getText;
+          
+          // 重写getText函数以确保显示正确的文本
+          animationField.getText = function() {
+            // 获取当前实际值
+            const currentValue = this.getValue();
+            // 检查当前值是否在选项中
+            const matchingOption = this.getOptions().find(opt => opt[1] === currentValue);
+            // 如果在选项中，返回显示文本；否则直接返回值本身作为显示文本
+            return matchingOption ? matchingOption[0] : currentValue;
+          };
         }
         
         // 存储上一次选择的模型UUID，用于检测模型是否变化
@@ -56,6 +69,11 @@ const block = {
         this.setOnChange(() => {
           this.updateAnimationOptions(parameters.resource);
         });
+        
+        // 初始化时立即尝试更新选项
+        setTimeout(() => {
+          this.updateAnimationOptions(parameters.resource);
+        }, 0);
       },
       
       updateAnimationOptions: function (resource) {
@@ -94,6 +112,12 @@ const block = {
           });
         }
         
+        // 确保当前值在选项中，如果不在则添加它
+        const valueExists = options.some(opt => opt[1] === currentValue);
+        if (!valueExists && currentValue !== "none") {
+          options.push([currentValue, currentValue]);
+        }
+        
         // 更新选项列表
         animationField.menuGenerator_ = options;
         
@@ -101,15 +125,11 @@ const block = {
         if (modelChanged) {
           animationField.setValue("none");
         } else {
-          // 确保当前值在选项中，如果不在则添加它
-          const valueExists = options.some(opt => opt[1] === currentValue);
-          if (!valueExists && currentValue !== "none") {
-            options.push([currentValue, currentValue]);
-            animationField.menuGenerator_ = options;
-          }
-          
           // 保持当前值不变
           animationField.setValue(currentValue);
+          
+          // 强制重绘以确保显示正确的值
+          animationField.forceRerender();
         }
       },
     };
