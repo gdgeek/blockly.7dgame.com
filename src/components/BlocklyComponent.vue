@@ -25,6 +25,7 @@ import * as Zh from "blockly/msg/zh-hans";
 import * as JA from "blockly/msg/ja";
 import "blockly/blocks";
 import { luaGenerator } from "blockly/lua";
+import { overrideProcedureMessages } from "../localization/procedure_override";
 
 const urlParams = new URLSearchParams(window.location.search);
 const lg = urlParams.get("language");
@@ -44,6 +45,9 @@ onMounted(() => {
   } else if (lg && lg.includes("ja")) {
     Blockly.setLocale(JA);
   }
+  
+  // 覆盖函数模块的本地化文本
+  overrideProcedureMessages();
 
   const options = props.options || {};
   if (!options.toolbox) {
