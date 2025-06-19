@@ -23,7 +23,7 @@ const block = {
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
-      tooltip: "Show or hide tooltip on all points",
+      tooltip: "Show or hide label on all points",
       helpUrl: "",
     };
     return json;

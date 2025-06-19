@@ -541,13 +541,13 @@ Blockly.Msg.COLOR_PURPLE = {
 
 //TooltipVisual
 Blockly.Msg.TOOLTIP_VISUAL= {
-  zh: "节点 %1 的 tooltip 显示/隐藏 %2",
-  en: "Point %1 tooltip show/hide %2",
-  ja: "エンティティ %1 のツールチップを表示/非表示 %2",
+  zh: "节点 %1 的 标签 显示/隐藏 %2",
+  en: "Point %1 label show/hide %2",
+  ja: "エンティティ %1 のラベルを表示/非表示 %2",
 };
 
 Blockly.Msg.TOOLTIPS_VISUAL = {
-  zh: "所有节点上的 tooltip 显示/隐藏 %1",
-  en: "All Points' Tooltip show/hide %1",
-  ja: "すべてのエンティティのツールチップを表示/非表示 %1",
+  zh: "所有节点上的 标签 显示/隐藏 %1",
+  en: "All Points' label show/hide %1",
+  ja: "すべてのエンティティのラベルを表示/非表示 %1",
 };

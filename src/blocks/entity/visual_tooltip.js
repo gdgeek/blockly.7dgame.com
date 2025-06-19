@@ -32,7 +32,7 @@ const block = {
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
-      tooltip: "Show or hide tooltip on a specific point",
+      tooltip: "Show or hide label on a specific point",
       helpUrl: "",
     };
     return json;
