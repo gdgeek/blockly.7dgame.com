@@ -20,6 +20,7 @@ const block = {
           check: "Boolean",
         },
       ],
+      inputsInline: true,
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
