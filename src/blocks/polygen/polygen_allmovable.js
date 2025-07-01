@@ -58,7 +58,7 @@ const block = {
           // 只筛选 moved 属性为 true 的模型
           if (poly.moved === true) {
             filteredOptions.push([poly.name, poly.uuid]);
-            this.movableEntities.push(poly.uuid); // 保存UUID
+            this.movableEntities.push(poly.uuid);
           }
         });
       }
