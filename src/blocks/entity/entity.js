@@ -158,8 +158,10 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       const dropdown = block.getFieldValue("Entity");
-      // const code = `HandlerJS("${dropdown}")`;
-      return [HandlerJS(dropdown), generator.ORDER_NONE];
+      return [
+        `handleEntity(${JSON.stringify(dropdown)})`,
+        generator.ORDER_NONE,
+      ];
     };
     return script;
   },

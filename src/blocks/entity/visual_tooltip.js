@@ -111,7 +111,7 @@ const block = {
         "bool",
         generator.ORDER_ATOMIC
       );
-      const code = `_G.point.set_tooltip_visual(${value_entity}, ${value_bool})\n`;
+      const code = `point.setTooltipVisual(${value_entity}, ${value_bool})\n`;
       return code;
     };
     return script;

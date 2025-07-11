@@ -49,7 +49,10 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       var dropdown = block.getFieldValue("Picture");
-      return [HandlerJS(dropdown), generator.ORDER_NONE];
+      return [
+        `handlePicture(${JSON.stringify(dropdown)})`,
+        generator.ORDER_NONE,
+      ];
     };
     return script;
   },

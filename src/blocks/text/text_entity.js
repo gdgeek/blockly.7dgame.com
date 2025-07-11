@@ -1,6 +1,5 @@
 import DataType from "./type";
 import { Handler } from "../helper";
-import { HandlerJS } from "../helperJS";
 import * as Blockly from "blockly";
 
 const data = {
@@ -49,7 +48,10 @@ const block = {
   getJavascript(parameters) {
     const javascript = function (block, generator) {
       const dropdown_text = block.getFieldValue("Text");
-      return [HandlerJS(dropdown_text), generator.ORDER_NONE];
+      return [
+        `handleText(${JSON.stringify(dropdown_text)})`,
+        generator.ORDER_NONE,
+      ];
     };
     return javascript;
   },
