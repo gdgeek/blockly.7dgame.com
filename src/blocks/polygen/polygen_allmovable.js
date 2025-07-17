@@ -84,7 +84,7 @@ const block = {
         ).join(',\n    ');
         
         // 组合所有handler调用和value_movable参数
-        code = `polygen.setAllMovable(` + "{" + handlerCalls + "}, " + value_movable + ")\n";
+        code = `polygen.setAllMovable(` + "[\n" + handlerCalls + "], " + value_movable + ")\n";
       } else {
         // 如果没有可移动实体，传递空字符串
         code = `polygen.setAllMovable(handlePolygen(""), ${value_movable})\n`;

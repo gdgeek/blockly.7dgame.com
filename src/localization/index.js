@@ -92,9 +92,9 @@ Blockly.Msg.TASK_PLAY_SOUND_TASK = {
   ja: "オーディオ %1 タスクを再生する",
 };
 Blockly.Msg.TASK_PLAY_ANIMATION_TASK = {
-  zh: "播放动画 动画 %1 模型 %2 任务",
-  en: "Play animation animation %1 polygen %2 task",
-  ja: "アニメーション %1 モデル %2 タスクを再生する",
+  zh: "播放动画 模型 %1 动画 %2 任务",
+  en: "Play animation polygen %1 animation %2 task",
+  ja: "モデル %1 アニメーション %2 タスクを再生する",
 };
 Blockly.Msg.TASK_SYSTEM_TASK = {
   zh: "系统方法： %1 参数 %2",
