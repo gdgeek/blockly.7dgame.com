@@ -37,6 +37,18 @@ const block = {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
         
+        const animationField = this.getField("animation");
+        if (animationField) {
+          animationField.doClassValidation_ = function(newValue) {
+            return newValue;
+          };
+          animationField.getText = function() {
+            const currentValue = this.getValue();
+            const matchingOption = this.getOptions().find(opt => opt[1] === currentValue);
+            return matchingOption ? matchingOption[0] : currentValue;
+          };
+        }
+        
         this.lastPolygenUuid = null;
         
         this.setOnChange(() => {
@@ -77,17 +89,18 @@ const block = {
             }
           });
         }
+
+        const valueExists = options.some(opt => opt[1] === currentValue);
+        if (!valueExists && currentValue !== "none") {
+          options.push([currentValue, currentValue]);
+        }
         
         animationField.menuGenerator_ = options;
         
         if (modelChanged) {
           animationField.setValue("none");
         } else {
-          if (!options.some((opt) => opt[1] === currentValue)) {
-            animationField.setValue("none");
-          } else {
-            animationField.setValue(currentValue);
-          }
+          animationField.setValue(currentValue);
           
           animationField.forceRerender();
         }
