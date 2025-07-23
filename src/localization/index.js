@@ -284,6 +284,11 @@ Blockly.Msg.POLYGEN_MOVABLE_ALL = {
   en: "All polygens is movable %1",
   ja: "すべてのモデルが移動可能かどうかをフィルタリングする %1",
 };
+Blockly.Msg.POLYGEN_ROTATABLE = {
+  zh: "模型 %1 是否自旋转 %2",
+  en: "Polygen %1 is rotatable %2",
+  ja: "モデル %1 が自動回転可能かどうかをフィルタリングする %2",
+};
 
 // 图片picture
 export const PICTURE_NAME = {
