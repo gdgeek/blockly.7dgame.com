@@ -1,4 +1,4 @@
-import Blockly from "blockly";
+import * as Blockly from "blockly";
 import DataType from "./type";
 import { Handler } from "../helper";
 
@@ -12,7 +12,7 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: "视频 %1",
+      message0: Blockly.Msg.VIDEO_VIDEO[window.lg],
       args0: [
         {
           type: "field_dropdown",
@@ -46,11 +46,21 @@ const block = {
     };
     return data;
   },
+  getJavascript(parameters) {
+    const script = function (block, generator) {
+      var dropdown_polygen = block.getFieldValue("Video");
+      return [
+        `handleVideo(${JSON.stringify(dropdown_polygen)})`,
+        generator.ORDER_NONE,
+      ];
+    };
+    return script;
+  },
   getLua({ index }) {
-    const lua = function (block) {
+    const lua = function (block, generator) {
       var dropdown = block.getFieldValue("Video");
 
-      return [Handler(dropdown), Blockly.Lua.ORDER_NONE];
+      return [Handler(dropdown), generator.ORDER_NONE];
     };
     return lua;
   },

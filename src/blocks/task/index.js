@@ -7,6 +7,7 @@ import TweenToObject from "./tween_to_object";
 import TaskArray from "./task_array";
 import TaskCricle from "./task_circle";
 import TaskPlaySound from "./play_sound_task";
+import TaskPlayVideo from "./play_video_task";
 import TaskPlayAnimation from "./play_animation_task";
 import RunTask from "./run_task";
 import SleepTask from "./sleep_task";
@@ -26,6 +27,7 @@ const Category = {
     RunTask.toolbox,
     SleepTask.toolbox,
     TaskPlaySound.toolbox,
+    TaskPlayVideo.toolbox,
     TaskPlayAnimation.toolbox,
   ],
 };
@@ -38,6 +40,7 @@ function Register(parameters) {
   RegisterData(RunTask, parameters);
   RegisterData(SleepTask, parameters);
   RegisterData(TaskPlaySound, parameters);
+  RegisterData(TaskPlayVideo, parameters);
   RegisterData(TaskPlayAnimation, parameters);
 }
 const Setup = SetupIt(Category, Register);

@@ -1,4 +1,5 @@
 import DataType from "./type";
+import * as Blockly from "blockly";
 
 const data = {
   name: "play_video",
@@ -10,22 +11,12 @@ const block = {
   getBlockJson(parameters) {
     const json = {
       type: "block_type",
-      message0: "播放视频 %1 同步 %2 独占 %3",
+      message0: Blockly.Msg.VIDEO_PLAY[window.lg],
       args0: [
         {
           type: "input_value",
           name: "video",
           check: "Video",
-        },
-        {
-          type: "field_checkbox",
-          name: "sync",
-          checked: true,
-        },
-        {
-          type: "field_checkbox",
-          name: "occupy",
-          checked: true,
         },
       ],
       previousStatement: null,
@@ -48,31 +39,22 @@ const block = {
   getJavascript(parameters) {
     const script = function (block, generator) {
       var video = generator.valueToCode(block, "video", generator.ORDER_NONE);
-      var sync = block.getFieldValue("sync") === "TRUE";
-      var occupy = block.getFieldValue("occupy") === "TRUE";
-
-      var parameter = video + ", " + JSON.stringify(occupy);
-      if (sync) {
-        return `handleVideo(${JSON.stringify(parameter)})`;
-      } else {
-        return `handleVideo(${JSON.stringify(parameter)})`;
-      }
+      // 检查是否在 action_trigger 中调用
+      var isInActionTrigger =
+        block.getSurroundParent() &&
+        block.getSurroundParent().type === "action_trigger";
+      var code = `await video.play(${video}${
+        isInActionTrigger ? ", true" : ""
+      });\n`;
+      return code;
     };
     return script;
   },
+
   getLua(parameters) {
     const lua = function (block, generator) {
-      var video = generator.valueToCode(block, "video", generator.ORDER_NONE);
-      var sync = block.getFieldValue("sync") === "TRUE";
-      var occupy = block.getFieldValue("occupy") === "TRUE";
-
-      var parameter = video + ", " + JSON.stringify(occupy);
-
-      if (sync) {
-        return "_G.video.sync_play(" + parameter + ")\n";
-      } else {
-        return "_G.video.play(" + parameter + ")\n";
-      }
+      var video = generator.valueToCode(block, "video", generator.ORDER_NONE)
+      return "_G.video.play(" + video + ")\n";
     };
     return lua;
   },

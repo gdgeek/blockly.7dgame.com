@@ -48,7 +48,19 @@ const block = {
     return data;
   },
   getJavascript(parameters) {
-    return this.getLua(parameters);
+    const script = function (block, generator) {
+      var video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      var occupy = block.getFieldValue("occupy") === "TRUE";
+
+      var parameter = video + ", " + JSON.stringify(occupy);
+      var callback = generator.statementToCode(
+        block,
+        "callback",
+        generator.ORDER_NONE
+      );
+      return `handleVideo(${JSON.stringify(parameter)}, ${callback})`;
+    };
+    return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
