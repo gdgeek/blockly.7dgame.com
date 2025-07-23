@@ -487,6 +487,71 @@ Blockly.Msg.VOICE_TRIGGER_VISIBLE = {
   en: "Visible",
   ja: "表示モード",
 };
+Blockly.Msg.VOICE_TRIGGER_SHOW_YUELU = {
+  zh: '展示岳麓山校区',
+  en: 'Show Yuelu Campus',
+  ja: '岳麓山キャンパスを表示'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SHOW_LUNAN = {
+  zh: '展示麓南校区',
+  en: 'Show Lunan Campus',
+  ja: '麓南キャンパスを表示'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SHOW_XIAOXIANG = {
+  zh: '展示潇湘校区',
+  en: 'Show Xiaoxiang Campus',
+  ja: '潇湘キャンパスを表示'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SHOW_TIANXIN = {
+  zh: '展示天心校区',
+  en: 'Show Tianxin Campus',
+  ja: '天心キャンパスを表示'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SHOW_XINGLIN = {
+  zh: '展示杏林校区',
+  en: 'Show Xinglin Campus',
+  ja: '杏林キャンパスを表示'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SHOW_KAIFU = {
+  zh: '展示开福校区',
+  en: 'Show Kaifu Campus',
+  ja: '開福キャンパスを表示'
+};
+
+Blockly.Msg.VOICE_TRIGGER_GO_BACK = {
+  zh: '返回',
+  en: 'Go Back',
+  ja: '戻る'
+};
+
+Blockly.Msg.VOICE_TRIGGER_BGM_ON = {
+  zh: '打开背景音乐',
+  en: 'Play Background Music',
+  ja: '背景音楽を再生'
+};
+
+Blockly.Msg.VOICE_TRIGGER_BGM_OFF = {
+  zh: '关闭背景音乐',
+  en: 'Stop Background Music',
+  ja: '背景音楽を停止'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_ON = {
+  zh: '打开沙盘特效',
+  en: 'Enable Sandbox Effects',
+  ja: 'サンドボックスエフェクトを有効化'
+};
+
+Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_OFF = {
+  zh: '关闭沙盘特效',
+  en: 'Disable Sandbox Effects',
+  ja: 'サンドボックスエフェクトを無効化'
+};
 
 // 视频video
 export const VIDEO_NAME = {

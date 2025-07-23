@@ -64,7 +64,7 @@ const block = {
         // 筛选模型列表 - 只显示自旋转的模型(rotate为true)
         const filteredOptions = [["none", ""]];
         resource.polygen.forEach((poly) => {
-          // 只筛选 moved 属性为 true 的模型
+          // 只筛选 rotate 属性为 true 的模型
           if (poly.rotate === true) {
             filteredOptions.push([poly.name, poly.uuid]);
           }

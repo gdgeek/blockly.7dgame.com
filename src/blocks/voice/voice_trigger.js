@@ -19,6 +19,17 @@ function getLocalizedCommandName(name) {
     "horizontal": Blockly.Msg.VOICE_TRIGGER_HORIZONTAL[window.lg],
     "hidden": Blockly.Msg.VOICE_TRIGGER_HIDDEN[window.lg],
     "visible": Blockly.Msg.VOICE_TRIGGER_VISIBLE[window.lg],
+    "showYuelu": Blockly.Msg.VOICE_TRIGGER_SHOW_YUELU[window.lg],
+    "showLunan": Blockly.Msg.VOICE_TRIGGER_SHOW_LUNAN[window.lg],
+    "showXiaoxiang": Blockly.Msg.VOICE_TRIGGER_SHOW_XIAOXIANG[window.lg],
+    "showTianxin": Blockly.Msg.VOICE_TRIGGER_SHOW_TIANXIN[window.lg],
+    "showXinglin": Blockly.Msg.VOICE_TRIGGER_SHOW_XINGLIN[window.lg],
+    "showKaifu": Blockly.Msg.VOICE_TRIGGER_SHOW_KAIFU[window.lg],
+    "goBack": Blockly.Msg.VOICE_TRIGGER_GO_BACK[window.lg],
+    "bgmOn": Blockly.Msg.VOICE_TRIGGER_BGM_ON[window.lg],
+    "bgmOff": Blockly.Msg.VOICE_TRIGGER_BGM_OFF[window.lg],
+    "sandboxFxOn": Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_ON[window.lg],
+    "sandboxFxOff": Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_OFF[window.lg],
   };
 
   return commandMap[name] || name;
