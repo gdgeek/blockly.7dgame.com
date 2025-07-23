@@ -91,6 +91,11 @@ Blockly.Msg.TASK_PLAY_SOUND_TASK = {
   en: "Play audio %1 task",
   ja: "オーディオ %1 タスクを再生する",
 };
+Blockly.Msg.TASK_PLAY_VIDEO_TASK = {
+  zh: "播放视频 %1 任务",
+  en: "Play video %1 task",
+  ja: "ビデオ %1 タスクを再生する",
+};
 Blockly.Msg.TASK_PLAY_ANIMATION_TASK = {
   zh: "播放动画 模型 %1 动画 %2 任务",
   en: "Play animation polygen %1 animation %2 task",
@@ -476,6 +481,23 @@ Blockly.Msg.VOICE_TRIGGER_VISIBLE = {
   zh: "显示模式",
   en: "Visible",
   ja: "表示モード",
+};
+
+// 视频video
+export const VIDEO_NAME = {
+  zh: "视频",
+  en: "Video",
+  ja: "ビデオ",
+};
+Blockly.Msg.VIDEO_VIDEO = {
+  zh: "视频 %1",
+  en: "Video %1",
+  ja: "ビデオ %1",
+};
+Blockly.Msg.VIDEO_PLAY = {
+  zh: "播放视频 %1",
+  en: "Play Video %1",
+  ja: "ビデオを再生 %1",
 };
 
 // 颜色 Colors
