@@ -340,6 +340,16 @@ Blockly.Msg.SOUND_PLAY = {
   en: "Play Audio %1",
   ja: "サウンドを再生 %1",
 };
+Blockly.Msg.SOUND_PAUSE = {
+  zh: "暂停音频 %1",
+  en: "Pause Audio %1",
+  ja: "サウンドを一時停止 %1",
+};
+Blockly.Msg.SOUND_STOP = {
+  zh: "终止音频 %1",
+  en: "Stop Audio %1",
+  ja: "サウンドを停止 %1",
+};
 
 // 体素voxel
 export const VOXEL_NAME = {
