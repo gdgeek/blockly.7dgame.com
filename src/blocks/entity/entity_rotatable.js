@@ -93,7 +93,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      return `entity.setRotatable(${value_entity}, ${value_rotatable})\n`;
+      return `point.setRotatable(${value_entity}, ${value_rotatable})\n`;
     };
   },
 
@@ -110,7 +110,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      return `_G.entity.set_rotatable(${value_entity}, ${value_rotatable})\n`;
+      return `_G.point.set_rotatable(${value_entity}, ${value_rotatable})\n`;
     };
   },
 

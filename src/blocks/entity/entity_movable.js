@@ -88,7 +88,7 @@ const block = {
         generator.ORDER_ATOMIC
       );
 
-      const code = `entity.setMoveable(${value_entity}, ${value_movable})\n`;
+      const code = `point.setMoveable(${value_entity}, ${value_movable})\n`;
       return code;
     };
     return script;
@@ -105,7 +105,7 @@ const block = {
         "movable",
         generator.ORDER_ATOMIC
       );
-      var code = "_G.entity.set_moveable(" + value_entity + ", " + value_movable + ")\n";
+      var code = "_G.point.set_moveable(" + value_entity + ", " + value_movable + ")\n";
       return code;
     };
     return lua;

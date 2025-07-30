@@ -84,10 +84,10 @@ const block = {
         ).join(',\n    ');
         
         // 组合所有handler调用和value_movable参数
-        code = `entity.setAllMovable(` + "[\n" + handlerCalls + "], " + value_movable + ")\n";
+        code = `point.setAllMovable(` + "[\n" + handlerCalls + "], " + value_movable + ")\n";
       } else {
         // 如果没有可移动实体，传递空字符串
-        code = `entity.setAllMovable(handleEntity(""), ${value_movable})\n`;
+        code = `point.setAllMovable(handleEntity(""), ${value_movable})\n`;
       }
       
       return code;
@@ -113,10 +113,10 @@ const block = {
         ).join(',\n  ');
         
         // 组合所有handler调用和value_movable参数
-        code = "_G.entity.set_all_movable(" + "{\n  " + handlerCalls + "\n}, " + value_movable + ")\n";
+        code = "_G.point.set_all_movable(" + "{\n  " + handlerCalls + "\n}, " + value_movable + ")\n";
       } else {
         // 如果没有可移动实体，传递空字符串
-        code = "_G.entity.set_all_movable(_G.helper.handler(index, ''), " + value_movable + ")\n";
+        code = "_G.point.set_all_movable(_G.helper.handler(index, ''), " + value_movable + ")\n";
       }
       
       return code;
