@@ -32,6 +32,14 @@ import { luaGenerator } from "blockly/lua";
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+
+
+const userInfo = ref({
+  id: "",
+  roles: [],
+  role: "",
+});
+
 const postMessage = (action, data = {}) => {
   window.parent.postMessage({ action, data, from: "script.blockly" }, "*");
 };
@@ -53,7 +61,7 @@ const save = (message) => {
 };
 const init = (message) => {
   console.error("init", message);
-  const toolbox = Custom.setup(message.style, message.parameters);
+  const toolbox = Custom.setup(message.style, message.parameters, userInfo.value);
   options.value = {
     media: "media/",
     grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
@@ -131,6 +139,10 @@ const handleMessage = async (message) => {
 
     if (action === "init") {
       init(data);
+    } else if (action === "user-info") {
+      console.log("user-info", data);
+      userInfo.value = data;
+      console.log("userInfo", userInfo.value);
     } else if (action === "save") {
       save(data);
     }

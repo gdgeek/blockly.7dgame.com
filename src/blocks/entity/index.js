@@ -19,40 +19,39 @@ import EntityAllmovable from "./entity_allmovable";
 import EntityRotatable from "./entity_rotatable";
 
 
-const Setup = SetupIt(
-  {
+const Setup = (toolbox, parameters, userInfo) => {
+  // 根据用户角色过滤内容
+  const contents = [
+    Entity.toolbox,
+    //  LineExecute.toolbox,
+    // TweenExecute.toolbox,
+    VisualExecute.toolbox,
+    // EntityExplode.toolbox,
+    // EntityUnxploded.toolbox
+    VisualTooltip.toolbox,
+    VisualTooltips.toolbox,
+    ...(userInfo && userInfo.role !== "user" ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
+    EntityRotatable.toolbox
+  ];
+
+  // 添加类别到工具箱
+  toolbox.contents.push({
     kind: "category",
-    // name: "实体",
     name: ENTITY_NAME[window.lg],
     colour: Type.colour,
-    contents: [
-      Entity.toolbox,
-      //  LineExecute.toolbox,
-      // TweenExecute.toolbox,
-      VisualExecute.toolbox,
-      // EntityExplode.toolbox,
-      // EntityUnxploded.toolbox
-      VisualTooltip.toolbox,
-      VisualTooltips.toolbox,
-      EntityMovable.toolbox,
-      EntityAllmovable.toolbox,
-      EntityRotatable.toolbox
-    ],
-  },
-  (parameters) => {
-    RegisterData(Entity, parameters);
-    // RegisterData(LineExecute, parameters)
-    // RegisterData(TweenExecute, parameters)
-    RegisterData(VisualExecute, parameters);
-    //RegisterData(EntityExplode, parameters)
-    // RegisterData(EntityUnxploded, parameters)
-    //RegisterData(root, index, TextEntity)
-    RegisterData(VisualTooltip, parameters);
-    RegisterData(VisualTooltips, parameters);
+    contents: contents,
+  });
+
+  RegisterData(Entity, parameters);
+  RegisterData(VisualExecute, parameters);
+  RegisterData(VisualTooltip, parameters);
+  RegisterData(VisualTooltips, parameters);
+  RegisterData(EntityRotatable, parameters);
+  
+  if (userInfo && userInfo.role !== "user") {
     RegisterData(EntityMovable, parameters);
     RegisterData(EntityAllmovable, parameters);
-    RegisterData(EntityRotatable, parameters);
   }
-);
+};
 
 export { Setup };
