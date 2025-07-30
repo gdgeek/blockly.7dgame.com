@@ -50,9 +50,29 @@ const block = {
         this.tooltipsData = null;
         // 保存父块信息，用于检测断开连接
         this.parentBlockId = null;
+        // 保存当前选中的实体UUID
+        this.selectedEntityUuid = null;
         
         // 监听块的变化事件
         this.setOnChange((event) => {
+          const selectedUuid = this.getFieldValue("Entity");
+
+          // 只有在 Entity 的 UUID 改变时，才触发更新事件
+          if (this.selectedEntityUuid !== selectedUuid) {
+            this.selectedEntityUuid = selectedUuid;
+
+            // 触发更新事件
+            Blockly.Events.fire(
+              new Blockly.Events.BlockChange(
+                this,
+                "field",
+                "Entity",
+                "",
+                selectedUuid
+              )
+            );
+          }
+          
           if (event.type === Blockly.Events.BLOCK_CHANGE ||
               event.type === Blockly.Events.BLOCK_MOVE) {
             // 检测是否断开了与visual_tooltip的连接
@@ -99,6 +119,24 @@ const block = {
         
         // 恢复原始选项
         field.menuGenerator_ = this.originalOptions;
+        
+        // 强制重新渲染
+        field.forceRerender();
+      },
+      
+      // 更新下拉选项的方法，供其他模块使用
+      updateDropdownOptions: function(options) {
+        const field = this.getField("Entity");
+        if (!field) return;
+        
+        // 更新选项
+        field.menuGenerator_ = options;
+        
+        // 检查当前值是否在新选项中存在
+        const currentValue = field.getValue();
+        if (!options.some(opt => opt[1] === currentValue)) {
+          field.setValue("");
+        }
         
         // 强制重新渲染
         field.forceRerender();

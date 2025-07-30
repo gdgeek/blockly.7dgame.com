@@ -17,9 +17,9 @@ const Category = {
     PolygenEntity.toolbox,
     PlayAnimation.toolbox,
     PolygenHighlight.toolbox,
-    PolygenMovable.toolbox,
-    PolygenAllMovable.toolbox,
-    PolygenRotatable.toolbox,
+    // PolygenMovable.toolbox,
+    // PolygenAllMovable.toolbox,
+    // PolygenRotatable.toolbox,
   ],
 };
 
@@ -27,9 +27,9 @@ function Register(parameters) {
   RegisterData(PolygenEntity, parameters);
   RegisterData(PlayAnimation, parameters);
   RegisterData(PolygenHighlight, parameters);
-  RegisterData(PolygenMovable, parameters);
-  RegisterData(PolygenAllMovable, parameters);
-  RegisterData(PolygenRotatable, parameters);
+  // RegisterData(PolygenMovable, parameters);
+  // RegisterData(PolygenAllMovable, parameters);
+  // RegisterData(PolygenRotatable, parameters);
 }
 const Setup = SetupIt(Category, Register);
 export { Setup };

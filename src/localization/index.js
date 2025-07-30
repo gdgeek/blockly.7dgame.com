@@ -256,6 +256,21 @@ Blockly.Msg.ENTITY_ENTITY_HIGHLIGHT = {
   en: "Point %1 highlight %2 color %3",
   ja: "エンティティ %1 をハイライト %2 色 %3",
 }
+Blockly.Msg.ENTITY_MOVABLE = {
+  zh: "节点 %1 是否可移动 %2",
+  en: "Point %1 is movable %2",
+  ja: "エンティティ %1 が移動可能かどうかをフィルタリングする %2",
+};
+Blockly.Msg.ENTITY_MOVABLE_ALL = {
+  zh: "所有节点是否可移动 %1",
+  en: "All points are movable %1",
+  ja: "すべてのエンティティが移動可能かどうかをフィルタリングする %1",
+};
+Blockly.Msg.ENTITY_ROTATABLE = {
+  zh: "节点 %1 是否自旋转 %2",
+  en: "Point %1 is rotatable %2",
+  ja: "エンティティ %1 が自動回転可能かどうかをフィルタリングする %2",
+};
 
 // 模型ploygen
 export const POLYGEN_NAME = {

@@ -14,6 +14,9 @@ import { ENTITY_NAME } from "../../localization/index";
 import VisualExecute from "./visual_execute";
 import VisualTooltip from "./visual_tooltip";
 import VisualTooltips from "./visual_tooltips";
+import EntityMovable from "./entity_movable";
+import EntityAllmovable from "./entity_allmovable";
+import EntityRotatable from "./entity_rotatable";
 
 
 const Setup = SetupIt(
@@ -30,7 +33,10 @@ const Setup = SetupIt(
       // EntityExplode.toolbox,
       // EntityUnxploded.toolbox
       VisualTooltip.toolbox,
-      VisualTooltips.toolbox
+      VisualTooltips.toolbox,
+      EntityMovable.toolbox,
+      EntityAllmovable.toolbox,
+      EntityRotatable.toolbox
     ],
   },
   (parameters) => {
@@ -43,6 +49,9 @@ const Setup = SetupIt(
     //RegisterData(root, index, TextEntity)
     RegisterData(VisualTooltip, parameters);
     RegisterData(VisualTooltips, parameters);
+    RegisterData(EntityMovable, parameters);
+    RegisterData(EntityAllmovable, parameters);
+    RegisterData(EntityRotatable, parameters);
   }
 );
 
