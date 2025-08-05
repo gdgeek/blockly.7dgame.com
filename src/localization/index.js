@@ -594,6 +594,16 @@ Blockly.Msg.VIDEO_PLAY = {
   en: "Play Video %1",
   ja: "ビデオを再生 %1",
 };
+Blockly.Msg.VIDEO_PAUSE = {
+  zh: "暂停视频 %1",
+  en: "Pause Video %1",
+  ja: "ビデオを一時停止 %1",
+};
+Blockly.Msg.VIDEO_STOP = {
+  zh: "终止视频 %1",
+  en: "Stop Video %1",
+  ja: "ビデオを停止 %1",
+};
 
 // 颜色 Colors
 export const COLOR_NAME = {

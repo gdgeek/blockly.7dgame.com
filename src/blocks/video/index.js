@@ -4,6 +4,8 @@ import VideoEntity from "./video_entity";
 import PlayVideo from "./play_video";
 import PlayVideoCallback from "./play_video_callback";
 import PlayVideo2 from "./play_video2";
+import PauseVideo from "./pause_video";
+import StopVideo from "./stop_video";
 import { VIDEO_NAME } from "../../localization/index";
 
 const Setup = SetupIt(
@@ -17,6 +19,8 @@ const Setup = SetupIt(
       // PlayVideo.toolbox,
       PlayVideo2.toolbox,
       // PlayVideoCallback.toolbox,
+      PauseVideo.toolbox,
+      StopVideo.toolbox,
     ],
   },
   (parameters) => {
@@ -24,6 +28,8 @@ const Setup = SetupIt(
     // RegisterData(PlayVideo, parameters);
     RegisterData(PlayVideo2, parameters);
     // RegisterData(PlayVideoCallback, parameters)
+    RegisterData(PauseVideo, parameters);
+    RegisterData(StopVideo, parameters);
   }
 );
 export { Setup };
