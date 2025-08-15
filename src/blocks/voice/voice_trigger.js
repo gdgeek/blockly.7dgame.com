@@ -30,6 +30,11 @@ function getLocalizedCommandName(name) {
     "bgmOff": Blockly.Msg.VOICE_TRIGGER_BGM_OFF[window.lg],
     "sandboxFxOn": Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_ON[window.lg],
     "sandboxFxOff": Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_OFF[window.lg],
+    "sandboxRotateOn": Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_ON[window.lg],
+    "sandboxRotateOff": Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_OFF[window.lg],
+    "campusIntroOff": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_OFF[window.lg],
+    "campusIntroOn": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_ON[window.lg],
+
   };
 
   return commandMap[name] || name;

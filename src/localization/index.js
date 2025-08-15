@@ -582,6 +582,27 @@ Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_OFF = {
   en: 'Disable Sandbox Effects',
   ja: 'サンドボックスエフェクトを無効化'
 };
+Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_ON = {
+  zh: '打开沙盘旋转',
+  en: 'Enable Sandbox Rotation',
+  ja: 'サンドボックスの回転を開始'
+};
+Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_OFF = {
+  zh: '关闭沙盘旋转',
+  en: 'Disable Sandbox Rotation',
+  ja: 'サンドボックスの回転を停止'
+};
+Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_OFF = {
+  zh: '关闭校区介绍',
+  en: 'Disable Campus Introduction',
+  ja: 'キャンパス紹介を停止'
+};
+Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_ON = {
+  zh: '打开校区介绍',
+  en: 'Enable Campus Introduction',
+  ja: 'キャンパス紹介を開始'
+};
+
 
 // 视频video
 export const VIDEO_NAME = {
