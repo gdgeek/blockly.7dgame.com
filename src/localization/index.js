@@ -365,6 +365,11 @@ Blockly.Msg.SOUND_STOP = {
   en: "Stop Audio %1",
   ja: "サウンドを停止 %1",
 };
+Blockly.Msg.SOUND_AUTOPLAY = {
+  zh: "自动播放/暂停 音频 %1",
+  en: "Auto Play/Pause Audio %1",
+  ja: "自動再生/一時停止 サウンド %1",
+};
 
 // 体素voxel
 export const VOXEL_NAME = {
@@ -603,6 +608,11 @@ Blockly.Msg.VIDEO_STOP = {
   zh: "终止视频 %1",
   en: "Stop Video %1",
   ja: "ビデオを停止 %1",
+};
+Blockly.Msg.VIDEO_AUTOPLAY = {
+  zh: "自动播放/暂停 视频 %1",
+  en: "Auto Play/Pause Video %1",
+  ja: "自動再生/一時停止 ビデオ %1",
 };
 
 // 颜色 Colors

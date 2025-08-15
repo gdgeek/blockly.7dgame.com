@@ -6,6 +6,7 @@ import PlayVideoCallback from "./play_video_callback";
 import PlayVideo2 from "./play_video2";
 import PauseVideo from "./pause_video";
 import StopVideo from "./stop_video";
+import AutoPlay from "./autoplay_video";
 import { VIDEO_NAME } from "../../localization/index";
 
 const Setup = SetupIt(
@@ -21,6 +22,7 @@ const Setup = SetupIt(
       // PlayVideoCallback.toolbox,
       PauseVideo.toolbox,
       StopVideo.toolbox,
+      AutoPlay.toolbox,
     ],
   },
   (parameters) => {
@@ -30,6 +32,7 @@ const Setup = SetupIt(
     // RegisterData(PlayVideoCallback, parameters)
     RegisterData(PauseVideo, parameters);
     RegisterData(StopVideo, parameters);
+    RegisterData(AutoPlay, parameters);
   }
 );
 export { Setup };
