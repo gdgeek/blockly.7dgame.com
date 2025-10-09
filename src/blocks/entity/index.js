@@ -30,7 +30,7 @@ const Setup = (toolbox, parameters, userInfo) => {
     // EntityUnxploded.toolbox
     VisualTooltip.toolbox,
     VisualTooltips.toolbox,
-    ...(userInfo && userInfo.role !== "user" ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
+   // ...(userInfo && userInfo.role !== "user" ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
     EntityRotatable.toolbox
   ];
 
@@ -47,11 +47,11 @@ const Setup = (toolbox, parameters, userInfo) => {
   RegisterData(VisualTooltip, parameters);
   RegisterData(VisualTooltips, parameters);
   RegisterData(EntityRotatable, parameters);
-  
-  if (userInfo && userInfo.role !== "user") {
+
+  /* if (userInfo && userInfo.role !== "user") {
     RegisterData(EntityMovable, parameters);
     RegisterData(EntityAllmovable, parameters);
-  }
+  } */
 };
 
 export { Setup };
