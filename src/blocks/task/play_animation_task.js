@@ -11,7 +11,7 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: "aaaaa",// Blockly.Msg.TASK_PLAY_ANIMATION_TASK[window.lg],
+      message0: Blockly.Msg.TASK_PLAY_ANIMATION_TASK[window.lg],
       args0: [
         {
           type: "input_value",
@@ -32,12 +32,11 @@ const block = {
     return json;
   },
   getBlock: function (parameters) {
-
     const data = {
       init: function () {
-        alert("init play animation task");
         const json = block.getBlockJson(parameters);
-        this.jsonInit(json); 
+        this.jsonInit(json);
+        
         const animationField = this.getField("animation");
         if (animationField) {
           animationField.doClassValidation_ = function(newValue) {
@@ -62,7 +61,6 @@ const block = {
       },
       
       updateAnimationOptions: function (resource) {
-  
         const polygenBlock = this.getInputTargetBlock("polygen");
         const selectedPolygenUuid = polygenBlock
           ? polygenBlock.getFieldValue("Polygen")
