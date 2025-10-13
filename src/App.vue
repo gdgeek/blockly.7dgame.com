@@ -6,7 +6,7 @@
       :options="options"
       ref="foo"
     ></BlocklyComponent>
-    <div v-else>7d game</div>
+    <div v-else>7d game 1013</div>
   </div>
 </template>
 
