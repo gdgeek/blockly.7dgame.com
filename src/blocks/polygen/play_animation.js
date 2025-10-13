@@ -42,6 +42,7 @@ const block = {
         
         // 使用自定义验证器来允许保存的值即使不在选项中也能被保留
         const animationField = this.getField("animation");
+      
         if (animationField) {
           animationField.doClassValidation_ = function(newValue) {
             // 允许任何值通过验证，这样刷新时保存的值就不会被重置
@@ -85,6 +86,7 @@ const block = {
           
         // 获取动画字段
         const animationField = this.getField("animation");
+        //alert(JSON.stringify(resource));
         if (!animationField) return;
         
         // 获取当前选中的值
@@ -102,6 +104,7 @@ const block = {
         
         if (resource && resource.polygen && selectedPolygenUuid) {
           resource.polygen.forEach((poly) => {
+          //  alert(JSON.stringify(poly));
             if (poly.uuid === selectedPolygenUuid) {
               if (poly.animations && poly.animations.length > 0) {
                 poly.animations.forEach((animation) => {
