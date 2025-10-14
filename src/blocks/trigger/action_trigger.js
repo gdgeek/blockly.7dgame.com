@@ -18,7 +18,7 @@ const block = {
           name: "Action",
           options: function () {
             let opt = [["none", ""]];
-            if (resource && resource.action) {
+            if (resource && resource.action ) {
               console.error("resource", resource);
               const action = resource.action;
               action.forEach(({ name, uuid, type }) => {
@@ -29,6 +29,10 @@ const block = {
                     opt.push([uuid, uuid]);
                   }
                 }
+                if (type === "Moved")
+                  if (name) {
+                    opt.push([name, uuid]);
+                  }
               });
             }
             return opt;
