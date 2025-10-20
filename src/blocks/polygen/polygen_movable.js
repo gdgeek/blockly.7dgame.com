@@ -39,25 +39,25 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
-        
+
         // 监听块变化，以便在适当时机更新实体选项
         this.setOnChange((event) => {
           if (event.type === Blockly.Events.BLOCK_CHANGE ||
-              event.type === Blockly.Events.BLOCK_CREATE || 
+              event.type === Blockly.Events.BLOCK_CREATE ||
               event.type === Blockly.Events.BLOCK_MOVE) {
             this.updateEntityOptions(parameters.resource);
           }
         });
       },
-      
+
       // 更新实体选项
       updateEntityOptions: function(resource) {
         if (!resource || !resource.polygen) return;
-        
+
         // 查找当前连接的实体块
         const entityBlock = this.getInputTargetBlock("entity");
         if (!entityBlock || entityBlock.type !== "polygen_entity") return;
-        
+
         // 筛选模型列表 - 只显示可移动的模型(moved为true)
         const filteredOptions = [["none", ""]];
         resource.polygen.forEach((poly) => {
@@ -66,7 +66,7 @@ const block = {
             filteredOptions.push([poly.name, poly.uuid]);
           }
         });
-        
+
         // 使用公共方法更新下拉选项
         if (typeof entityBlock.updateDropdownOptions === 'function') {
           entityBlock.updateDropdownOptions(filteredOptions);
@@ -115,4 +115,4 @@ const block = {
     type: data.name,
   },
 };
-export default block; 
+export default block;
