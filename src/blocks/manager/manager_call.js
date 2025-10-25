@@ -2,7 +2,7 @@ import EventType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "output_event",
+  name: "manager_call",
 };
 const block = {
   title: data.name,
@@ -11,23 +11,12 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.EVENT_OUTPUT[window.lg],
+      message0: Blockly.Msg.GAME_SCORE_ADD[window.lg],
       args0: [
         {
-          type: "field_dropdown",
-          name: "Output",
-          options: function () {
-            let opt = [["none", ""]];
-
-            if (resource && resource.events && resource.events.outputs) {
-              const output = resource.events.outputs;
-
-              output.forEach(({ title, uuid }) => {
-                opt.push([title, uuid]);
-              });
-            }
-            return opt;
-          },
+          type: "field_number",
+          name: "Score",
+          value: 1,
         },
       ],
       previousStatement: null,
@@ -49,18 +38,16 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      const output_event = block.getFieldValue("Output");
-
-      const code = `event.trigger(index, '${output_event}', parameter);`;
+      var score = block.getFieldValue("Score");
+      var code = `managers.game_add_score(${score}, parameter);\n`;
       return code;
     };
     return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var output_event = block.getFieldValue("Output");
-      // TODO: Assemble Lua into code variable.
-      var code = "_G.event.trigger(index,'" + output_event + "', parameter)\n";
+      var score = block.getFieldValue("Score");
+      var code = `_G.managers.game_add_score(${score}, parameter)\n`;
       return code;
     };
     return lua;

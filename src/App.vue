@@ -4,14 +4,14 @@
       v-if="options"
       id="blockly"
       :options="options"
-      ref="foo"
+      ref="editor"
     ></BlocklyComponent>
-    <div v-else>7d game 1013</div>
+    <div v-else>7d game 1023</div>
   </div>
 </template>
 
 
-
+ 
 <script setup>
 /**
  * @license
@@ -47,13 +47,13 @@ const postMessage = (action, data = {}) => {
 };
 
 const save = (message) => {
-  const data = Blockly.serialization.workspaces.save(foo.value.workspace);
+  const data = Blockly.serialization.workspaces.save(editor.value.workspace);
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postMessage("post:no-change");
   } else {
     postMessage("post", {
-      js: javascriptGenerator.workspaceToCode(foo.value.workspace),
-      lua: luaGenerator.workspaceToCode(foo.value.workspace),
+      js: javascriptGenerator.workspaceToCode(editor.value.workspace),
+      lua: luaGenerator.workspaceToCode(editor.value.workspace),
       data: data,
     });
     //alert(luaGenerator.workspaceToCode(foo.value.workspace))
@@ -87,9 +87,8 @@ const init = (message) => {
   };
   nextTick(() => {
     oldValue = message.data;
-
-    //console.error(message.data);
-    Blockly.serialization.workspaces.load(message.data, foo.value.workspace);
+   
+    Blockly.serialization.workspaces.load(message.data, editor.value.workspace);
 
     // const allBlocks = foo.value.workspace.getAllBlocks(false);
     // console.log("初始化工作区块内容", allBlocks); // 打印工作区的块内容
@@ -99,21 +98,21 @@ const init = (message) => {
     // });
 
     // 添加工作区变化的监听器
-    foo.value.workspace.addChangeListener(onWorkspaceChange);
+    editor.value.workspace.addChangeListener(onWorkspaceChange);
     updateCode();
   });
 };
 
 // 更新 Lua 代码并发送到主页面
 const updateCode = () => {
-  if (foo.value && foo.value.workspace) {
+  if (editor.value && editor.value.workspace) {
     const blocklyData = Blockly.serialization.workspaces.save(
-      foo.value.workspace
+      editor.value.workspace
     );
     console.log("更新Lua 代码：", code.value.lua);
     postMessage("update", {
-      lua: luaGenerator.workspaceToCode(foo.value.workspace),
-      js: javascriptGenerator.workspaceToCode(foo.value.workspace),
+      lua: luaGenerator.workspaceToCode(editor.value.workspace),
+      js: javascriptGenerator.workspaceToCode(editor.value.workspace),
       blocklyData: blocklyData,
     });
   }
@@ -158,7 +157,7 @@ onMounted(async () => {
 });
 
 let oldValue = null;
-const foo = ref();
+const editor = ref();
 const code = ref({
   lua: "",
   javascript: "",
@@ -167,28 +166,28 @@ const code = ref({
 let options = ref();
 
 function luaCode() {
-  if (foo.value && foo.value.workspace) {
-    console.log("foo.value.workspace", foo.value.workspace);
-    const blockCount = foo.value.workspace.getAllBlocks(false).length;
+  if (editor.value && editor.value.workspace) {
+    console.log("foo.value.workspace", editor.value.workspace);
+    const blockCount = editor.value.workspace.getAllBlocks(false).length;
     if (blockCount === 0) {
       console.log("工作区为空，无法生成 Lua 代码");
       code.value.lua = "";
     } else {
-      code.value.lua = luaGenerator.workspaceToCode(foo.value.workspace);
+      code.value.lua = luaGenerator.workspaceToCode(editor.value.workspace);
       console.log("Lua 代码：", code.value);
     }
   }
 }
 
 function jsCode() {
-  if (foo.value && foo.value.workspace) {
-    const blockCount = foo.value.workspace.getAllBlocks(false).length;
+  if (editor.value && editor.value.workspace) {
+    const blockCount = editor.value.workspace.getAllBlocks(false).length;
     if (blockCount === 0) {
       console.log("工作区为空，无法生成 JavaScript 代码");
       code.value.javascript = "";
     } else {
       code.value.javascript = javascriptGenerator.workspaceToCode(
-        foo.value.workspace
+        editor.value.workspace
       );
       console.log("JavaScript 代码：", code.value);
     }

@@ -35,6 +35,7 @@ import * as Voice from "../blocks/voice";
 import * as Video from "../blocks/video";
 // import *  as Other from '../blocks/other'
 import * as Signal from "../blocks/signal";
+import * as Manager from "../blocks/manager"
 import * as Parameter from "../blocks/parameter";
 
 const sep = {
@@ -142,6 +143,7 @@ const setup = (style, parameters, userInfo) => {
   }
   if (style.includes("verse")) {
     Signal.Setup(toolbox, parameters);
+    Manager.Setup(toolbox, parameters);
     //toolbox.contents.push(DataCategory)
   }
   toolbox.contents.push(sep);

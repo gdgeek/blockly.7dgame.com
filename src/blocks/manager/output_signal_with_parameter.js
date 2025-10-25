@@ -2,7 +2,7 @@ import EventType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "output_event",
+  name: "output_signal_with_parameter",
 };
 const block = {
   title: data.name,
@@ -11,23 +11,29 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.EVENT_OUTPUT[window.lg],
+      message0: Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_WITH_PARAMETER[window.lg],
       args0: [
         {
           type: "field_dropdown",
           name: "Output",
           options: function () {
-            let opt = [["none", ""]];
-
+            let opt = [["none", JSON.stringify({ index: "", uuid: "" })]];
             if (resource && resource.events && resource.events.outputs) {
               const output = resource.events.outputs;
 
-              output.forEach(({ title, uuid }) => {
-                opt.push([title, uuid]);
+              output.forEach(({ title, index, uuid }) => {
+                // alert(JSON.stringify({ index, uuid }))
+                opt.push([title, JSON.stringify({ index, uuid })]);
               });
             }
+
             return opt;
           },
+        },
+        {
+          type: "input_value",
+          name: "Parameter",
+          check: "Parameter",
         },
       ],
       previousStatement: null,
@@ -49,9 +55,15 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      const output_event = block.getFieldValue("Output");
+      var output_event = block.getFieldValue("Output");
+      const data = JSON.parse(output_event); // 解析 JSON 字符串
+      var parameter = generator.valueToCode(
+        block,
+        "Parameter",
+        generator.ORDER_ATOMIC
+      );
 
-      const code = `event.trigger(index, '${output_event}', parameter);`;
+      var code = `event.signal('${data.index}', '${data.uuid}', ${parameter});\n`;
       return code;
     };
     return script;
@@ -59,8 +71,21 @@ const block = {
   getLua(parameters) {
     const lua = function (block, generator) {
       var output_event = block.getFieldValue("Output");
-      // TODO: Assemble Lua into code variable.
-      var code = "_G.event.trigger(index,'" + output_event + "', parameter)\n";
+      const data = JSON.parse(output_event);
+      var parameter = generator.valueToCode(
+        block,
+        "Parameter",
+        generator.ORDER_ATOMIC
+      );
+      //alert(JSON.stringify(data))
+      var code =
+        "_G.event.signal('" +
+        data.index +
+        "', '" +
+        data.uuid +
+        "'," +
+        parameter +
+        ")\n";
       return code;
     };
     return lua;

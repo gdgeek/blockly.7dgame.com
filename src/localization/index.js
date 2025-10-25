@@ -114,22 +114,22 @@ export const PARAMETER_NAME = {
   ja: "パラメーター",
 };
 Blockly.Msg.PARAMETER_BOOLEAN = {
-  zh: "布尔参数! %1",
+  zh: "布尔参数 %1",
   en: "Boolean parameter! %1",
   ja: "ブールパラメーター! %1",
 };
 Blockly.Msg.PARAMETER_NUMBER = {
-  zh: "数字参数! %1",
+  zh: "数字参数 %1",
   en: "Number parameter! %1",
   ja: "数値パラメーター! %1",
 };
 Blockly.Msg.PARAMETER_STRING = {
-  zh: "字符参数! %1",
+  zh: "字符参数 %1",
   en: "String parameter! %1",
   ja: "文字列パラメーター! %1",
 };
 Blockly.Msg.PARAMETER_PARAMETERS = {
-  zh: "参数列表! %1",
+  zh: "参数列表 %1",
   en: "Parameter list! %1",
   ja: "パラメーターリスト! %1",
 };
@@ -401,15 +401,29 @@ export const SIGNAL_NAME = {
   en: "Signal",
   ja: "シグナル",
 };
+
+
+// 管理signal
+export const MANAGER_NAME = {
+  zh: "管理",
+  en: "Manager",
+  ja: "マネージャー",
+};
+
+Blockly.Msg.GAME_SCORE_ADD = {
+  zh: "增加分数 %1",
+  en: "Add Score %1",
+  ja: "スコアを追加 %1",
+};
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
   zh: "触发信号 %1",
   en: "Trigger signal %1",
   ja: "信号 %1 をトリガーする",
 };
 Blockly.Msg.SIGNAL_INPUT_SIGNAL = {
-  zh: "接收信号! %1 %2 %3",
-  en: "Receive! signal %1 %2 %3",
-  ja: "信号! %1 %2 %3 を受信する",
+  zh: "接收信号 %1 %2 %3",
+  en: "Receive signal %1 %2 %3",
+  ja: "信号 %1 %2 %3 を受信する",
 };
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_WITH_PARAMETER = {
   zh: "触发信号 %1 参数 %2",
