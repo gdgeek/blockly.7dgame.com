@@ -24,9 +24,9 @@ const block = {
           check: "Transform",
         },
         {
-          type: "field_number",
+          type: "input_value",
           name: "Time",
-          value: 0.03,
+          check: "Number",
         },
         {
           type: "input_dummy",
@@ -64,7 +64,7 @@ const block = {
   },
   getJavascript(parameters) {
     const js = function (block, generator) {
-      var time = block.getFieldValue("Time");
+      var time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
       var easy = block.getFieldValue("Easy");
 
       var from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
@@ -90,7 +90,7 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var time = block.getFieldValue("Time");
+      var time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
       var easy = block.getFieldValue("Easy");
 
       var from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
