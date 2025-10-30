@@ -449,6 +449,19 @@ Blockly.Msg.SIGNAL_INIT_SIGNAL = {
   en: "Initialize %1 %2",
   ja: "初期化 %1 %2",
 };
+Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL
+  = {
+    zh: "触发多个信号 %1",
+    en: "Trigger multiple signals %1",
+    ja: "複数の信号 %1 をトリガーする",
+};
+
+Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_ITEM
+  = {
+    zh: "实体的输入信号 %1",
+    en: "Entity input signal %1",
+    ja: "実体の入力信号 %1",
+  };
 
 export const VARIABLE_NAME = {
   zh: "变量",

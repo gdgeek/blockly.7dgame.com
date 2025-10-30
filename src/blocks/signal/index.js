@@ -4,6 +4,9 @@ import OutputSignal from "./output_signal";
 import OutputSignalWithParameter from "./output_signal_with_parameter";
 import InputSignal from "./input_signal";
 import InitSignal from "./init_signal";
+import OutputsItem from "./outputs_item";
+import MultiOutputSignal from "./multi_output_signal";
+
 import { SIGNAL_NAME } from "../../localization/index";
 import { RegisterData, SetupIt } from "../helper";
 
@@ -17,6 +20,8 @@ const Category = {
     InputSignal.toolbox,
     OutputSignalWithParameter.toolbox,
     InitSignal.toolbox,
+    OutputsItem.toolbox,
+    MultiOutputSignal.toolbox,
   ],
 };
 
@@ -26,6 +31,8 @@ function Register(parameters) {
   RegisterData(InputSignal, parameters);
   RegisterData(OutputSignalWithParameter, parameters);
   RegisterData(InitSignal, parameters);
+  RegisterData(OutputsItem, parameters);
+  RegisterData(MultiOutputSignal, parameters);
 }
 const Setup = SetupIt(Category, Register);
 export { Setup };
