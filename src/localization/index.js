@@ -410,11 +410,25 @@ export const MANAGER_NAME = {
   ja: "マネージャー",
 };
 
-Blockly.Msg.GAME_SCORE_ADD = {
+Blockly.Msg.GAME_ADD_SCORE = {
   zh: "增加分数 %1",
   en: "Add Score %1",
   ja: "スコアを追加 %1",
 };
+
+Blockly.Msg.GAME_RESET = {
+  zh: "重置游戏",
+  en: "Reset Game",
+  ja: "ゲームをリセット",
+};
+
+
+Blockly.Msg.GAME_COUNTDOWN = {
+  zh: "倒计时 秒数 %1",
+  en: "Countdown Seconds %1",
+  ja: "カウントダウン 秒数 %1",
+};
+
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
   zh: "触发信号 %1",
   en: "Trigger signal %1",

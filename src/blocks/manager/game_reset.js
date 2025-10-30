@@ -2,7 +2,7 @@ import EventType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "manager_call",
+  name: "game_reset",
 };
 const block = {
   title: data.name,
@@ -11,14 +11,8 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.GAME_SCORE_ADD[window.lg],
-      args0: [
-        {
-          type: "field_number",
-          name: "Score",
-          value: 1,
-        },
-      ],
+      message0: Blockly.Msg.GAME_RESET[window.lg],
+     
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
@@ -38,16 +32,14 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      var score = block.getFieldValue("Score");
-      var code = `managers.game_add_score(${score}, parameter);\n`;
+      var code = `managers.game_reset(parameter);\n`;
       return code;
     };
     return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var score = block.getFieldValue("Score");
-      var code = `_G.managers.game_add_score(${score}, parameter)\n`;
+      var code = `_G.managers.game_reset(parameter)\n`;
       return code;
     };
     return lua;

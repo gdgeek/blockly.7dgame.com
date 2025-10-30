@@ -2,7 +2,7 @@ import EventType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "init_signal",
+  name: "game_countdown",
 };
 const block = {
   title: data.name,
@@ -10,24 +10,24 @@ const block = {
   colour: EventType.colour,
   getBlockJson({ resource }) {
     const json = {
-      type: data.name,
-      message0: Blockly.Msg.SIGNAL_INIT_SIGNAL[window.lg],
+      type: "block_type",
+      message0: Blockly.Msg.GAME_COUNTDOWN[window.lg],
       args0: [
         {
-          type: "input_dummy",
-        },
-        {
-          type: "input_statement",
-          name: "content",
+          type: "field_number",
+          name: "Seconds",
+          value: 120,
         },
       ],
+      previousStatement: null,
+      nextStatement: null,
       colour: EventType.colour,
       tooltip: "",
       helpUrl: "",
     };
     return json;
   },
-  getBlock(parameters) {
+  getBlock: function (parameters) {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
@@ -38,32 +38,16 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      var statements_content = generator.statementToCode(block, "content");
-
-      var code = `verse['#init'] = async function(parameter) {
-        let isPlaying = true;
-        console.log('#init');
-        ${statements_content}
-        isPlaying = false;
-      }
-      `;
-
+      var seconds = block.getFieldValue("Seconds");
+      var code = `managers.game_countdown(${seconds}, parameter);\n`;
       return code;
     };
     return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var statements_content = generator.statementToCode(block, "content");
-
-      var code =
-        "verse['#init'] = function(parameter) \n\
-  is_playing = true\n\
-  print('init')\n" +
-        statements_content +
-        "  is_playing = false\n\
-end\n";
-
+      var seconds = block.getFieldValue("Seconds");
+      var code = `_G.managers.game_countdown(${seconds}, parameter)\n`;
       return code;
     };
     return lua;
@@ -73,5 +57,4 @@ end\n";
     type: data.name,
   },
 };
-
 export default block;
