@@ -654,6 +654,11 @@ Blockly.Msg.GESTURE_TRIGGER_OK = {
   en: "OK",
   ja: "OK",
 };
+Blockly.Msg.GESTURE_TRIGGER_FIST = {
+  zh: "握拳",
+  en: "Fist",
+  ja: "握り拳",
+};
 
 // 视频video
 export const VIDEO_NAME = {
