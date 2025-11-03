@@ -31,7 +31,7 @@ import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
 import * as Sound from "../blocks/sound";
 import * as Voxel from "../blocks/voxel";
-import * as Voice from "../blocks/voice";
+import * as Command from "../blocks/command";
 import * as Video from "../blocks/video";
 // import *  as Other from '../blocks/other'
 import * as Signal from "../blocks/signal";
@@ -137,7 +137,7 @@ const setup = (style, parameters, userInfo) => {
     Text.Setup(toolbox, parameters);
     Sound.Setup(toolbox, parameters);
     Voxel.Setup(toolbox, parameters);
-    Voice.Setup(toolbox, parameters);
+    Command.Setup(toolbox, parameters);
     Video.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
   }

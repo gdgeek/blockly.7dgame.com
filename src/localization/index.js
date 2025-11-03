@@ -475,18 +475,23 @@ export const PROCEDURE_NAME = {
   ja: "プロシージャ",
 };
 
-// 语音Voice
-export const VOICE_NAME = {
-  zh: "语音",
-  en: "Voice",
-  ja: "音声",
+// 指令command
+export const COMMAND_NAME = {
+  zh: "指令",
+  en: "Command",
+  ja: "コマンド",
 };
 Blockly.Msg.VOICE_TRIGGER = {
   zh: "语音指令 %1 %2 %3",
   en: "Voice Trigger %1 %2 %3",
   ja: "音声トリガー %1 %2 %3",
 };
-
+Blockly.Msg.GESTURE_TRIGGER = {
+  zh: "手势指令 %1 %2 %3",
+  en: "Gesture Trigger %1 %2 %3",
+  ja: "ジェスチャートリガー %1 %2 %3",
+};
+// 语音指令 Voice Command
 Blockly.Msg.VOICE_TRIGGER_SCALE_UP = {
   zh: "放大",
   en: "Scale Up",
@@ -643,7 +648,12 @@ Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_ON = {
   en: 'Enable Campus Introduction',
   ja: 'キャンパス紹介を開始'
 };
-
+// 手势指令 Gesture Command
+Blockly.Msg.GESTURE_TRIGGER_OK = {
+  zh: "OK",
+  en: "OK",
+  ja: "OK",
+};
 
 // 视频video
 export const VIDEO_NAME = {
