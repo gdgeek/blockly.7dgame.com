@@ -132,7 +132,7 @@ const setup = (style, parameters, userInfo) => {
     Event.Setup(toolbox, parameters);
     toolbox.contents.push(sep);
     Entity.Setup(toolbox, parameters, userInfo);
-    Polygen.Setup(toolbox, parameters);
+    Polygen.Setup(toolbox, parameters, userInfo);
     Picture.Setup(toolbox, parameters);
     Text.Setup(toolbox, parameters);
     Sound.Setup(toolbox, parameters);

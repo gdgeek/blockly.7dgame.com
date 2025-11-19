@@ -309,6 +309,46 @@ Blockly.Msg.POLYGEN_ROTATABLE = {
   en: "Polygen %1 is rotatable %2",
   ja: "モデル %1 が自動回転可能かどうかをフィルタリングする %2",
 };
+Blockly.Msg.POLYGEN_SET_VISEME_CLIP = {
+  zh: "模型 %1 口型音频 %2",
+  en: "Polygen %1 viseme audio %2",
+  ja: "モデル %1 口パク音声 %2",
+};
+Blockly.Msg.POLYGEN_SET_EMOTE = {
+  zh: "模型 %1 设置表情 %2",
+  en: "Polygen %1 set emote %2",
+  ja: "モデル %1 表情を設定 %2",
+};
+Blockly.Msg.POLYGEN_EMOTE_IDLE = {
+  zh: "默认",
+  en: "Idle",
+  ja: "デフォルト",
+};
+Blockly.Msg.POLYGEN_EMOTE_ANGER = {
+  zh: "愤怒",
+  en: "Anger",
+  ja: "怒り",
+};
+Blockly.Msg.POLYGEN_EMOTE_SMIRK = {
+  zh: "嘲笑",
+  en: "Smirk",
+  ja: "にやり",
+};
+Blockly.Msg.POLYGEN_EMOTE_SMILE = {
+  zh: "微笑",
+  en: "Smile",
+  ja: "笑顔",
+};
+Blockly.Msg.POLYGEN_EMOTE_SAD = {
+  zh: "悲伤",
+  en: "Sad",
+  ja: "悲しい",
+};
+Blockly.Msg.POLYGEN_EMOTE_DISGUST = {
+  zh: "厌恶",
+  en: "Disgust",
+  ja: "嫌悪",
+};
 
 // 图片picture
 export const PICTURE_NAME = {
