@@ -12,7 +12,7 @@ function getEmoteOptions() {
     [Blockly.Msg.POLYGEN_EMOTE_SMIRK?.[window.lg] , "Smirk"],//嘲笑
     [Blockly.Msg.POLYGEN_EMOTE_SMILE?.[window.lg] , "Smile"],//微笑
     [Blockly.Msg.POLYGEN_EMOTE_SAD?.[window.lg] , "Sad"],//悲伤
-    [Blockly.Msg.POLYGEN_EMOTE_DISGUST?.[window.lg] , "Disgust"],//厌恶
+   // [Blockly.Msg.POLYGEN_EMOTE_DISGUST?.[window.lg] , "Disgust"],//厌恶
   ];
 }
 const block = {
