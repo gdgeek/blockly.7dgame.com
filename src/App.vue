@@ -70,7 +70,7 @@ const init = (message) => {
     toolbox,
     move: {
       scrollbars: {
-        horizontal: false,
+        horizontal: true,
         vertical: true,
       },
       drag: true,
