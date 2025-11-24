@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "@blockly/field-colour": "^5.0.7",
+    "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
     "blockly": "^11.0.0",
     "element-plus": "^2.8.0",
     "vue": "^3.2.37"

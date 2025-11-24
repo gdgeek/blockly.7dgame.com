@@ -11,6 +11,9 @@ importers:
       '@blockly/field-colour':
         specifier: ^5.0.7
         version: 5.0.7(blockly@11.1.1)
+      '@mit-app-inventor/blockly-plugin-workspace-multiselect':
+        specifier: ^1.0.2
+        version: 1.0.2(blockly@11.1.1)
       blockly:
         specifier: ^11.0.0
         version: 11.1.1
@@ -128,6 +131,12 @@ packages:
 
   '@jridgewell/sourcemap-codec@1.5.0':
     resolution: {integrity: sha512-gv3ZRaISU3fjPAgNsriBRqGWQL6quFx04YMPW/zD8XMLsU32mhCCbfbO6KZFLjvYpCZ8zyDEgqsgf+PwPaM7GQ==}
+
+  '@mit-app-inventor/blockly-plugin-workspace-multiselect@1.0.2':
+    resolution: {integrity: sha512-uC0E9ZqQ+ru8e9BFbLkHylYrXRQ3NFg7zG04W6X8dfMY9+AnMICXY9lnt8xpLd4Tr4osYNsEGHF4W0a82flzaQ==}
+    engines: {node: '>=8.17.0'}
+    peerDependencies:
+      blockly: '>=11 <12'
 
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -340,6 +349,9 @@ packages:
   doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
+
+  dragselect@2.7.4:
+    resolution: {integrity: sha512-j0qFl4xvsyImlSTn9erDCCT4SSPUMssgKAYuKqhsPr8WPphLghHfjDd4WR2jLjL91fTQQlbbIJ/7T2qwD2hghQ==}
 
   element-plus@2.8.0:
     resolution: {integrity: sha512-7ngapVlVlQAjocVqD4MUKvKXlBneT9DSDk2mmBOSLRFWNm/HLDT15ozmsvUBfy18sajnyUeSIHTtINE8gfrGMg==}
@@ -1181,6 +1193,11 @@ snapshots:
 
   '@jridgewell/sourcemap-codec@1.5.0': {}
 
+  '@mit-app-inventor/blockly-plugin-workspace-multiselect@1.0.2(blockly@11.1.1)':
+    dependencies:
+      blockly: 11.1.1
+      dragselect: 2.7.4
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -1417,6 +1434,8 @@ snapshots:
   doctrine@3.0.0:
     dependencies:
       esutils: 2.0.3
+
+  dragselect@2.7.4: {}
 
   element-plus@2.8.0(vue@3.4.37):
     dependencies:
