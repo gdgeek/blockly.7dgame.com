@@ -11,6 +11,12 @@ importers:
       '@blockly/field-colour':
         specifier: ^5.0.7
         version: 5.0.7(blockly@11.1.1)
+      '@blockly/workspace-backpack':
+        specifier: ^7.0.4
+        version: 7.0.4(blockly@11.1.1)
+      '@blockly/workspace-minimap':
+        specifier: ^0.3.3
+        version: 0.3.3(blockly@11.1.1)
       '@mit-app-inventor/blockly-plugin-workspace-multiselect':
         specifier: ^1.0.2
         version: 1.0.2(blockly@11.1.1)
@@ -73,6 +79,17 @@ packages:
     engines: {node: '>=8.0.0'}
     peerDependencies:
       blockly: ^11.0.0
+
+  '@blockly/workspace-backpack@7.0.4':
+    resolution: {integrity: sha512-G3aP7uqGfxLmRhbfzGR6nGlCy0iT4TL15Gl4w4oRJI758JO+o77tqLbps9CueWHc6H6Zgv3sPxNHQoEKPEhwhw==}
+    engines: {node: '>=8.17.0'}
+    peerDependencies:
+      blockly: ^12.0.0
+
+  '@blockly/workspace-minimap@0.3.3':
+    resolution: {integrity: sha512-w4dvWH6emQKvSrxYHfpey3flLpSOOr8YnI9Ldtl5S7UbK+y703PyidPcUH8cpPjoqCnw5wh4+StAznh+fa2TPg==}
+    peerDependencies:
+      blockly: ^12.0.0
 
   '@ctrl/tinycolor@3.6.1':
     resolution: {integrity: sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==}
@@ -1133,6 +1150,14 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@blockly/field-colour@5.0.7(blockly@11.1.1)':
+    dependencies:
+      blockly: 11.1.1
+
+  '@blockly/workspace-backpack@7.0.4(blockly@11.1.1)':
+    dependencies:
+      blockly: 11.1.1
+
+  '@blockly/workspace-minimap@0.3.3(blockly@11.1.1)':
     dependencies:
       blockly: 11.1.1
 

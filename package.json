@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@blockly/field-colour": "^5.0.7",
+    "@blockly/workspace-backpack": "^7.0.4",
+    "@blockly/workspace-minimap": "^0.3.3",
     "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
     "blockly": "^11.0.0",
     "element-plus": "^2.8.0",

@@ -18,7 +18,7 @@
  * @author dcoodien@gmail.com (Dylan Coodien)
  */
 
-import { onMounted, onBeforeUnmount, ref, shallowRef, toRaw } from "vue";
+import { onMounted, ref, shallowRef, toRaw } from "vue";
 import * as Blockly from "blockly/core";
 import * as En from "blockly/msg/en";
 import * as Zh from "blockly/msg/zh-hans";
@@ -26,7 +26,10 @@ import * as JA from "blockly/msg/ja";
 import "blockly/blocks";
 import { luaGenerator } from "blockly/lua";
 import { overrideProcedureMessages } from "../localization/procedure_override";
+import { localizedContextMenu } from "../localization/context_menu";
 import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
+import { PositionedMinimap } from "@blockly/workspace-minimap";
+import {Backpack} from '@blockly/workspace-backpack';
 
 const urlParams = new URLSearchParams(window.location.search);
 const lg = urlParams.get("language");
@@ -37,6 +40,8 @@ const blocklyToolbox = ref();
 const blocklyDiv = ref();
 const workspace = shallowRef();
 let multiselectPlugin = null;
+let minimap = null;
+let backpack = null;
 
 defineExpose({ workspace });
 onMounted(() => {
@@ -50,6 +55,9 @@ onMounted(() => {
   
   // 覆盖函数模块的本地化文本
   overrideProcedureMessages();
+
+  // 右键菜单本地化（Backpack 等插件）
+  localizedContextMenu();
 
   const options = props.options || {};
   if (!options.toolbox) {
@@ -65,29 +73,54 @@ onMounted(() => {
       // Shift 键作为多选模式开关
       multiSelectKeys: ['Shift'],
       // 为多选控件使用自定义图标。
-    multiselectIcon : { 
-    hideIcon : false , 
-    weight : 3 , 
-    enabledIcon : '/media/select.svg' , 
-    disabledIcon : '/media/unselect.svg' , 
-  } , 
+      multiselectIcon : { 
+      hideIcon : false , 
+      weight : 3 , 
+      enabledIcon : '/media/select.svg' , 
+      disabledIcon : '/media/unselect.svg' , 
+      } , 
     });
     multiselectPlugin = new Multiselect(workspace.value);
     multiselectPlugin.init(pluginOptions);
+    // 注销 Select all Blocks 菜单项
+    Blockly.ContextMenuRegistry.registry.unregister('workspaceSelectAll');
     console.log("multiselect plugin initialized");
   } catch (e) {
     console.error("Failed to initialize multiselect plugin:", e);
   }
-});
 
-onBeforeUnmount(() => {
+  // 初始化 minimap 插件
   try {
-    if (multiselectPlugin && typeof multiselectPlugin.dispose === 'function') {
-      multiselectPlugin.dispose();
-      multiselectPlugin = null;
+    if (options.minimap !== false) {
+      // 使用 PositionedMinimap（基于工作区布局自动定位）
+      minimap = new PositionedMinimap(workspace.value);
+      minimap.init();
+      console.log('minimap plugin initialized');
     }
   } catch (e) {
-    console.error('Error disposing multiselect plugin', e);
+    console.error('Failed to initialize minimap plugin:', e);
+  }
+
+  // 初始化 backpack 插件
+  try{
+    const backpackOptions = {
+      allowEmptyBackpackOpen: true,
+      useFilledBackpackImage: true,
+      skipSerializerRegistration: false,
+      contextMenu: {
+      emptyBackpack: true,
+      removeFromBackpack: true,
+      copyToBackpack: true,
+      copyAllToBackpack: true,
+      pasteAllToBackpack: true,
+      disablePreconditionChecks: false,
+      },
+    };
+    backpack = new Backpack(workspace.value, backpackOptions);
+    backpack.init();
+    console.log('backpack plugin initialized');
+  }catch (e){
+    console.error('Failed to initialize backpack plugin:', e);
   }
 });
 </script>
