@@ -11,6 +11,8 @@ function getLocalizedCommandName(name) {
     "scaleDown": Blockly.Msg.VOICE_TRIGGER_SCALE_DOWN[window.lg],
     "decompose": Blockly.Msg.VOICE_TRIGGER_DECOMPOSE[window.lg],
     "reset": Blockly.Msg.VOICE_TRIGGER_RESET[window.lg],
+
+    //教育项目
     "nextStep": Blockly.Msg.VOICE_TRIGGER_NEXT_STEP[window.lg],
     "returnMain": Blockly.Msg.VOICE_TRIGGER_RETURN_MAIN[window.lg],
     "closeTooltip": Blockly.Msg.VOICE_TRIGGER_CLOSE_TOOLTIP[window.lg],
@@ -34,7 +36,16 @@ function getLocalizedCommandName(name) {
     "sandboxRotateOff": Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_OFF[window.lg],
     "campusIntroOff": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_OFF[window.lg],
     "campusIntroOn": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_ON[window.lg],
-
+    //反欺凌项目
+    "mockFace": '多搞笑',
+    "almostCrying": '他快哭了',
+    "stopBullying": '别再欺负他',
+    "carefulHeard": '小心被听到',
+    "stillResisting": '还想反抗',
+    "goCheck": '去看看',
+    "wishfulThinking": '想得美',
+    "tooMuch": '太过分了',
+    "ostracizing": '在搞孤立',
   };
 
   return commandMap[name] || name;
