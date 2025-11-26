@@ -30,6 +30,7 @@ import { localizedContextMenu } from "../localization/context_menu";
 import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
 import { PositionedMinimap } from "@blockly/workspace-minimap";
 import {Backpack} from '@blockly/workspace-backpack';
+import { WorkspaceSearch } from '@blockly/plugin-workspace-search';
 
 const urlParams = new URLSearchParams(window.location.search);
 const lg = urlParams.get("language");
@@ -122,6 +123,15 @@ onMounted(() => {
   }catch (e){
     console.error('Failed to initialize backpack plugin:', e);
   }
+
+  // 初始化 workspace search 插件
+  try {
+    const workspaceSearch = new WorkspaceSearch(workspace.value);
+    workspaceSearch.init();
+    console.log('workspace search plugin initialized');
+  } catch (e) {
+    console.error('Failed to initialize workspace search plugin:', e);
+  }
 });
 </script>
 
@@ -131,5 +141,26 @@ onMounted(() => {
   height: 100%;
   width: 100%;
   text-align: left;
+}
+
+/* WorkspaceSearch 搜索框位置调整 - 顶部居中 */
+:global(.blockly-ws-search) {
+  top: 10px !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) scale(1.2); /* scale(1.2) 放大 20%，可调整 */
+  transform-origin: top center; /* 以顶部中心为缩放原点 */
+}
+
+/* 搜索到的块高亮颜色 - 匹配块 */
+:global(.blockly-ws-search-highlight) {
+  fill: #FFD700 !important; /* 金黄色高亮 */
+  stroke: #FFA500 !important; /* 橙色描边 */
+}
+
+/* 搜索到的块高亮颜色 - 当前选中块 */
+:global(.blockly-ws-search-current) {
+  fill: #FF6347 !important; /* 番茄红色高亮 */
+  stroke: #FF4500 !important; /* 深橙红色描边 */
 }
 </style>
