@@ -37,15 +37,16 @@ function getLocalizedCommandName(name) {
     "campusIntroOff": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_OFF[window.lg],
     "campusIntroOn": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_ON[window.lg],
     //反欺凌项目
-    "mockFace": '多搞笑',
+    "mockFace": '像怪物',
     "almostCrying": '他快哭了',
     "stopBullying": '别再欺负他',
     "carefulHeard": '小心被听到',
     "stillResisting": '还想反抗',
-    "goCheck": '去看看',
+    "goCheck": '东西被拿了去看看',
     "wishfulThinking": '想得美',
     "tooMuch": '太过分了',
     "ostracizing": '在搞孤立',
+    "whatsHappening": '出事了去看看',
   };
 
   return commandMap[name] || name;
