@@ -12,7 +12,7 @@
       :class="{ 'btn-hidden': minimapState.isVisible }"
       @mouseenter="minimapActions.show"
       @click="minimapActions.show"
-      @mouseleave="minimapActions.hideDelayed"
+      @mouseleave="minimapActions.hide"
       title="Minimap"
     >
       <img src="/media/map.svg" alt="Map" />

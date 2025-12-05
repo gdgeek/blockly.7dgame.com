@@ -13,6 +13,7 @@ export function usePluginManager() {
     strategies.multiselect(workspace, options);
     strategies.backpack(workspace, options);
     strategies.search(workspace);
+    strategies.multilineinputfield();
 
     // 2. 初始化 Minimap (需要 DOM 引用)
     minimapCtrl.init(workspace, blocklyDiv, options);
@@ -20,9 +21,6 @@ export function usePluginManager() {
 
   // 自动清理逻辑
   onBeforeUnmount(() => {
-    strategies.multiselect.dispose();
-    strategies.backpack.dispose();
-    strategies.search.dispose();
     minimapCtrl.dispose();
   });
 
@@ -32,7 +30,7 @@ export function usePluginManager() {
     minimapState: minimapCtrl.state,
     minimapActions: {
       show: () => minimapCtrl.show(),
-      hideDelayed: () => minimapCtrl.hide(300),
+      hide: () => minimapCtrl.hide(300),
     },
   };
 }

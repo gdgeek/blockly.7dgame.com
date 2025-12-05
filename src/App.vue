@@ -109,7 +109,7 @@ const updateCode = () => {
     const blocklyData = Blockly.serialization.workspaces.save(
       editor.value.workspace
     );
-    console.log("更新Lua 代码：", code.value.lua);
+    //console.log("更新Lua 代码：", code.value.lua);
     postMessage("update", {
       lua: luaGenerator.workspaceToCode(editor.value.workspace),
       js: javascriptGenerator.workspaceToCode(editor.value.workspace),

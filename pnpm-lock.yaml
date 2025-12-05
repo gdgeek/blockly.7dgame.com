@@ -11,6 +11,9 @@ importers:
       '@blockly/field-colour':
         specifier: ^5.0.7
         version: 5.0.19(blockly@11.2.2)
+      '@blockly/field-multilineinput':
+        specifier: ^6.0.3
+        version: 6.0.3(blockly@11.2.2)
       '@blockly/plugin-workspace-search':
         specifier: 9.0.1
         version: 9.0.1(blockly@11.2.2)
@@ -85,6 +88,12 @@ packages:
     engines: {node: '>=8.0.0'}
     peerDependencies:
       blockly: ^11.0.0
+
+  '@blockly/field-multilineinput@6.0.3':
+    resolution: {integrity: sha512-xZqPRyFiXB8yoNW3wMDkQ7ZIZajlFGZ/HIo2yjsQ0P6t9vwfEQcG/1X/cZUGRakqGHnE+q5ziEg7VKYvSh+tJQ==}
+    engines: {node: '>=8.0.0'}
+    peerDependencies:
+      blockly: ^12.0.0
 
   '@blockly/plugin-workspace-search@9.0.1':
     resolution: {integrity: sha512-QwaR9p8lkuvCNZG1JZLMXMY40AQzAlbtWFRH2JpWhEOFIQC7LjoTKSnnMC0UWiNIideg1m5h3F0o5Os22v0eHA==}
@@ -1237,6 +1246,10 @@ snapshots:
       '@babel/helper-validator-identifier': 7.28.5
 
   '@blockly/field-colour@5.0.19(blockly@11.2.2)':
+    dependencies:
+      blockly: 11.2.2
+
+  '@blockly/field-multilineinput@6.0.3(blockly@11.2.2)':
     dependencies:
       blockly: 11.2.2
 

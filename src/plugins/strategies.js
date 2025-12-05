@@ -1,6 +1,7 @@
 import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
 import { Backpack } from "@blockly/workspace-backpack";
 import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
+import { registerFieldMultilineInput } from "@blockly/field-multilineinput";
 import * as Blockly from "blockly/core";
 
 export const strategies = {
@@ -53,6 +54,15 @@ export const strategies = {
       console.log("Plugin: Search loaded");
     } catch (e) {
       console.error("Search init error", e);
+    }
+  },
+
+  multilineinputfield: () => {
+    try {
+      registerFieldMultilineInput();
+      console.log("MultilineInputField registered");
+    } catch (e) {
+      console.error("MultilineInputField register error", e);
     }
   },
 };
