@@ -19,7 +19,7 @@ import EntityAllmovable from "./entity_allmovable";
 import EntityRotatable from "./entity_rotatable";
 
 
-const Setup = (toolbox, parameters, userInfo) => {
+const Setup = (toolbox, parameters, access) => {
   // 根据用户角色过滤内容
   const contents = [
     Entity.toolbox,
@@ -30,7 +30,7 @@ const Setup = (toolbox, parameters, userInfo) => {
     // EntityUnxploded.toolbox
     VisualTooltip.toolbox,
     VisualTooltips.toolbox,
-   // ...(userInfo && userInfo.role !== "user" ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
+   // ...(access.atLeast('manager') ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
     EntityRotatable.toolbox
   ];
 
@@ -48,7 +48,7 @@ const Setup = (toolbox, parameters, userInfo) => {
   RegisterData(VisualTooltips, parameters);
   RegisterData(EntityRotatable, parameters);
 
-  /* if (userInfo && userInfo.role !== "user") {
+  /* if (access.atLeast('manager')) {
     RegisterData(EntityMovable, parameters);
     RegisterData(EntityAllmovable, parameters);
   } */

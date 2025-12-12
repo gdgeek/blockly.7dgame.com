@@ -9,7 +9,7 @@ import PolygenAllMovable from "./polygen_allmovable";
 import SetEmote from "./set_emote";
 import SetVisemeClip from "./set_viseme_clip";
 
-const Setup = (toolbox, parameters, userInfo) => {
+const Setup = (toolbox, parameters, access) => {
   // 根据用户角色过滤内容
   const contents = [
     PolygenEntity.toolbox,
@@ -17,7 +17,7 @@ const Setup = (toolbox, parameters, userInfo) => {
     PolygenHighlight.toolbox,
     PolygenMovable.toolbox,
     PolygenAllMovable.toolbox,
-    ...(userInfo && userInfo.role !== "user" ? [SetEmote.toolbox, SetVisemeClip.toolbox] : []),
+    ...(access.atLeast('manager') ? [SetEmote.toolbox, SetVisemeClip.toolbox] : []),
     
   ];
 
@@ -34,7 +34,7 @@ const Setup = (toolbox, parameters, userInfo) => {
   RegisterData(PolygenHighlight, parameters);
   RegisterData(PolygenMovable, parameters);
   RegisterData(PolygenAllMovable, parameters);
-  if (userInfo && userInfo.role !== "user") {
+  if (access.atLeast('manager')) {
     RegisterData(SetEmote, parameters);
     RegisterData(SetVisemeClip, parameters);
   }

@@ -24,13 +24,14 @@
  * @author dcoodien@google.com (Dylan Coodien)
  */
 
-import { onMounted, ref, nextTick, watch } from "vue";
+import { onMounted, ref, nextTick, watch, computed } from "vue";
 import * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
 import * as Custom from "./custom";
 import { javascriptGenerator } from "blockly/javascript";
 import { luaGenerator } from "blockly/lua";
+import { Access } from "./utils/Access";
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
@@ -38,10 +39,10 @@ window.BlobBuilder =
 
 const userInfo = ref({
   id: "",
-  roles: [],
+  //roles: [],
   role: "",
 });
-
+const access = computed(() => new Access(userInfo.value));
 const postMessage = (action, data = {}) => {
   window.parent.postMessage({ action, data, from: "script.blockly" }, "*");
 };
@@ -63,7 +64,7 @@ const save = (message) => {
 };
 const init = (message) => {
   console.error("init", message);
-  const toolbox = Custom.setup(message.style, message.parameters, userInfo.value);
+  const toolbox = Custom.setup(message.style, message.parameters, access.value);
   options.value = {
     media: "media/",
     grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
@@ -138,12 +139,13 @@ const handleMessage = async (message) => {
     const action = message.data.action;
     const data = message.data.data;
 
-    if (action === "init") {
+    if (action === "init") {      
+      console.log("blockly-init");
       init(data);
     } else if (action === "user-info") {
-      console.log("user-info", data);
+      console.log("blockly-user-info", data);
       userInfo.value = data;
-      console.log("userInfo", userInfo.value);
+      console.log("blockly-userInfo", userInfo.value);
     } else if (action === "save") {
       save(data);
     }

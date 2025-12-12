@@ -118,7 +118,7 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (block) {
   return null;
 };
 
-const setup = (style, parameters, userInfo) => {
+const setup = (style, parameters, access) => {
   console.log("Parameters1", parameters);
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
@@ -131,8 +131,8 @@ const setup = (style, parameters, userInfo) => {
     Trigger.Setup(toolbox, parameters);
     Event.Setup(toolbox, parameters);
     toolbox.contents.push(sep);
-    Entity.Setup(toolbox, parameters, userInfo);
-    Polygen.Setup(toolbox, parameters, userInfo);
+    Entity.Setup(toolbox, parameters, access);
+    Polygen.Setup(toolbox, parameters, access);
     Picture.Setup(toolbox, parameters);
     Text.Setup(toolbox, parameters);
     Sound.Setup(toolbox, parameters);
