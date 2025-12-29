@@ -23,7 +23,7 @@ const block = {
             let opt = [["none", ""]];
             if (resource && resource.polygen) {
               const polygen = resource.polygen;
-              console.log("resource: ", resource);
+             // console.log("resource: ", resource);
               polygen.forEach((poly) => {
                 opt.push([poly.name, poly.uuid]);
               });
@@ -43,7 +43,7 @@ const block = {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
-        console.log("PolygenJSON: ", json);
+        //console.log("PolygenJSON: ", json);
         this.jsonInit(json);
 
         // 保存原始参数
@@ -61,7 +61,7 @@ const block = {
 
           // 只有在 Polygen 的 UUID 改变时，才触发更新事件
           if (this.selectedPolygenUuid !== selectedUuid) {
-            console.log("Selected Polygen UUID: ", selectedUuid);
+            //console.log("Selected Polygen UUID: ", selectedUuid);
             this.selectedPolygenUuid = selectedUuid;
 
             // 触发更新事件

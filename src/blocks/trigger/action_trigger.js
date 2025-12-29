@@ -19,7 +19,7 @@ const block = {
           options: function () {
             let opt = [["none", ""]];
             if (resource && resource.action ) {
-              console.error("resource", resource);
+              //console.error("resource", resource);
               const action = resource.action;
               action.forEach(({ name, uuid, type }) => {
                 if (type === "Action" || type === "Trigger") {
@@ -68,7 +68,6 @@ const block = {
       const code = `
   meta['@${dropdown_option}'] = async function(parameter) {
     let isPlaying = true
-    console.error('${dropdown_option}')
     ${statements_content}
     isPlaying = false
   };

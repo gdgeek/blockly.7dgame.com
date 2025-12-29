@@ -19,7 +19,7 @@ export const LOOP_NAME = {
   "en-US": "Loop",
   "ja-JP": "ループ",
   "zh-TW": "迴圈",
-  "th-TH": "วง",
+  "th-TH": "ลูป",
 };
 
 export const MATH_NAME = {
@@ -89,28 +89,28 @@ Blockly.Msg.TASK_ARRAY = {
   "en-US": "Task array %1 %2",
   "ja-JP": "タスク配列 %1 %2",
   "zh-TW": "任務数组 %1 %2",
-  "th-TH": "งาน数组 %1 %2",
+  "th-TH": "งานอาร์เรย์ %1 %2",
 };
 Blockly.Msg.TASK_CIRCLE = {
   "zh-CN": "任务循环 %1 %2",
   "en-US": "Task loop %1 %2",
   "ja-JP": "タスクループ %1 %2",
   "zh-TW": "任務迴圈 %1 %2",
-  "th-TH": "งานวง %1 %2",
+  "th-TH": "งานลูป %1 %2",
 };
 Blockly.Msg.TASK_RUN = {
   "zh-CN": "启动任务 %1",
   "en-US": "Start task %1",
   "ja-JP": "タスク %1 を開始する",
   "zh-TW": "启动任務 %1",
-  "th-TH": "启动งาน %1",
+  "th-TH": "เริ่มงาน %1",
 };
 Blockly.Msg.TASK_SLEEP = {
   "zh-CN": "休眠： %1 秒",
   "en-US": "Sleep: %1 seconds",
   "ja-JP": "スリープ: %1 秒",
   "zh-TW": "休眠： %1 秒",
-  "th-TH": "休眠： %1 วินาที",
+  "th-TH": "รอ： %1 วินาที",
 };
 Blockly.Msg.TASK_PLAY_SOUND_TASK = {
   "zh-CN": "播放音频 %1 任务",
@@ -154,21 +154,21 @@ Blockly.Msg.PARAMETER_BOOLEAN = {
   "en-US": "Boolean parameter! %1",
   "ja-JP": "ブールパラメーター! %1",
   "zh-TW": "布尔參數 %1",
-  "th-TH": "布尔พารามิเตอร์ %1",
+  "th-TH": "พารามิเตอร์บูลีน %1",
 };
 Blockly.Msg.PARAMETER_NUMBER = {
   "zh-CN": "数字参数 %1",
   "en-US": "Number parameter! %1",
   "ja-JP": "数値パラメーター! %1",
   "zh-TW": "数字參數 %1",
-  "th-TH": "数字พารามิเตอร์ %1",
+  "th-TH": "พารามิเตอร์ตัวเลข %1",
 };
 Blockly.Msg.PARAMETER_STRING = {
   "zh-CN": "字符参数 %1",
   "en-US": "String parameter! %1",
   "ja-JP": "文字列パラメーター! %1",
   "zh-TW": "字符參數 %1",
-  "th-TH": "字符พารามิเตอร์ %1",
+  "th-TH": "พารามิเตอร์สตริง %1",
 };
 Blockly.Msg.PARAMETER_PARAMETERS = {
   "zh-CN": "参数列表 %1",
@@ -182,7 +182,7 @@ Blockly.Msg.PARAMETER_SYSTEM = {
   "en-US": "System parameter: %1",
   "ja-JP": "システムパラメーター: %1",
   "zh-TW": "系统參數： %1",
-  "th-TH": "系统พารามิเตอร์： %1",
+  "th-TH": "พารามิเตอร์ระบบ： %1",
 };
 Blockly.Msg.PARAMETER_PLAYER = {
   "zh-CN": "玩家 %1 ,参数 %2",
@@ -196,7 +196,7 @@ Blockly.Msg.PARAMETER_PLAYER_OPTIONS_INDEX = {
   "en-US": "Index",
   "ja-JP": "インデックス",
   "zh-TW": "索引",
-  "th-TH": "索引",
+  "th-TH": "ดัชนี",
 };
 Blockly.Msg.PARAMETER_PLAYER_OPTIONS_SERVER = {
   "zh-CN": "服务器",
@@ -247,7 +247,7 @@ Blockly.Msg.META_RUN = {
   "en-US": "Start task %1",
   "ja-JP": "タスク %1 を開始する",
   "zh-TW": "启动任務 %1",
-  "th-TH": "启动งาน %1",
+  "th-TH": "เริ่มงาน %1",
 };
 
 // Trigger
@@ -277,21 +277,21 @@ Blockly.Msg.TRIGGER_INIT = {
   "en-US": "Initialize %1 %2",
   "ja-JP": "初期化 %1 %2",
   "zh-TW": "初始化 %1 %2",
-  "th-TH": "初始化 %1 %2",
+  "th-TH": "เริ่มต้น %1 %2",
 };
 Blockly.Msg.TRIGGER_DESTROY = {
   "zh-CN": "销毁 %1 %2",
   "en-US": "Destroy %1 %2",
   "ja-JP": "破棄 %1 %2",
   "zh-TW": "销毁 %1 %2",
-  "th-TH": "销毁 %1 %2",
+  "th-TH": "ทำลาย %1 %2",
 };
 Blockly.Msg.TRIGGER_UPDATE = {
   "zh-CN": "更新 %1 %2",
   "en-US": "Update %1 %2",
   "ja-JP": "更新 %1 %2",
   "zh-TW": "更新 %1 %2",
-  "th-TH": "更新 %1 %2",
+  "th-TH": "อัปเดต %1 %2",
 };
 
 // Event
@@ -307,14 +307,14 @@ Blockly.Msg.EVENT_INPUT = {
   "en-US": "Input Event %1 %2 %3",
   "ja-JP": "入力イベント %1 %2 %3",
   "zh-TW": "輸入事件 %1 %2 %3",
-  "th-TH": "输入เหตุการณ์ %1 %2 %3",
+  "th-TH": "เหตุการณ์อินพุต %1 %2 %3",
 };
 Blockly.Msg.EVENT_OUTPUT = {
   "zh-CN": "输出事件 %1",
   "en-US": "Output Event %1",
   "ja-JP": "出力イベント %1",
   "zh-TW": "輸出事件 %1",
-  "th-TH": "输出เหตุการณ์ %1",
+  "th-TH": "เหตุการณ์เอาต์พุต %1",
 };
 
 // 节点entity
@@ -344,7 +344,7 @@ Blockly.Msg.ENTITY_ENTITY_HIGHLIGHT = {
   "en-US": "Point %1 highlight %2 color %3",
   "ja-JP": "エンティティ %1 をハイライト %2 色 %3",
   "zh-TW": "節點 %1 高亮 %2 顏色 %3",
-  "th-TH": "โหนด %1 高亮 %2 สี %3",
+  "th-TH": "โหนด %1 ไฮไลต์ %2 สี %3",
 };
 Blockly.Msg.ENTITY_MOVABLE = {
   "zh-CN": "节点 %1 是否可移动 %2",
@@ -358,14 +358,14 @@ Blockly.Msg.ENTITY_MOVABLE_ALL = {
   "en-US": "All points are movable %1",
   "ja-JP": "すべてのエンティティが移動可能かどうかをフィルタリングする %1",
   "zh-TW": "所有節點是否可移動 %1",
-  "th-TH": "所有โหนดสามารถเคลื่อนไหวได้ %1",
+  "th-TH": "ทุกโหนดสามารถเคลื่อนไหวได้ %1",
 };
 Blockly.Msg.ENTITY_ROTATABLE = {
   "zh-CN": "节点 %1 是否自旋转 %2",
   "en-US": "Point %1 is rotatable %2",
   "ja-JP": "エンティティ %1 が自動回転可能かどうかをフィルタリングする %2",
   "zh-TW": "節點 %1 是否自旋轉 %2",
-  "th-TH": "โหนด %1 是否自หมุน %2",
+  "th-TH": "โหนด %1 สามารถหมุนได้เอง %2",
 };
 
 // 模型ploygen
@@ -395,7 +395,7 @@ Blockly.Msg.POLYGEN_POLYGEN_HIGHLIGHT = {
   "en-US": "Polygen %1 highlight %2 color %3",
   "ja-JP": "モデル %1 ハイライト %2 色 %3",
   "zh-TW": "模型 %1 高亮 %2 顏色 %3",
-  "th-TH": "โมเดล %1 高亮 %2 สี %3",
+  "th-TH": "โมเดล %1 ไฮไลต์ %2 สี %3",
 };
 
 Blockly.Msg.POLYGEN_MOVABLE = {
@@ -403,21 +403,21 @@ Blockly.Msg.POLYGEN_MOVABLE = {
   "en-US": "Polygen %1 is movable %2",
   "ja-JP": "モデル %1 が移動可能かどうかをフィルタリングする %2",
   "zh-TW": "模型 %1 是否移动 %2",
-  "th-TH": "โมเดล %1 是否移动 %2",
+  "th-TH": "โมเดล %1 สามารถเคลื่อนไหวได้ %2",
 };
 Blockly.Msg.POLYGEN_MOVABLE_ALL = {
   "zh-CN": "所有模型 是否移动 %1",
   "en-US": "All polygens is movable %1",
   "ja-JP": "すべてのモデルが移動可能かどうかをフィルタリングする %1",
   "zh-TW": "所有模型 是否移动 %1",
-  "th-TH": "所有โมเดล 是否移动 %1",
+  "th-TH": "ทุกโมเดล สามารถเคลื่อนไหวได้ %1",
 };
 Blockly.Msg.POLYGEN_ROTATABLE = {
   "zh-CN": "模型 %1 是否自旋转 %2",
   "en-US": "Polygen %1 is rotatable %2",
   "ja-JP": "モデル %1 が自動回転可能かどうかをフィルタリングする %2",
   "zh-TW": "模型 %1 是否自旋轉 %2",
-  "th-TH": "โมเดล %1 是否自หมุน %2",
+  "th-TH": "โมเดล %1 สามารถหมุนได้เอง %2",
 };
 Blockly.Msg.POLYGEN_SET_VISEME_CLIP = {
   "zh-CN": "模型 %1 口型音频 %2",
@@ -581,24 +581,17 @@ export const OTHER_NAME = {
   "en-US": "Other",
   "ja-JP": "その他",
   "zh-TW": "其他",
-  "th-TH": "其他",
+  "th-TH": "อื่นๆ",
 };
 Blockly.Msg.OTHER_SLEEP = {
   "zh-CN": "休眠 %1 秒",
   "en-US": "Sleep %1 seconds",
   "ja-JP": "スリープ %1 秒",
   "zh-TW": "休眠 %1 秒",
-  "th-TH": "休眠 %1 วินาที",
+  "th-TH": "หลับ %1 วินาที",
 };
 
-// 信号signal
-export const SIGNAL_NAME = {
-  "zh-CN": "信号",
-  "en-US": "Signal",
-  "ja-JP": "シグナル",
-  "zh-TW": "信號",
-  "th-TH": "สัญญาณ",
-};
+
 
 // 管理signal
 export const MANAGER_NAME = {
@@ -606,7 +599,7 @@ export const MANAGER_NAME = {
   "en-US": "Manager",
   "ja-JP": "マネージャー",
   "zh-TW": "管理",
-  "th-TH": "管理",
+  "th-TH": "จัดการ",
 };
 
 Blockly.Msg.GAME_ADD_SCORE = {
@@ -630,43 +623,51 @@ Blockly.Msg.GAME_COUNTDOWN = {
   "en-US": "Countdown Seconds %1",
   "ja-JP": "カウントダウン 秒数 %1",
   "zh-TW": "倒計時 秒數 %1",
-  "th-TH": "นับถอยหลัง วินาที数 %1",
+  "th-TH": "นับถอยหลัง วินาที %1",
 };
 
+// 信号signal
+export const SIGNAL_NAME = {
+  "zh-CN": "信号",
+  "en-US": "Signal",
+  "ja-JP": "シグナル",
+  "zh-TW": "信號",
+  "th-TH": "สัญญาณ",
+};
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
   "zh-CN": "触发信号 %1",
   "en-US": "Trigger signal %1",
   "ja-JP": "信号 %1 をトリガーする",
   "zh-TW": "触发信號 %1",
-  "th-TH": "触发สัญญาณ %1",
+  "th-TH": "ทริกเกอร์สัญญาณ %1",
 };
 Blockly.Msg.SIGNAL_INPUT_SIGNAL = {
   "zh-CN": "接收信号 %1 %2 %3",
   "en-US": "Receive signal %1 %2 %3",
   "ja-JP": "信号 %1 %2 %3 を受信する",
   "zh-TW": "接收信號 %1 %2 %3",
-  "th-TH": "接收สัญญาณ %1 %2 %3",
+  "th-TH": "รับสัญญาณ %1 %2 %3",
 };
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_WITH_PARAMETER = {
   "zh-CN": "触发信号 %1 参数 %2",
   "en-US": "Trigger signal %1 parameter %2",
   "ja-JP": "信号 %1 パラメーター %2 をトリガーする",
   "zh-TW": "触发信號 %1 參數 %2",
-  "th-TH": "触发สัญญาณ %1 พารามิเตอร์ %2",
+  "th-TH": "ทริกเกอร์สัญญาณ %1 พารามิเตอร์ %2",
 };
 Blockly.Msg.SIGNAL_INIT_SIGNAL = {
   "zh-CN": "初始化 %1 %2",
   "en-US": "Initialize %1 %2",
   "ja-JP": "初期化 %1 %2",
   "zh-TW": "初始化 %1 %2",
-  "th-TH": "初始化 %1 %2",
+  "th-TH": "เริ่มต้น %1 %2",
 };
 Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL = {
   "zh-CN": "触发多个信号 %1",
   "en-US": "Trigger multiple signals %1",
   "ja-JP": "複数の信号 %1 をトリガーする",
   "zh-TW": "触发多个信號 %1",
-  "th-TH": "触发多个สัญญาณ %1",
+  "th-TH": "ทริกเกอร์หลายสัญญาณ %1",
 };
 
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_ITEM = {
@@ -674,7 +675,28 @@ Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_ITEM = {
   "en-US": "Entity input signal %1",
   "ja-JP": "実体の入力信号 %1",
   "zh-TW": "实体的输入信號 %1",
-  "th-TH": "实体的输入สัญญาณ %1",
+  "th-TH": "สัญญาณอินพุตของเอนทิตี %1",
+};
+Blockly.Msg.SIGNAL_INPUT_SIGNAL_SYSTEM = {
+  "zh-CN": "接收系统信号 %1 %2 %3",
+  "en-US": "Receive system signal %1 %2 %3",
+  "ja-JP": "システム信号 %1 %2 %3 を受信する",
+  "zh-TW": "接收系統信號 %1 %2 %3",
+  "th-TH": "รับสัญญาณระบบ %1 %2 %3",
+};
+Blockly.Msg.SIGNAL_BEGIN_SIGNAL = {
+  "zh-CN": "开始信号",
+  "en-US": "Begin signal",
+  "ja-JP": "開始信号",
+  "zh-TW": "開始信號",
+  "th-TH": "เริ่มสัญญาณ",
+};
+Blockly.Msg.SIGNAL_END_SIGNAL = {
+  "zh-CN": "结束信号",
+  "en-US": "End signal",
+  "ja-JP": "終了信号",
+  "zh-TW": "結束信號",
+  "th-TH": "สิ้นสุดสัญญาณ",
 };
 
 export const VARIABLE_NAME = {
@@ -706,14 +728,14 @@ Blockly.Msg.VOICE_TRIGGER = {
   "en-US": "Voice Trigger %1 %2 %3",
   "ja-JP": "音声トリガー %1 %2 %3",
   "zh-TW": "語音指令 %1 %2 %3",
-  "th-TH": "语音คำสั่ง %1 %2 %3",
+  "th-TH": "คำสั่งเสียง %1 %2 %3",
 };
 Blockly.Msg.GESTURE_TRIGGER = {
   "zh-CN": "手势指令 %1 %2 %3",
   "en-US": "Gesture Trigger %1 %2 %3",
   "ja-JP": "ジェスチャートリガー %1 %2 %3",
   "zh-TW": "手勢指令 %1 %2 %3",
-  "th-TH": "手势คำสั่ง %1 %2 %3",
+  "th-TH": "คำสั่งท่าทาง %1 %2 %3",
 };
 // 语音指令 Voice Command
 Blockly.Msg.VOICE_TRIGGER_SCALE_UP = {
@@ -834,7 +856,7 @@ Blockly.Msg.COLOR_WHITE = {
   "en-US": "white",
   "ja-JP": "白",
   "zh-TW": "白色",
-  "th-TH": "白色",
+  "th-TH": "สีขาว",
 };
 
 Blockly.Msg.COLOR_RED = {
@@ -850,7 +872,7 @@ Blockly.Msg.COLOR_ORANGE = {
   "en-US": "orange",
   "ja-JP": "オレンジ",
   "zh-TW": "橙色",
-  "th-TH": "橙色",
+  "th-TH": "สีส้ม",
 };
 
 Blockly.Msg.COLOR_YELLOW = {
@@ -874,7 +896,7 @@ Blockly.Msg.COLOR_CYAN = {
   "en-US": "cyan",
   "ja-JP": "シアン",
   "zh-TW": "青色",
-  "th-TH": "青色",
+  "th-TH": "สีฟ้า",
 };
 
 Blockly.Msg.COLOR_BLUE = {
@@ -899,7 +921,7 @@ Blockly.Msg.TOOLTIP_VISUAL = {
   "en-US": "Point %1 label show/hide %2",
   "ja-JP": "エンティティ %1 のラベルを表示/非表示 %2",
   "zh-TW": "節點 %1 的 标签 顯示/隱藏 %2",
-  "th-TH": "โหนด %1 的 标签 แสดง/ซ่อน %2",
+  "th-TH": "ป้ายชื่อของโหนด %1 แสดง/ซ่อน %2",
 };
 
 Blockly.Msg.TOOLTIPS_VISUAL = {
@@ -907,5 +929,5 @@ Blockly.Msg.TOOLTIPS_VISUAL = {
   "en-US": "All Points' label show/hide %1",
   "ja-JP": "すべてのエンティティのラベルを表示/非表示 %1",
   "zh-TW": "所有節點上的 标签 顯示/隱藏 %1",
-  "th-TH": "所有โหนด上的 标签 แสดง/ซ่อน %1",
+  "th-TH": "ป้ายชื่อบนทุกโหนด แสดง/ซ่อน %1",
 };
