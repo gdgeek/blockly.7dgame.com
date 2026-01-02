@@ -1,5 +1,6 @@
 import DataType from "./type";
 import Helper from "../helper";
+import * as Blockly from "blockly";
 
 const data = {
   name: "text_entity",

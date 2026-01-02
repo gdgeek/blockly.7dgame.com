@@ -75,17 +75,19 @@ const block = {
               )
             );
           }
-          
+
           // 检测是否断开了与visual_tooltip的连接
-          if (event.type === Blockly.Events.BLOCK_CHANGE ||
-              event.type === Blockly.Events.BLOCK_MOVE) {
+          if (
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_MOVE
+          ) {
             this.checkConnectionState();
           }
         });
       },
-      
+
       // 获取原始选项
-      getOriginalOptions: function() {
+      getOriginalOptions: function () {
         let opt = [["none", ""]];
         const resource = this.blockParameters && this.blockParameters.resource;
         if (resource && resource.polygen) {
@@ -95,88 +97,98 @@ const block = {
         }
         return opt;
       },
-      
+
       // 检测连接状态
-      checkConnectionState: function() {
+      checkConnectionState: function () {
         // 获取父块
         const parentBlock = this.getParent();
         const parentBlockId = parentBlock ? parentBlock.id : null;
-        
+
         // 如果有tooltipsData但没有父块，或者父块ID变了，说明断开了连接
-        if (this.tooltipsData && 
-            (parentBlockId === null || parentBlockId !== this.tooltipsData.sourceBlockId)) {
+        if (
+          this.tooltipsData &&
+          (parentBlockId === null ||
+            parentBlockId !== this.tooltipsData.sourceBlockId)
+        ) {
           // 恢复原始选项
           this.restoreOriginalOptions();
           this.tooltipsData = null;
           this.parentBlockId = null;
         }
-        
+
         // 更新父块ID
         this.parentBlockId = parentBlockId;
       },
-      
+
       // 恢复原始选项
-      restoreOriginalOptions: function() {
+      restoreOriginalOptions: function () {
         const field = this.getField("Polygen");
         if (!field) return;
-        
+
         // 恢复原始选项
         field.menuGenerator_ = this.originalOptions;
-        
+
         // 强制重新渲染
         field.forceRerender();
       },
 
       // 更新下拉选项的方法，供其他模块使用
-      updateDropdownOptions: function(options) {
+      updateDropdownOptions: function (options) {
         const field = this.getField("Polygen");
         if (!field) return;
-        
+
         // 更新选项
         field.menuGenerator_ = options;
-        
+
         // 检查当前值是否在新选项中存在
         const currentValue = field.getValue();
-        if (!options.some(opt => opt[1] === currentValue)) {
+        if (!options.some((opt) => opt[1] === currentValue)) {
           field.setValue("");
         }
       },
-      
+
       // 根据tooltipsData更新实体选项
-      updateEntityOptions: function(tooltipsData) {
-        if (!tooltipsData || !tooltipsData.tooltipsInfo || tooltipsData.tooltipsInfo.length === 0) return;
-        
+      updateEntityOptions: function (tooltipsData) {
+        if (
+          !tooltipsData ||
+          !tooltipsData.tooltipsInfo ||
+          tooltipsData.tooltipsInfo.length === 0
+        )
+          return;
+
         // 保存tooltipsData，包括来源块ID
         this.tooltipsData = tooltipsData;
         this.parentBlockId = tooltipsData.sourceBlockId;
-        
+
         // 获取字段
         const field = this.getField("Polygen");
         if (!field) return;
-        
+
         // 获取当前值
         const currentValue = field.getValue();
-        
+
         // 检查模型列表中是否有匹配的parentUuid
         const resource = this.blockParameters && this.blockParameters.resource;
         if (!resource || !resource.polygen) return;
-        
+
         // 收集所有匹配的模型
         const matchedPolygens = [];
-        const parentUuids = tooltipsData.tooltipsInfo.map(info => info.parentUuid);
-        
+        const parentUuids = tooltipsData.tooltipsInfo.map(
+          (info) => info.parentUuid
+        );
+
         // 查找所有匹配parentUuid的模型
-        resource.polygen.forEach(polygen => {
+        resource.polygen.forEach((polygen) => {
           if (parentUuids.includes(polygen.uuid)) {
             matchedPolygens.push([polygen.name, polygen.uuid]);
           }
         });
-        
+
         if (matchedPolygens.length > 0) {
           // 显示匹配的模型选项
           const options = [["none", ""], ...matchedPolygens];
           field.menuGenerator_ = options;
-          
+
           // 如果当前值不在匹配列表中，重置为空
           if (!parentUuids.includes(currentValue) && currentValue !== "") {
             field.setValue("");
@@ -186,10 +198,10 @@ const block = {
           field.menuGenerator_ = [["none", ""]];
           field.setValue("");
         }
-        
+
         // 强制重新渲染
         field.forceRerender();
-      }
+      },
     };
     return data;
   },

@@ -53,7 +53,7 @@ const block = {
 
   getLua(parameters) {
     const lua = function (block, generator) {
-      var video = generator.valueToCode(block, "video", generator.ORDER_NONE)
+      var video = generator.valueToCode(block, "video", generator.ORDER_NONE);
       return "_G.video.play(" + video + ")\n";
     };
     return lua;

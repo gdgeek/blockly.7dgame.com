@@ -8,16 +8,12 @@ const Category = {
   kind: "category",
   name: COMMAND_NAME[window.lg],
   colour: Type.colour,
-  contents: [
-    VoiceTrigger.toolbox,
-    GestureTrigger.toolbox,
-  ],
+  contents: [VoiceTrigger.toolbox, GestureTrigger.toolbox],
 };
 
 function Register(parameters) {
   RegisterData(VoiceTrigger, parameters);
   RegisterData(GestureTrigger, parameters);
-
 }
 const Setup = SetupIt(Category, Register);
 export { Setup };

@@ -5,10 +5,9 @@ const data = {
   name: "output_signal_item",
 };
 const block = {
-    title: data.name,
-    type: EventType.name,
-    colour: EventType.colour,
-
+  title: data.name,
+  type: EventType.name,
+  colour: EventType.colour,
 
   getBlockJson({ resource }) {
     return {
@@ -45,24 +44,21 @@ const block = {
     return data;
   },
 
-getJavascript() {
-  const script = function (block, generator) {
-    const data = JSON.parse(block.getFieldValue("Output"));
-    return [JSON.stringify(data), generator.ORDER_ATOMIC];
-  };
-  return script;
-},
-
-
+  getJavascript() {
+    const script = function (block, generator) {
+      const data = JSON.parse(block.getFieldValue("Output"));
+      return [JSON.stringify(data), generator.ORDER_ATOMIC];
+    };
+    return script;
+  },
 
   getLua() {
-  const lua = function (block, generator) {
-    const data = JSON.parse(block.getFieldValue("Output"));
-    return [`{'${data.index}', '${data.uuid}' }`, generator.ORDER_ATOMIC];
-  };
-  return lua;
-},
-
+    const lua = function (block, generator) {
+      const data = JSON.parse(block.getFieldValue("Output"));
+      return [`{'${data.index}', '${data.uuid}' }`, generator.ORDER_ATOMIC];
+    };
+    return lua;
+  },
 
   toolbox: {
     kind: "block",

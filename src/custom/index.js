@@ -35,7 +35,7 @@ import * as Command from "../blocks/command";
 import * as Video from "../blocks/video";
 // import *  as Other from '../blocks/other'
 import * as Signal from "../blocks/signal";
-import * as Manager from "../blocks/manager"
+import * as Manager from "../blocks/manager";
 import * as Parameter from "../blocks/parameter";
 
 const sep = {

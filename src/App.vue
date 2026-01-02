@@ -10,8 +10,6 @@
   </div>
 </template>
 
-
- 
 <script setup>
 /**
  * @license
@@ -35,7 +33,6 @@ import { Access } from "./utils/Access";
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
-
 
 const userInfo = ref({
   id: "",
@@ -88,7 +85,7 @@ const init = (message) => {
   };
   nextTick(() => {
     oldValue = message.data;
-   
+
     Blockly.serialization.workspaces.load(message.data, editor.value.workspace);
 
     // const allBlocks = foo.value.workspace.getAllBlocks(false);
@@ -139,7 +136,7 @@ const handleMessage = async (message) => {
     const action = message.data.action;
     const data = message.data.data;
 
-    if (action === "init") {      
+    if (action === "init") {
       console.log("blockly-init");
       init(data);
     } else if (action === "user-info") {

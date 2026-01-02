@@ -42,16 +42,18 @@ const block = {
 
         // 监听块变化，以便在适当时机更新实体选项
         this.setOnChange((event) => {
-          if (event.type === Blockly.Events.BLOCK_CHANGE ||
-              event.type === Blockly.Events.BLOCK_CREATE ||
-              event.type === Blockly.Events.BLOCK_MOVE) {
+          if (
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_CREATE ||
+            event.type === Blockly.Events.BLOCK_MOVE
+          ) {
             this.updateEntityOptions(parameters.resource);
           }
         });
       },
 
       // 更新实体选项
-      updateEntityOptions: function(resource) {
+      updateEntityOptions: function (resource) {
         if (!resource || !resource.polygen) return;
 
         // 查找当前连接的实体块
@@ -68,10 +70,10 @@ const block = {
         });
 
         // 使用公共方法更新下拉选项
-        if (typeof entityBlock.updateDropdownOptions === 'function') {
+        if (typeof entityBlock.updateDropdownOptions === "function") {
           entityBlock.updateDropdownOptions(filteredOptions);
         }
-      }
+      },
     };
     return data;
   },
@@ -105,7 +107,12 @@ const block = {
         "movable",
         generator.ORDER_ATOMIC
       );
-      var code = "_G.polygen.set_moveable(" + value_entity + ", " + value_movable + ")\n";
+      var code =
+        "_G.polygen.set_moveable(" +
+        value_entity +
+        ", " +
+        value_movable +
+        ")\n";
       return code;
     };
     return lua;

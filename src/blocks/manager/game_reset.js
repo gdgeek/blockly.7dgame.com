@@ -12,7 +12,7 @@ const block = {
     const json = {
       type: "block_type",
       message0: Blockly.Msg.GAME_RESET[window.lg],
-     
+
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,

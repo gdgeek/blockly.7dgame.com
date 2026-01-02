@@ -39,23 +39,24 @@ const block = {
   },
 
   getJavascript() {
-  const script = function (block, generator) {
-    const listCode = generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "[]";
-    const code = `event.signal_array (${listCode});\n`;
-    return code;
-  };
-  return script;
-},
+    const script = function (block, generator) {
+      const listCode =
+        generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "[]";
+      const code = `event.signal_array (${listCode});\n`;
+      return code;
+    };
+    return script;
+  },
 
-getLua() {
-  const lua = function (block, generator) {
-    const listCode = generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "{}";
-    const code = `_G.event.signal_array (${listCode})\n`;
-    return code;
-  };
-  return lua;
-},
-
+  getLua() {
+    const lua = function (block, generator) {
+      const listCode =
+        generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "{}";
+      const code = `_G.event.signal_array (${listCode})\n`;
+      return code;
+    };
+    return lua;
+  },
 
   toolbox: {
     kind: "block",

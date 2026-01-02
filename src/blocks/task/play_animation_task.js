@@ -36,48 +36,51 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
-        
+
         const animationField = this.getField("animation");
         if (animationField) {
-          animationField.doClassValidation_ = function(newValue) {
+          animationField.doClassValidation_ = function (newValue) {
             return newValue;
           };
-          animationField.getText = function() {
+          animationField.getText = function () {
             const currentValue = this.getValue();
-            const matchingOption = this.getOptions().find(opt => opt[1] === currentValue);
+            const matchingOption = this.getOptions().find(
+              (opt) => opt[1] === currentValue
+            );
             return matchingOption ? matchingOption[0] : currentValue;
           };
         }
-        
+
         this.lastPolygenUuid = null;
-        
+
         this.setOnChange(() => {
           this.updateAnimationOptions(parameters.resource);
         });
-        
+
         setTimeout(() => {
           this.updateAnimationOptions(parameters.resource);
         }, 0);
       },
-      
+
       updateAnimationOptions: function (resource) {
         const polygenBlock = this.getInputTargetBlock("polygen");
         const selectedPolygenUuid = polygenBlock
           ? polygenBlock.getFieldValue("Polygen")
           : "";
-          
+
         const animationField = this.getField("animation");
         if (!animationField) return;
-        
+
         const currentValue = animationField.getValue();
-        
-        const modelChanged = this.lastPolygenUuid !== null && 
-                           this.lastPolygenUuid !== selectedPolygenUuid;
-        
+
+        const modelChanged =
+          this.lastPolygenUuid !== null &&
+          this.lastPolygenUuid !== selectedPolygenUuid;
+
         this.lastPolygenUuid = selectedPolygenUuid;
-        
+
         let options = [["none", "none"]];
-        
+
         if (resource && resource.polygen && selectedPolygenUuid) {
           resource.polygen.forEach((poly) => {
             if (poly.uuid === selectedPolygenUuid) {
@@ -90,18 +93,18 @@ const block = {
           });
         }
 
-        const valueExists = options.some(opt => opt[1] === currentValue);
+        const valueExists = options.some((opt) => opt[1] === currentValue);
         if (!valueExists && currentValue !== "none") {
           options.push([currentValue, currentValue]);
         }
-        
+
         animationField.menuGenerator_ = options;
-        
+
         if (modelChanged) {
           animationField.setValue("none");
         } else {
           animationField.setValue(currentValue);
-          
+
           animationField.forceRerender();
         }
       },

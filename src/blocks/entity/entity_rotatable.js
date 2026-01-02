@@ -53,8 +53,8 @@ const block = {
         });
       },
 
-     // 更新实体选项
-      updateEntityOptions: function(resource) {
+      // 更新实体选项
+      updateEntityOptions: function (resource) {
         if (!resource || !resource.entity) return;
 
         // 查找当前连接的实体块
@@ -71,10 +71,10 @@ const block = {
         });
 
         // 使用公共方法更新下拉选项
-        if (typeof entityBlock.updateDropdownOptions === 'function') {
+        if (typeof entityBlock.updateDropdownOptions === "function") {
           entityBlock.updateDropdownOptions(filteredOptions);
         }
-      }
+      },
     };
 
     return data;
@@ -120,4 +120,4 @@ const block = {
   },
 };
 
-export default block; 
+export default block;

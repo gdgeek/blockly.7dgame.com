@@ -39,20 +39,22 @@ const block = {
         this.tooltipsEntities = [];
 
         this.setOnChange((event) => {
-          if (event.type === Blockly.Events.BLOCK_CHANGE ||
-              event.type === Blockly.Events.BLOCK_CREATE || 
-              event.type === Blockly.Events.BLOCK_MOVE) {
-              this.updateEntityOptions(parameters.resource);
-            }
-          });
+          if (
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_CREATE ||
+            event.type === Blockly.Events.BLOCK_MOVE
+          ) {
+            this.updateEntityOptions(parameters.resource);
+          }
+        });
       },
-      updateEntityOptions: function(resource) {
+      updateEntityOptions: function (resource) {
         if (!resource || !resource.entity) return;
-        
+
         // 筛选模型列表 - 只显示含tooltip的实体
         const filteredOptions = [["none", ""]];
         this.tooltipsEntities = [];
-        
+
         resource.entity.forEach((entity) => {
           // 只筛选 hasTooltips 属性为 true 的模型
           if (entity.hasTooltips === true) {
@@ -60,7 +62,7 @@ const block = {
             this.tooltipsEntities.push(entity.uuid); // 保存UUID
           }
         });
-      }
+      },
     };
     return data;
   },
@@ -74,10 +76,16 @@ const block = {
       const tooltipsEntities = block.tooltipsEntities || [];
       let code;
       if (tooltipsEntities.length > 0) {
-        const handlerCalls = tooltipsEntities.map(uuid => 
-          `handleEntity("${uuid}")`
-        ).join(',\n    ');
-        code = `point.setTooltipsVisual(` + "{" + handlerCalls + "}, " + value_bool + ")\n";
+        const handlerCalls = tooltipsEntities
+          .map((uuid) => `handleEntity("${uuid}")`)
+          .join(",\n    ");
+        code =
+          `point.setTooltipsVisual(` +
+          "{" +
+          handlerCalls +
+          "}, " +
+          value_bool +
+          ")\n";
       } else {
         code = `point.setTooltipsVisual(handleEntity(""), ${value_bool})\n`;
       }
@@ -95,12 +103,21 @@ const block = {
       const tooltipsEntities = block.tooltipsEntities || [];
       let code;
       if (tooltipsEntities.length > 0) {
-        const handlerCalls = tooltipsEntities.map(uuid => 
-          `_G.helper.handler(index, '${uuid}')`
-        ).join(',\n  ');
-        code = "_G.point.set_tooltips_visual(" + "{\n  " + handlerCalls + "\n}, " + value_bool + ")\n";
+        const handlerCalls = tooltipsEntities
+          .map((uuid) => `_G.helper.handler(index, '${uuid}')`)
+          .join(",\n  ");
+        code =
+          "_G.point.set_tooltips_visual(" +
+          "{\n  " +
+          handlerCalls +
+          "\n}, " +
+          value_bool +
+          ")\n";
       } else {
-        code = "_G.point.set_tooltips_visual(_G.helper.handler(index, '')," + value_bool + ")\n";
+        code =
+          "_G.point.set_tooltips_visual(_G.helper.handler(index, '')," +
+          value_bool +
+          ")\n";
       }
       return code;
     };

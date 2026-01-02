@@ -7,8 +7,8 @@ const data = {
 
 function getLocalizedCommandName(name) {
   const commandMap = {
-    "ok": Blockly.Msg.GESTURE_TRIGGER_OK[window.lg],
-    "fist": Blockly.Msg.GESTURE_TRIGGER_FIST[window.lg],
+    ok: Blockly.Msg.GESTURE_TRIGGER_OK[window.lg],
+    fist: Blockly.Msg.GESTURE_TRIGGER_FIST[window.lg],
   };
 
   return commandMap[name] || name;

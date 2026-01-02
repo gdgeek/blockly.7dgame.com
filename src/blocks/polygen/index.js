@@ -17,8 +17,9 @@ const Setup = (toolbox, parameters, access) => {
     PolygenHighlight.toolbox,
     PolygenMovable.toolbox,
     PolygenAllMovable.toolbox,
-    ...(access.atLeast('manager') ? [SetEmote.toolbox, SetVisemeClip.toolbox] : []),
-    
+    ...(access.atLeast("manager")
+      ? [SetEmote.toolbox, SetVisemeClip.toolbox]
+      : []),
   ];
 
   // 添加类别到工具箱
@@ -34,7 +35,7 @@ const Setup = (toolbox, parameters, access) => {
   RegisterData(PolygenHighlight, parameters);
   RegisterData(PolygenMovable, parameters);
   RegisterData(PolygenAllMovable, parameters);
-  if (access.atLeast('manager')) {
+  if (access.atLeast("manager")) {
     RegisterData(SetEmote, parameters);
     RegisterData(SetVisemeClip, parameters);
   }

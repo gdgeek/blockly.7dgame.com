@@ -12,7 +12,7 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0:  Blockly.Msg.POLYGEN_SET_VISEME_CLIP[window.lg],
+      message0: Blockly.Msg.POLYGEN_SET_VISEME_CLIP[window.lg],
       args0: [
         {
           type: "input_value",
@@ -44,8 +44,16 @@ const block = {
   },
   getJavascript(parameters) {
     const javascript = function (block, generator) {
-      const value_sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const value_polygen = generator.valueToCode(block, "polygen", generator.ORDER_NONE);
+      const value_sound = generator.valueToCode(
+        block,
+        "sound",
+        generator.ORDER_NONE
+      );
+      const value_polygen = generator.valueToCode(
+        block,
+        "polygen",
+        generator.ORDER_NONE
+      );
       const code = `polygen.setVisemeClip(${value_polygen}, ${value_sound});\n`;
       return code;
     };
@@ -53,8 +61,16 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      const value_sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const value_polygen = generator.valueToCode(block, "polygen", generator.ORDER_NONE);
+      const value_sound = generator.valueToCode(
+        block,
+        "sound",
+        generator.ORDER_NONE
+      );
+      const value_polygen = generator.valueToCode(
+        block,
+        "polygen",
+        generator.ORDER_NONE
+      );
       const code = `_G.polygen.set_viseme_clip(${value_polygen}, ${value_sound})\n`;
       return code;
     };

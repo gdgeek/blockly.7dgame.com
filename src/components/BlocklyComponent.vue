@@ -44,12 +44,12 @@ defineExpose({ workspace });
 // 简单的语言设置工具函数
 const setupLocale = () => {
   const lg = new URLSearchParams(window.location.search).get("language");
-  const localeMap = { 
+  const localeMap = {
     "zh-CN": ZhCn,
     "zh-TW": ZhTw,
     "en-US": En,
     "ja-JP": JA,
-    "th-TH": Th, 
+    "th-TH": Th,
   };
   const matched = Object.keys(localeMap).find((k) => lg?.includes(k));
   if (matched) {

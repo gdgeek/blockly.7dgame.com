@@ -18,7 +18,6 @@ import EntityMovable from "./entity_movable";
 import EntityAllmovable from "./entity_allmovable";
 import EntityRotatable from "./entity_rotatable";
 
-
 const Setup = (toolbox, parameters, access) => {
   // 根据用户角色过滤内容
   const contents = [
@@ -30,8 +29,8 @@ const Setup = (toolbox, parameters, access) => {
     // EntityUnxploded.toolbox
     VisualTooltip.toolbox,
     VisualTooltips.toolbox,
-   // ...(access.atLeast('manager') ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
-    EntityRotatable.toolbox
+    // ...(access.atLeast('manager') ? [EntityMovable.toolbox, EntityAllmovable.toolbox] : []),
+    EntityRotatable.toolbox,
   ];
 
   // 添加类别到工具箱

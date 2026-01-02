@@ -12,7 +12,8 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.POLYGEN_ROTATABLE[window.lg] || "模型 %1 是否自旋转 %2",
+      message0:
+        Blockly.Msg.POLYGEN_ROTATABLE[window.lg] || "模型 %1 是否自旋转 %2",
       args0: [
         {
           type: "input_value",
@@ -53,8 +54,8 @@ const block = {
         });
       },
 
-     // 更新实体选项
-      updateEntityOptions: function(resource) {
+      // 更新实体选项
+      updateEntityOptions: function (resource) {
         if (!resource || !resource.polygen) return;
 
         // 查找当前连接的实体块
@@ -71,10 +72,10 @@ const block = {
         });
 
         // 使用公共方法更新下拉选项
-        if (typeof entityBlock.updateDropdownOptions === 'function') {
+        if (typeof entityBlock.updateDropdownOptions === "function") {
           entityBlock.updateDropdownOptions(filteredOptions);
         }
-      }
+      },
     };
 
     return data;

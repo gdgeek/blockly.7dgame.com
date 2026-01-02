@@ -11,15 +11,10 @@ const Category = {
   // name: "信号",
   name: MANAGER_NAME[window.lg],
   colour: Type.colour,
-  contents: [
-    GameAddScore.toolbox,
-    GameReset.toolbox,
-    GameCountdown.toolbox,
-  ],
+  contents: [GameAddScore.toolbox, GameReset.toolbox, GameCountdown.toolbox],
 };
 
 function Register(parameters) {
- 
   RegisterData(GameAddScore, parameters);
   RegisterData(GameReset, parameters);
   RegisterData(GameCountdown, parameters);
