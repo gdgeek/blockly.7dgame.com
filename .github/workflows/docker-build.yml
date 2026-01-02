@@ -22,6 +22,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test:run
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -51,9 +71,4 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-      - name: Trigger Portainer Webhook (optional)
-        if: ${{ secrets.PORTAINER_WEBHOOK_URL != '' }}
-        run: |
-          curl -X POST "${{ secrets.PORTAINER_WEBHOOK_URL }}" || true
 
