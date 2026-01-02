@@ -94,14 +94,13 @@ const block = {
       tooltip: "",
       helpUrl: "",
     };
-    console.log("Generated Block JSON:", JSON.stringify(json, null, 2));
     return json;
   },
   getBlock(parameters) {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
-        console.log("voice_trigger ++parameters:", parameters);
+        //console.log("voice_trigger ++parameters:", parameters);
         this.jsonInit(json);
       },
     };
@@ -114,7 +113,6 @@ const block = {
       const code = `
   meta['@${dropdown_option}'] = async function(parameter) {
     let isPlaying = true
-    console.error('${dropdown_option}')
     ${statements_content}
     isPlaying = false
   };

@@ -119,7 +119,6 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (block) {
 };
 
 const setup = (style, parameters, access) => {
-  console.log("Parameters1", parameters);
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
     Task.Setup(toolbox, parameters);
@@ -142,7 +141,7 @@ const setup = (style, parameters, access) => {
     // Other.Setup(toolbox, parameters)
   }
   if (style.includes("verse")) {
-    Signal.Setup(toolbox, parameters);
+    Signal.Setup(toolbox, parameters, access);
     Manager.Setup(toolbox, parameters);
     //toolbox.contents.push(DataCategory)
   }

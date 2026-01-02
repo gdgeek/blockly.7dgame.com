@@ -10,6 +10,8 @@
   </div>
 </template>
 
+
+ 
 <script setup>
 /**
  * @license
@@ -27,12 +29,14 @@ import * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
 import * as Custom from "./custom";
+import { upgradeTweenData } from "./utils/dataUpgrade.js";
 import { javascriptGenerator } from "blockly/javascript";
 import { luaGenerator } from "blockly/lua";
 import { Access } from "./utils/Access";
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+
 
 const userInfo = ref({
   id: "",
@@ -85,8 +89,9 @@ const init = (message) => {
   };
   nextTick(() => {
     oldValue = message.data;
-
-    Blockly.serialization.workspaces.load(message.data, editor.value.workspace);
+   
+    const upgradedData = upgradeTweenData(message.data);
+    Blockly.serialization.workspaces.load(upgradedData, editor.value.workspace);
 
     // const allBlocks = foo.value.workspace.getAllBlocks(false);
     // console.log("初始化工作区块内容", allBlocks); // 打印工作区的块内容
@@ -136,7 +141,7 @@ const handleMessage = async (message) => {
     const action = message.data.action;
     const data = message.data.data;
 
-    if (action === "init") {
+    if (action === "init") {      
       console.log("blockly-init");
       init(data);
     } else if (action === "user-info") {
