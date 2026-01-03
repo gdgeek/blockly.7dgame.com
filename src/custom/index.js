@@ -31,11 +31,11 @@ import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
 import * as Sound from "../blocks/sound";
 import * as Voxel from "../blocks/voxel";
-import * as Voice from "../blocks/voice";
+import * as Command from "../blocks/command";
 import * as Video from "../blocks/video";
 // import *  as Other from '../blocks/other'
 import * as Signal from "../blocks/signal";
-import * as Manager from "../blocks/manager"
+import * as Manager from "../blocks/manager";
 import * as Parameter from "../blocks/parameter";
 
 const sep = {
@@ -118,8 +118,7 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (block) {
   return null;
 };
 
-const setup = (style, parameters, userInfo) => {
-  console.log("Parameters1", parameters);
+const setup = (style, parameters, access) => {
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
     Task.Setup(toolbox, parameters);
@@ -131,18 +130,18 @@ const setup = (style, parameters, userInfo) => {
     Trigger.Setup(toolbox, parameters);
     Event.Setup(toolbox, parameters);
     toolbox.contents.push(sep);
-    Entity.Setup(toolbox, parameters, userInfo);
-    Polygen.Setup(toolbox, parameters);
+    Entity.Setup(toolbox, parameters, access);
+    Polygen.Setup(toolbox, parameters, access);
     Picture.Setup(toolbox, parameters);
     Text.Setup(toolbox, parameters);
     Sound.Setup(toolbox, parameters);
     Voxel.Setup(toolbox, parameters);
-    Voice.Setup(toolbox, parameters);
+    Command.Setup(toolbox, parameters);
     Video.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
   }
   if (style.includes("verse")) {
-    Signal.Setup(toolbox, parameters);
+    Signal.Setup(toolbox, parameters, access);
     Manager.Setup(toolbox, parameters);
     //toolbox.contents.push(DataCategory)
   }

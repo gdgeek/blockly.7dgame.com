@@ -2,7 +2,7 @@ import EventType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "init_signal",
+  name: "input_signal_system",
 };
 const block = {
   title: data.name,
@@ -11,8 +11,16 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: Blockly.Msg.SIGNAL_INIT_SIGNAL[window.lg],
+      message0: Blockly.Msg.SIGNAL_INPUT_SIGNAL_SYSTEM[window.lg],
       args0: [
+        {
+          type: "field_dropdown",
+          name: "Event",
+          options: [ 
+            [Blockly.Msg.SIGNAL_BEGIN_SIGNAL?.[window.lg] ,"begin"],
+            [Blockly.Msg.SIGNAL_END_SIGNAL?.[window.lg] ,"end"],
+          ],
+        },
         {
           type: "input_dummy",
         },
@@ -28,6 +36,7 @@ const block = {
     return json;
   },
   getBlock(parameters) {
+    console.log("Parameters", parameters);
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
@@ -38,11 +47,12 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
+      var dropdown_option = block.getFieldValue("Event");
       var statements_content = generator.statementToCode(block, "content");
 
-      var code = `verse['#init'] = async function(parameter) {
+      var code = `verse['#${dropdown_option}'] = async function (parameter) {
         let isPlaying = true;
-        console.log('#init');
+        console.log('${dropdown_option}');
         ${statements_content}
         isPlaying = false;
       }
@@ -54,12 +64,17 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
+      var dropdown_option = block.getFieldValue("Event");
       var statements_content = generator.statementToCode(block, "content");
 
       var code =
-        "verse['#init'] = function(parameter) \n\
+        "verse['#" +
+        dropdown_option +
+        "'] = function(parameter) \n\
   is_playing = true\n\
-  print('init')\n" +
+  print('" +
+        dropdown_option +
+        "')\n" +
         statements_content +
         "  is_playing = false\n\
 end\n";

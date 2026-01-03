@@ -12,7 +12,7 @@ const block = {
   getBlockJson(parameters) {
     // 确保parameters存在，避免出错
     parameters = parameters || {};
-    
+
     const json = {
       type: "block_type",
       message0: Blockly.Msg.TOOLTIP_VISUAL[window.lg],
@@ -43,59 +43,63 @@ const block = {
         console.error("parameters", parameters);
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
-        
+
         // 存储所有可用的tooltip信息
         this.tooltipsInfo = [];
-        
+
         // 如果有Tooltip类型的action，收集所有parentUuid
         if (parameters && parameters.resource && parameters.resource.action) {
-          const tooltipActions = parameters.resource.action.filter(action => action.type === "Tooltip");
-          
+          const tooltipActions = parameters.resource.action.filter(
+            (action) => action.type === "Tooltip"
+          );
+
           // 收集所有具有parentUuid的tooltip
           if (tooltipActions && tooltipActions.length > 0) {
-            tooltipActions.forEach(tooltipAction => {
+            tooltipActions.forEach((tooltipAction) => {
               if (tooltipAction.parentUuid) {
                 this.tooltipsInfo.push({
-                  parentUuid: tooltipAction.parentUuid
+                  parentUuid: tooltipAction.parentUuid,
                 });
               }
             });
           }
         }
-        
+
         // 监听输入连接事件
         this.setOnChange((event) => {
-          if (event.type === Blockly.Events.BLOCK_CHANGE ||
-              event.type === Blockly.Events.BLOCK_MOVE ||
-              event.type === Blockly.Events.BLOCK_CREATE) {
+          if (
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_MOVE ||
+            event.type === Blockly.Events.BLOCK_CREATE
+          ) {
             this.updateConnectedBlock();
           }
         });
-        
+
         // 初始化时更新
         setTimeout(() => {
           this.updateConnectedBlock();
         }, 0);
       },
-      
+
       // 将tooltipsInfo传递给连接的实体块
-      updateConnectedBlock: function() {
+      updateConnectedBlock: function () {
         if (!this.tooltipsInfo || this.tooltipsInfo.length === 0) return;
-        
-        const entityInput = this.getInput('entity');
+
+        const entityInput = this.getInput("entity");
         if (!entityInput || !entityInput.connection) return;
-        
-        const connectedBlock = this.getInputTargetBlock('entity');
+
+        const connectedBlock = this.getInputTargetBlock("entity");
         if (!connectedBlock) return;
-        
+
         // 给连接的块传递tooltipsInfo
-        if (typeof connectedBlock.updateEntityOptions === 'function') {
+        if (typeof connectedBlock.updateEntityOptions === "function") {
           connectedBlock.updateEntityOptions({
             tooltipsInfo: this.tooltipsInfo,
-            sourceBlockId: this.id // 记录来源块ID，用于后续判断连接断开时恢复选项
+            sourceBlockId: this.id, // 记录来源块ID，用于后续判断连接断开时恢复选项
           });
         }
-      }
+      },
     };
     return data;
   },

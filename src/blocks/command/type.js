@@ -1,4 +1,4 @@
 export default {
-  name: "Voice",
+  name: "Command",
   colour: 350,
 };

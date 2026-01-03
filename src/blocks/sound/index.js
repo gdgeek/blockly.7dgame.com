@@ -12,7 +12,13 @@ const Setup = SetupIt(
     // name: "音频",
     name: SOUND_NAME[window.lg],
     colour: Type.colour,
-    contents: [SoundEntity.toolbox, PlaySound.toolbox, PauseSound.toolbox, StopSound.toolbox, AutoPlay.toolbox],
+    contents: [
+      SoundEntity.toolbox,
+      PlaySound.toolbox,
+      PauseSound.toolbox,
+      StopSound.toolbox,
+      AutoPlay.toolbox,
+    ],
   },
   (parameters) => {
     RegisterData(SoundEntity, parameters);

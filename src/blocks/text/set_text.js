@@ -19,7 +19,7 @@ const block = {
           check: "Text",
         },
         {
-          type: "field_input",
+          type: "field_multilinetext",
           name: "value",
           text: "default",
         },

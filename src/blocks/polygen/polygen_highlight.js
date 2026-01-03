@@ -32,13 +32,13 @@ const block = {
           name: "entity",
           check: ["Polygen"],
         },
-        
+
         {
           type: "input_value",
           name: "bool",
           check: "Boolean",
         },
-        
+
         {
           type: "field_dropdown",
           name: "colorName",
@@ -64,36 +64,41 @@ const block = {
         }, 0);
 
         this.setOnChange((event) => {
-          if (event.type === Blockly.Events.BLOCK_CHANGE || 
-              event.type === Blockly.Events.BLOCK_MOVE) {
+          if (
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_MOVE
+          ) {
             this.updateColorOptions();
           }
         });
       },
 
       updateColorOptions: function () {
-        const boolBlock = this.getInputTargetBlock('bool');
-        const boolValue = boolBlock ? boolBlock.getFieldValue('BOOL') : false;
+        const boolBlock = this.getInputTargetBlock("bool");
+        const boolValue = boolBlock ? boolBlock.getFieldValue("BOOL") : false;
 
         // 获取colorName字段
-        const field = this.getField('colorName');
+        const field = this.getField("colorName");
         if (!field) return;
 
         // 根据bool值更新选项
-        const newOptions = boolValue === 'TRUE' ? getColorOptions() : [[Blockly.Msg.COLOR_NONE[window.lg], "none"]];
-        
+        const newOptions =
+          boolValue === "TRUE"
+            ? getColorOptions()
+            : [[Blockly.Msg.COLOR_NONE[window.lg], "none"]];
+
         // 更新下拉菜单选项
         field.menuGenerator_ = newOptions;
 
         // 如果当前值不在新选项中，重置为none
         const currentValue = field.getValue();
 
-        if (!newOptions.some(opt => opt[1] === currentValue)) {
+        if (!newOptions.some((opt) => opt[1] === currentValue)) {
           field.setValue("none");
         }
 
         field.forceRerender();
-      }
+      },
     };
     return data;
   },
@@ -129,9 +134,15 @@ const block = {
         generator.ORDER_ATOMIC
       );
       var value_color = block.getFieldValue("colorName");
-        
+
       var code =
-        "_G.polygen.set_highlight(" + value_entity + ", " + value_bool + ", \"" + value_color + "\")\n";
+        "_G.polygen.set_highlight(" +
+        value_entity +
+        ", " +
+        value_bool +
+        ', "' +
+        value_color +
+        '")\n';
       return code;
     };
     return lua;

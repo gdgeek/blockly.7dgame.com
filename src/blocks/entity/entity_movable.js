@@ -39,25 +39,27 @@ const block = {
       init: function () {
         const json = block.getBlockJson(parameters);
         this.jsonInit(json);
-        
+
         // 监听块变化，以便在适当时机更新实体选项
         this.setOnChange((event) => {
-          if (event.type === Blockly.Events.BLOCK_CHANGE ||
-              event.type === Blockly.Events.BLOCK_CREATE || 
-              event.type === Blockly.Events.BLOCK_MOVE) {
+          if (
+            event.type === Blockly.Events.BLOCK_CHANGE ||
+            event.type === Blockly.Events.BLOCK_CREATE ||
+            event.type === Blockly.Events.BLOCK_MOVE
+          ) {
             this.updateEntityOptions(parameters.resource);
           }
         });
       },
-      
+
       // 更新实体选项
-      updateEntityOptions: function(resource) {
+      updateEntityOptions: function (resource) {
         if (!resource || !resource.entity) return;
-        
+
         // 查找当前连接的实体块
         const entityBlock = this.getInputTargetBlock("entity");
         if (!entityBlock || entityBlock.type !== "entity") return;
-        
+
         // 筛选实体列表 - 只显示可移动的实体(moved为true)
         const filteredOptions = [["none", ""]];
         resource.entity.forEach((entity) => {
@@ -66,12 +68,12 @@ const block = {
             filteredOptions.push([entity.name, entity.uuid]);
           }
         });
-        
+
         // 使用公共方法更新下拉选项
-        if (typeof entityBlock.updateDropdownOptions === 'function') {
+        if (typeof entityBlock.updateDropdownOptions === "function") {
           entityBlock.updateDropdownOptions(filteredOptions);
         }
-      }
+      },
     };
     return data;
   },
@@ -105,7 +107,8 @@ const block = {
         "movable",
         generator.ORDER_ATOMIC
       );
-      var code = "_G.point.set_moveable(" + value_entity + ", " + value_movable + ")\n";
+      var code =
+        "_G.point.set_moveable(" + value_entity + ", " + value_movable + ")\n";
       return code;
     };
     return lua;
@@ -115,4 +118,4 @@ const block = {
     type: data.name,
   },
 };
-export default block; 
+export default block;

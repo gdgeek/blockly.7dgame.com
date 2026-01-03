@@ -1,9 +1,8 @@
 import Type from "./type";
 
-import ManagerCall from "./manager_call";
-import OutputSignalWithParameter from "./output_signal_with_parameter";
-import InputSignal from "./input_signal";
-import InitSignal from "./init_signal";
+import GameAddScore from "./game_add_score";
+import GameReset from "./game_reset";
+import GameCountdown from "./game_countdown";
 import { MANAGER_NAME, SIGNAL_NAME } from "../../localization/index";
 import { RegisterData, SetupIt } from "../helper";
 
@@ -12,20 +11,13 @@ const Category = {
   // name: "信号",
   name: MANAGER_NAME[window.lg],
   colour: Type.colour,
-  contents: [
-    ManagerCall.toolbox,
-   // InputSignal.toolbox,
-  //  OutputSignalWithParameter.toolbox,
-  //  InitSignal.toolbox,
-  ],
+  contents: [GameAddScore.toolbox, GameReset.toolbox, GameCountdown.toolbox],
 };
 
 function Register(parameters) {
- 
-  RegisterData(ManagerCall, parameters);
- // RegisterData(InputSignal, parameters);
- // RegisterData(OutputSignalWithParameter, parameters);
- // RegisterData(InitSignal, parameters);
+  RegisterData(GameAddScore, parameters);
+  RegisterData(GameReset, parameters);
+  RegisterData(GameCountdown, parameters);
 }
 const Setup = SetupIt(Category, Register);
 export { Setup };

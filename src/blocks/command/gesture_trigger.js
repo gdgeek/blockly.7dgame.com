@@ -2,39 +2,13 @@ import TriggerType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "voice_trigger",
+  name: "gesture_trigger",
 };
 
 function getLocalizedCommandName(name) {
   const commandMap = {
-    "scaleUp": Blockly.Msg.VOICE_TRIGGER_SCALE_UP[window.lg],
-    "scaleDown": Blockly.Msg.VOICE_TRIGGER_SCALE_DOWN[window.lg],
-    "decompose": Blockly.Msg.VOICE_TRIGGER_DECOMPOSE[window.lg],
-    "reset": Blockly.Msg.VOICE_TRIGGER_RESET[window.lg],
-    "nextStep": Blockly.Msg.VOICE_TRIGGER_NEXT_STEP[window.lg],
-    "returnMain": Blockly.Msg.VOICE_TRIGGER_RETURN_MAIN[window.lg],
-    "closeTooltip": Blockly.Msg.VOICE_TRIGGER_CLOSE_TOOLTIP[window.lg],
-    "openTooltip": Blockly.Msg.VOICE_TRIGGER_OPEN_TOOLTIP[window.lg],
-    "vertical": Blockly.Msg.VOICE_TRIGGER_VERTICAL[window.lg],
-    "horizontal": Blockly.Msg.VOICE_TRIGGER_HORIZONTAL[window.lg],
-    "hidden": Blockly.Msg.VOICE_TRIGGER_HIDDEN[window.lg],
-    "visible": Blockly.Msg.VOICE_TRIGGER_VISIBLE[window.lg],
-    "showYuelu": Blockly.Msg.VOICE_TRIGGER_SHOW_YUELU[window.lg],
-    "showLunan": Blockly.Msg.VOICE_TRIGGER_SHOW_LUNAN[window.lg],
-    "showXiaoxiang": Blockly.Msg.VOICE_TRIGGER_SHOW_XIAOXIANG[window.lg],
-    "showTianxin": Blockly.Msg.VOICE_TRIGGER_SHOW_TIANXIN[window.lg],
-    "showXinglin": Blockly.Msg.VOICE_TRIGGER_SHOW_XINGLIN[window.lg],
-    "showKaifu": Blockly.Msg.VOICE_TRIGGER_SHOW_KAIFU[window.lg],
-    "goBack": Blockly.Msg.VOICE_TRIGGER_GO_BACK[window.lg],
-    "bgmOn": Blockly.Msg.VOICE_TRIGGER_BGM_ON[window.lg],
-    "bgmOff": Blockly.Msg.VOICE_TRIGGER_BGM_OFF[window.lg],
-    "sandboxFxOn": Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_ON[window.lg],
-    "sandboxFxOff": Blockly.Msg.VOICE_TRIGGER_SANDBOX_FX_OFF[window.lg],
-    "sandboxRotateOn": Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_ON[window.lg],
-    "sandboxRotateOff": Blockly.Msg.VOICE_TRIGGER_SANDBOX_ROTATE_OFF[window.lg],
-    "campusIntroOff": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_OFF[window.lg],
-    "campusIntroOn": Blockly.Msg.VOICE_TRIGGER_CAMPUS_INTRO_ON[window.lg],
-
+    ok: Blockly.Msg.GESTURE_TRIGGER_OK[window.lg],
+    fist: Blockly.Msg.GESTURE_TRIGGER_FIST[window.lg],
   };
 
   return commandMap[name] || name;
@@ -47,17 +21,17 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: data.name,
-      message0: Blockly.Msg.VOICE_TRIGGER[window.lg],
+      message0: Blockly.Msg.GESTURE_TRIGGER[window.lg],
       args0: [
         {
           type: "field_dropdown",
-          name: "Voice",
+          name: "Gesture",
           options: function () {
             let opt = [["none", ""]];
             if (resource && resource.action) {
               const action = resource.action;
               action.forEach(({ name, uuid, type }) => {
-                if (type === "Voice") {
+                if (type === "Gesture") {
                   if (name) {
                     opt.push([getLocalizedCommandName(name), uuid]);
                   } else {
@@ -88,7 +62,7 @@ const block = {
     const data = {
       init: function () {
         const json = block.getBlockJson(parameters);
-        console.log("voice_trigger ++parameters:", parameters);
+        console.log("gesture_trigger ++parameters:", parameters);
         this.jsonInit(json);
       },
     };
@@ -96,7 +70,7 @@ const block = {
   },
   getJavascript(parameters) {
     const javascript = function (block, generator) {
-      const dropdown_option = block.getFieldValue("Voice");
+      const dropdown_option = block.getFieldValue("Gesture");
       const statements_content = generator.statementToCode(block, "content");
       const code = `
   meta['@${dropdown_option}'] = async function(parameter) {
@@ -112,7 +86,7 @@ const block = {
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var dropdown_option = block.getFieldValue("Voice");
+      var dropdown_option = block.getFieldValue("Gesture");
       var statements_content = generator.statementToCode(block, "content");
 
       var code =

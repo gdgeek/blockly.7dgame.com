@@ -2,7 +2,7 @@ import EventType from "./type";
 import * as Blockly from "blockly";
 
 const data = {
-  name: "manager_call",
+  name: "game_countdown",
 };
 const block = {
   title: data.name,
@@ -11,12 +11,12 @@ const block = {
   getBlockJson({ resource }) {
     const json = {
       type: "block_type",
-      message0: Blockly.Msg.GAME_SCORE_ADD[window.lg],
+      message0: Blockly.Msg.GAME_COUNTDOWN[window.lg],
       args0: [
         {
           type: "field_number",
-          name: "Score",
-          value: 1,
+          name: "Seconds",
+          value: 120,
         },
       ],
       previousStatement: null,
@@ -38,16 +38,16 @@ const block = {
   },
   getJavascript(parameters) {
     const script = function (block, generator) {
-      var score = block.getFieldValue("Score");
-      var code = `managers.game_add_score(${score}, parameter);\n`;
+      var seconds = block.getFieldValue("Seconds");
+      var code = `managers.game_countdown(${seconds}, parameter);\n`;
       return code;
     };
     return script;
   },
   getLua(parameters) {
     const lua = function (block, generator) {
-      var score = block.getFieldValue("Score");
-      var code = `_G.managers.game_add_score(${score}, parameter)\n`;
+      var seconds = block.getFieldValue("Seconds");
+      var code = `_G.managers.game_countdown(${seconds}, parameter)\n`;
       return code;
     };
     return lua;
