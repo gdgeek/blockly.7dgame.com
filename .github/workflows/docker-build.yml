@@ -2,6 +2,11 @@ name: Docker Build
 
 on:
   workflow_call:
+    secrets:
+      TENCENT_REGISTRY_USERNAME:
+        required: true
+      TENCENT_REGISTRY_PASSWORD:
+        required: true
     outputs:
       image-tags:
         description: "Docker image tags"
@@ -10,6 +15,8 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  TENCENT_REGISTRY: hkccr.ccs.tencentyun.com
+  TENCENT_IMAGE_NAME: gdgeek/blockly
 
 jobs:
   build:
@@ -34,7 +41,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata
+      - name: Login to Tencent Cloud Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.TENCENT_REGISTRY }}
+          username: ${{ secrets.TENCENT_REGISTRY_USERNAME }}
+          password: ${{ secrets.TENCENT_REGISTRY_PASSWORD }}
+
+      - name: Extract metadata for GitHub Registry
         id: meta
         uses: docker/metadata-action@v5
         with:
@@ -44,12 +58,24 @@ jobs:
             type=sha,prefix=
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push
+      - name: Extract metadata for Tencent Registry
+        id: meta-tencent
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.TENCENT_REGISTRY }}/${{ env.TENCENT_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push to both registries
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            ${{ steps.meta-tencent.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
