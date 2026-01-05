@@ -37,7 +37,7 @@ const block = {
         },
       ],
       colour: EventType.colour,
-      tooltip: "",
+      tooltip: Blockly.Msg.EVENT_INPUT_TOOLTIP[window.lg],
       helpUrl: "",
     };
     return json;
