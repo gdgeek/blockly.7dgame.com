@@ -19,6 +19,7 @@ const block = {
           options: [ 
             [Blockly.Msg.SIGNAL_BEGIN_SIGNAL?.[window.lg] ,"begin"],
             [Blockly.Msg.SIGNAL_END_SIGNAL?.[window.lg] ,"end"],
+            ["拍照", "photo"]
           ],
         },
         {
