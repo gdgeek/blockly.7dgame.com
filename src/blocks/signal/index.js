@@ -13,13 +13,12 @@ import { RegisterData, SetupIt } from "../helper";
 const Setup = (toolbox, parameters, access) => {
 
   const contents = [
+    InitSignal.toolbox,
     OutputSignal.toolbox,
     InputSignal.toolbox,
-    OutputSignalWithParameter.toolbox,
-    InitSignal.toolbox,
     MultiOutputSignal.toolbox,
     OutputsItem.toolbox,
-    ...(access.atLeast('manager') ? [InputSignalSystem.toolbox] : []),
+    ...(access.atLeast('manager') ? [OutputSignalWithParameter.toolbox,InputSignalSystem.toolbox] : []),
     
   ];
 
@@ -29,15 +28,15 @@ const Setup = (toolbox, parameters, access) => {
     colour: Type.colour,
     contents: contents,
   });
-
+  
+  RegisterData(InitSignal, parameters);
   RegisterData(OutputSignal, parameters);
   RegisterData(InputSignal, parameters);
-  RegisterData(OutputSignalWithParameter, parameters);
-  RegisterData(InitSignal, parameters);
   RegisterData(MultiOutputSignal, parameters);
   RegisterData(OutputsItem, parameters);
   if (access.atLeast('manager'))
   {
+    RegisterData(OutputSignalWithParameter, parameters);
     RegisterData(InputSignalSystem, parameters); 
   }
 };

@@ -13,8 +13,7 @@ const block = {
   getBlockJson({ resource }) {
     return {
       type: data.name,
-      // 第一行：标题和输入口
-      message0: (Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL?.[window.lg]),
+      message0: Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL?.[window.lg],
       args0: [
         {
           type: "input_value",
@@ -25,7 +24,7 @@ const block = {
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
-      tooltip: "触发多个实体输入信号（传入一个信号列表）",
+      tooltip: Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL_TOOLTIP?.[window.lg],
       helpUrl: "",
     };
   },

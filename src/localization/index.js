@@ -294,29 +294,43 @@ Blockly.Msg.TRIGGER_UPDATE = {
   "th-TH": "อัปเดต %1 %2",
 };
 
-// Event
+//实体信号 Event
 export const EVENT_NAME = {
-  "zh-CN": "事件",
-  "en-US": "Event",
-  "ja-JP": "イベント",
-  "zh-TW": "事件",
-  "th-TH": "เหตุการณ์",
-};
-Blockly.Msg.EVENT_INPUT = {
-  "zh-CN": "输入事件 %1 %2 %3",
-  "en-US": "Input Event %1 %2 %3",
-  "ja-JP": "入力イベント %1 %2 %3",
-  "zh-TW": "輸入事件 %1 %2 %3",
-  "th-TH": "เหตุการณ์อินพุต %1 %2 %3",
-};
-Blockly.Msg.EVENT_OUTPUT = {
-  "zh-CN": "输出事件 %1",
-  "en-US": "Output Event %1",
-  "ja-JP": "出力イベント %1",
-  "zh-TW": "輸出事件 %1",
-  "th-TH": "เหตุการณ์เอาต์พุต %1",
+  "zh-CN": "信号",
+  "en-US": "Signal",
+  "ja-JP": "信号",
+  "zh-TW": "訊號",
+  "th-TH": "สัญญาณ",
 };
 
+Blockly.Msg.EVENT_INPUT = {
+  "zh-CN": "输入信号 %1 %2 %3",
+  "en-US": "Input Signal %1 %2 %3",
+  "ja-JP": "入力信号 %1 %2 %3",
+  "zh-TW": "輸入訊號 %1 %2 %3",
+  "th-TH": "สัญญาณอินพุต %1 %2 %3",
+};
+Blockly.Msg.EVENT_INPUT_TOOLTIP = {
+  "zh-CN": "当场景触发实体的输入信号时执行的事件",
+  "en-US": "Event executed when the scene triggers the entity's input signal",
+  "ja-JP": "シーンがエンティティの入力信号をトリガーしたときに実行されるイベント",
+  "zh-TW": "當場景觸發實體的輸入訊號時執行的事件",
+  "th-TH": "เหตุการณ์ที่ดำเนินการเมื่อฉากทริกเกอร์สัญญาณอินพุตของเอนทิตี",
+};
+Blockly.Msg.EVENT_OUTPUT = {
+  "zh-CN": "输出信号 %1",
+  "en-US": "Output Signal %1",
+  "ja-JP": "出力信号 %1",
+  "zh-TW": "輸出訊號 %1",
+  "th-TH": "สัญญาณเอาต์พุต %1",
+};
+Blockly.Msg.EVENT_OUTPUT_TOOLTIP = {
+  "zh-CN": "向场景发出实体的输出信号",
+  "en-US": "Send the entity's output signal to the scene",
+  "ja-JP": "エンティティの出力信号をシーンに送信する",
+  "zh-TW": "向場景發出實體的輸出訊號",
+  "th-TH": "ส่งสัญญาณเอาต์พุตของเอนทิตีไปยังฉาก",
+};
 // 节点entity
 export const ENTITY_NAME = {
   "zh-CN": "节点",
@@ -626,7 +640,7 @@ Blockly.Msg.GAME_COUNTDOWN = {
   "th-TH": "นับถอยหลัง วินาที %1",
 };
 
-// 信号signal
+// 场景信号 signal
 export const SIGNAL_NAME = {
   "zh-CN": "信号",
   "en-US": "Signal",
@@ -641,12 +655,26 @@ Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
   "zh-TW": "触发信號 %1",
   "th-TH": "ทริกเกอร์สัญญาณ %1",
 };
+Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_TOOLTIP = {
+  "zh-CN": "激活实体的输入信号,执行实体对应的输入信号事件",
+  "en-US": "Activate the entity's input signal and execute the entity's corresponding input signal event",
+  "ja-JP": "エンティティの入力信号をアクティブにし、エンティティの対応する入力信号イベントを実行する",
+  "zh-TW": "激活實體的輸入訊號,執行實體對應的輸入訊號事件",
+  "th-TH": "เปิดใช้งานสัญญาณอินพุตของเอนทิตีและดำเนินการเหตุการณ์สัญญาณอินพุตที่สอดคล้องกันของเอนทิตี",
+};
 Blockly.Msg.SIGNAL_INPUT_SIGNAL = {
   "zh-CN": "接收信号 %1 %2 %3",
   "en-US": "Receive signal %1 %2 %3",
   "ja-JP": "信号 %1 %2 %3 を受信する",
   "zh-TW": "接收信號 %1 %2 %3",
   "th-TH": "รับสัญญาณ %1 %2 %3",
+};
+Blockly.Msg.SIGNAL_INPUT_SIGNAL_TOOLTIP = {
+  "zh-CN": "当场景接收到实体的输出信号时执行",
+  "en-US": "Execute when the scene receives the entity's output signal",
+  "ja-JP": "シーンがエンティティの出力信号を受信したときに実行する",
+  "zh-TW": "當場景接收到實體的輸出訊號時執行",
+  "th-TH": "ดำเนินการเมื่อฉากได้รับสัญญาณเอาต์พุตของเอนทิตี",
 };
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_WITH_PARAMETER = {
   "zh-CN": "触发信号 %1 参数 %2",
@@ -662,6 +690,13 @@ Blockly.Msg.SIGNAL_INIT_SIGNAL = {
   "zh-TW": "初始化 %1 %2",
   "th-TH": "เริ่มต้น %1 %2",
 };
+Blockly.Msg.SIGNAL_INIT_SIGNAL_TOOLTIP = {
+  "zh-CN": "场景开始后自动执行一次",
+  "en-US": "Automatically execute once after the scene starts",
+  "ja-JP": "シーンが開始された後に自動的に一度実行される",
+  "zh-TW": "場景開始後自動執行一次",
+  "th-TH": "ดำเนินการโดยอัตโนมัติครั้งหนึ่งหลังจากฉากเริ่มต้น",
+};
 Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL = {
   "zh-CN": "触发多个信号 %1",
   "en-US": "Trigger multiple signals %1",
@@ -669,14 +704,21 @@ Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL = {
   "zh-TW": "触发多个信號 %1",
   "th-TH": "ทริกเกอร์หลายสัญญาณ %1",
 };
-
+Blockly.Msg.SIGNAL_OUTPUT_MULT_SIGNAL_TOOLTIP = {
+  "zh-CN": "触发多个实体输入信号",
+  "en-US": "Trigger multiple entity input signals",
+  "ja-JP": "複数のエンティティ入力信号をトリガーする",
+  "zh-TW": "触发多個實體輸入訊號",
+  "th-TH": "ทริกเกอร์สัญญาณอินพุตของเอนทิตีหลายรายการ",
+};
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_ITEM = {
   "zh-CN": "实体的输入信号 %1",
   "en-US": "Entity input signal %1",
   "ja-JP": "実体の入力信号 %1",
-  "zh-TW": "实体的输入信號 %1",
+  "zh-TW": "實體的輸入訊號 %1",
   "th-TH": "สัญญาณอินพุตของเอนทิตี %1",
 };
+
 Blockly.Msg.SIGNAL_INPUT_SIGNAL_SYSTEM = {
   "zh-CN": "接收系统信号 %1 %2 %3",
   "en-US": "Receive system signal %1 %2 %3",

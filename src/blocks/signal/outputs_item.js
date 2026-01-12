@@ -30,7 +30,7 @@ const block = {
       ],
       output: null,
       colour: EventType.colour,
-      tooltip: "选择一个输出信号",
+      tooltip: "",
       helpUrl: "",
     };
   },

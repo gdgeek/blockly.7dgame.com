@@ -40,7 +40,7 @@ const block = {
         },
       ],
       colour: EventType.colour,
-      tooltip: "",
+      tooltip: Blockly.Msg.SIGNAL_INPUT_SIGNAL_TOOLTIP[window.lg],
       helpUrl: "",
     };
     return json;

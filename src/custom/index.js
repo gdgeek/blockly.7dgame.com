@@ -128,16 +128,16 @@ const setup = (style, parameters, access) => {
   toolbox.contents.push(sep);
   if (style.includes("meta")) {
     Trigger.Setup(toolbox, parameters);
+    Command.Setup(toolbox, parameters);
     Event.Setup(toolbox, parameters);
     toolbox.contents.push(sep);
     Entity.Setup(toolbox, parameters, access);
+    Text.Setup(toolbox, parameters);
     Polygen.Setup(toolbox, parameters, access);
     Picture.Setup(toolbox, parameters);
-    Text.Setup(toolbox, parameters);
-    Sound.Setup(toolbox, parameters);
-    Voxel.Setup(toolbox, parameters);
-    Command.Setup(toolbox, parameters);
     Video.Setup(toolbox, parameters);
+    Sound.Setup(toolbox, parameters);
+    // Voxel.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
   }
   if (style.includes("verse")) {
