@@ -38,6 +38,9 @@ window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
 
 
+const initPayload = ref(null);
+const isUserInfoReady = ref(false);
+
 const userInfo = ref({
   id: "",
   //roles: [],
@@ -63,7 +66,17 @@ const save = (message) => {
     oldValue = data;
   }
 };
-const init = (message) => {
+
+const tryInit = () => {
+  if (initPayload.value && isUserInfoReady.value) {
+    doInit(initPayload.value);
+    initPayload.value = null;
+    isUserInfoReady.value = false;
+  }
+};
+
+const doInit = (message) => {
+  console.log("doInit executed with role:", userInfo.value.role);
   console.error("init", message);
   const toolbox = Custom.setup(message.style, message.parameters, access.value);
   options.value = {
@@ -91,18 +104,31 @@ const init = (message) => {
     oldValue = message.data;
    
     const upgradedData = upgradeTweenData(message.data);
-    Blockly.serialization.workspaces.load(upgradedData, editor.value.workspace);
 
-    // const allBlocks = foo.value.workspace.getAllBlocks(false);
-    // console.log("初始化工作区块内容", allBlocks); // 打印工作区的块内容
-    // allBlocks.forEach((block) => {
-    //   const blockLuaCode = luaGenerator.blockToCode(block);
-    //   console.log(`块类型: ${block.type}, Lua 代码: ${blockLuaCode}`);
-    // });
+    const loadWorkspace = (retries = 0) => {
+      if (editor.value && editor.value.workspace) {
+        // console.log("loadWorkspace: workspace found, loading data");
+        try {
+          Blockly.serialization.workspaces.load(upgradedData, editor.value.workspace);
+        //  console.log("loadWorkspace: data loaded");
+        } catch (e) {
+         // console.error("loadWorkspace: error loading data", e);
+        }
 
-    // 添加工作区变化的监听器
-    editor.value.workspace.addChangeListener(onWorkspaceChange);
-    updateCode();
+        // 添加工作区变化的监听器
+        editor.value.workspace.addChangeListener(onWorkspaceChange);
+        updateCode();
+      } else {
+        if (retries < 100) {
+          // console.log(`loadWorkspace retry: ${retries}, editor: ${!!editor.value}, workspace: ${!!(editor.value && editor.value.workspace)}`);
+          setTimeout(() => loadWorkspace(retries + 1), 50);
+        } else {
+        //  console.error("Blockly workspace failed to initialize in time after 100 retries.");
+        }
+      }
+    };
+    
+    loadWorkspace();
   });
 };
 
@@ -142,12 +168,15 @@ const handleMessage = async (message) => {
     const data = message.data.data;
 
     if (action === "init") {      
-      console.log("blockly-init");
-      init(data);
+      console.log("blockly-init received");
+      initPayload.value = data;
+      tryInit();
     } else if (action === "user-info") {
-      console.log("blockly-user-info", data);
+      console.log("blockly-user-info received", data);
       userInfo.value = data;
-      console.log("blockly-userInfo", userInfo.value);
+      isUserInfoReady.value = true;
+      console.log("blockly-userInfo updated", userInfo.value);
+      tryInit();
     } else if (action === "save") {
       save(data);
     }
