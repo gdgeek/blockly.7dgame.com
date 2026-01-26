@@ -51,7 +51,7 @@ const block = {
                 const keyField = this.getField("KEY");
                 if (keyField) {
                     keyField.setValidator(function (newValue) {
-                        return newValue.replace(/[^a-zA-Z0-9_\-\.~]/g, "");
+                        return newValue.replace(/[^a-zA-Z0-9_\-.~]/g, "");
                     });
                 }
             },
