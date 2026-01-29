@@ -124,7 +124,7 @@ const setup = (style, parameters, access) => {
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
     Task.Setup(toolbox, parameters);
-    if (access && access.atLeast(ROLES.MANAGER)) {
+    if (access && access.atLeast(ROLES.ADMIN)) {
       Parameter.Setup(toolbox, parameters);
       Log.Setup(toolbox, parameters);
     }
@@ -147,7 +147,9 @@ const setup = (style, parameters, access) => {
   }
   if (style.includes("verse")) {
     Signal.Setup(toolbox, parameters, access);
-    Manager.Setup(toolbox, parameters);
+    if (access && access.atLeast(ROLES.ADMIN)) {
+      Manager.Setup(toolbox, parameters);
+    }
     //toolbox.contents.push(DataCategory)
   }
   toolbox.contents.push(sep);
