@@ -58,6 +58,7 @@ const setupLocale = () => {
 };
 
 onMounted(() => {
+  //console.log("BlocklyComponent onMounted");
   // 1. 多语言配置
   setupLocale();
   overrideProcedureMessages();
@@ -67,10 +68,22 @@ onMounted(() => {
   const options = props.options || {};
   if (!options.toolbox) options.toolbox = toRaw(blocklyToolbox.value);
 
-  workspace.value = Blockly.inject(blocklyDiv.value, options);
+  try {
+    workspace.value = Blockly.inject(blocklyDiv.value, options);
+  //  console.log("Blockly injected, workspace:", workspace.value);
+  } catch (e) {
+   // console.error("Blockly inject error:", e);
+  }
 
   // 3. 一键初始化所有插件
-  initPlugins(workspace.value, blocklyDiv.value, options);
+  if (workspace.value) {
+    try {
+      initPlugins(workspace.value, blocklyDiv.value, options);
+      //console.log("Plugins initialized");
+    } catch (e) {
+     // console.error("Plugin init error:", e);
+    }
+  }
 });
 </script>
 

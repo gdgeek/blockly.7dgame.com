@@ -7,6 +7,7 @@ import * as Blockly from "blockly";
 import { VARIABLE_NAME } from "../localization/index";
 import { PROCEDURE_NAME } from "../localization/index";
 import { javascriptGenerator } from "blockly/javascript";
+import { ROLES } from "../utils/Access";
 
 const Variable = {
   kind: "category",
@@ -37,6 +38,7 @@ import * as Video from "../blocks/video";
 import * as Signal from "../blocks/signal";
 import * as Manager from "../blocks/manager";
 import * as Parameter from "../blocks/parameter";
+import * as Log from "../blocks/log";
 
 const sep = {
   kind: "sep",
@@ -122,7 +124,10 @@ const setup = (style, parameters, access) => {
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
     Task.Setup(toolbox, parameters);
-    Parameter.Setup(toolbox, parameters);
+    if (access && access.atLeast(ROLES.ADMIN)) {
+      Parameter.Setup(toolbox, parameters);
+      Log.Setup(toolbox, parameters);
+    }
   }
 
   toolbox.contents.push(sep);
@@ -142,7 +147,9 @@ const setup = (style, parameters, access) => {
   }
   if (style.includes("verse")) {
     Signal.Setup(toolbox, parameters, access);
-    Manager.Setup(toolbox, parameters);
+    if (access && access.atLeast(ROLES.ADMIN)) {
+      Manager.Setup(toolbox, parameters);
+    }
     //toolbox.contents.push(DataCategory)
   }
   toolbox.contents.push(sep);

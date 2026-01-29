@@ -150,19 +150,19 @@ export default {
         },
       },
     },
-    {
-      kind: "block",
-      type: "text_prompt_ext",
-      inputs: {
-        TEXT: {
-          shadow: {
-            type: "text",
-            fields: {
-              TEXT: "abc",
-            },
-          },
-        },
-      },
-    },
+    // {
+    //   kind: "block",
+    //   type: "text_prompt_ext",
+    //   inputs: {
+    //     TEXT: {
+    //       shadow: {
+    //         type: "text",
+    //         fields: {
+    //           TEXT: "abc",
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
   ],
 };

@@ -973,3 +973,47 @@ Blockly.Msg.TOOLTIPS_VISUAL = {
   "zh-TW": "所有節點上的 标签 顯示/隱藏 %1",
   "th-TH": "ป้ายชื่อบนทุกโหนด แสดง/ซ่อน %1",
 };
+// 日志Log
+export const LOG_NAME = {
+  "zh-CN": "日志",
+  "en-US": "Log",
+  "ja-JP": "ログ",
+  "zh-TW": "日誌",
+  "th-TH": "บันทึก",
+};
+Blockly.Msg.LOG_KEY_VALUE = {
+  "zh-CN": "调试日志 %1 键名 %2 内容 %3",
+  "en-US": "Debug Log %1 Key %2 Value %3",
+  "ja-JP": "デバッグログ %1 キー %2 値 %3",
+  "zh-TW": "調試日誌 %1 鍵名 %2 內容 %3",
+  "th-TH": "บันทึกการแก้ไขข้อบกพร่อง %1 คีย์ %2 ค่า %3",
+};
+Blockly.Msg.LOG_RECORD = {
+  "zh-CN": "记录",
+  "en-US": "Record",
+  "ja-JP": "記録",
+  "zh-TW": "記錄",
+  "th-TH": "บันทึก",
+};
+Blockly.Msg.LOG_WARNING = {
+  "zh-CN": "警告",
+  "en-US": "Warning",
+  "ja-JP": "警告",
+  "zh-TW": "警告",
+  "th-TH": "คำเตือน",
+};
+Blockly.Msg.LOG_ERROR = {
+  "zh-CN": "错误",
+  "en-US": "Error",
+  "ja-JP": "エラー",
+  "zh-TW": "錯誤",
+  "th-TH": "ข้อผิดพลาด",
+};
+
+Blockly.Msg.LOG_KEY_VALUE_TOOLTIP = {
+  "zh-CN": "将消息记录到调试控制台 (键值可用字符: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+  "en-US": "Log a value to the debug console (Key allowed chars: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+  "ja-JP": "値をデバッグコンソールに記録します (キー使用可能文字: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+  "zh-TW": "將消息記錄到調試控制台 (鍵值可用字符: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+  "th-TH": "บันทึกค่าไปยังคอนโซล (อักขระคีย์ที่ใช้ได้: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+};
