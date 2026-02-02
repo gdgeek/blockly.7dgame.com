@@ -1017,3 +1017,11 @@ Blockly.Msg.LOG_KEY_VALUE_TOOLTIP = {
   "zh-TW": "將消息記錄到調試控制台 (鍵值可用字符: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
   "th-TH": "บันทึกค่าไปยังคอนโซล (อักขระคีย์ที่ใช้ได้: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
 };
+
+Blockly.Msg.LOG_RESET_UUID = {
+  "zh-CN": "重置日志 uuid",
+  "en-US": "Reset log uuid",
+  "ja-JP": "ログ uuid をリセット",
+  "zh-TW": "重置日誌 uuid",
+  "th-TH": "รีเซ็ต uuid",
+};
