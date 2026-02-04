@@ -39,6 +39,7 @@ import * as Signal from "../blocks/signal";
 import * as Manager from "../blocks/manager";
 import * as Parameter from "../blocks/parameter";
 import * as Log from "../blocks/log";
+import * as Prototype from "../blocks/prototype";
 
 const sep = {
   kind: "sep",
@@ -144,6 +145,10 @@ const setup = (style, parameters, access) => {
     Sound.Setup(toolbox, parameters);
     // Voxel.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
+    if (access && access.atLeast(ROLES.ADMIN)) {
+      Prototype.Setup(toolbox, parameters);
+    }
+
   }
   if (style.includes("verse")) {
     Signal.Setup(toolbox, parameters, access);

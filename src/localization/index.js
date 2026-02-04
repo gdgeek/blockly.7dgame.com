@@ -1025,3 +1025,20 @@ Blockly.Msg.LOG_RESET_UUID = {
   "zh-TW": "重置日誌 uuid",
   "th-TH": "รีเซ็ต uuid",
 };
+
+//原型Prototype
+export const PROTOTYPE_NAME = {
+  "zh-CN": "原型",
+  "en-US": "Prototype",
+  "ja-JP": "プロトタイプ",
+  "zh-TW": "原型",
+  "th-TH": "ต้นแบบ",
+};
+Blockly.Msg.PROTOTYPE_BOOK = {
+  "zh-CN": "原型 书 %1 页码 %2 %3 %4",
+  "en-US": "Prototype Book %1 Page %2 %3 %4",
+  "ja-JP": "プロトタイプブック %1 ページ %2 %3 %4",
+  "zh-TW": "原型 書 %1 页码 %2 %3 %4",
+  "th-TH": "หนังสือต้นแบบ %1 หน้า %2 %3 %4",
+};
+
