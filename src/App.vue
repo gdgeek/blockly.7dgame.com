@@ -238,6 +238,7 @@ defineExpose({
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
+  background: #edf2f8;
 }
 
 html,
@@ -259,9 +260,12 @@ body {
 
 #blockly {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 100%;
+  left: 8px;
+  bottom: 8px;
+  width: calc(100% - 16px);
+  height: calc(100% - 16px);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(49, 73, 107, 0.1);
 }
 </style>
