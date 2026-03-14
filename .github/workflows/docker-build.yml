@@ -7,75 +7,46 @@ on:
         required: true
       TENCENT_REGISTRY_PASSWORD:
         required: true
-    outputs:
-      image-tags:
-        description: "Docker image tags"
-        value: ${{ jobs.build.outputs.tags }}
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
-  TENCENT_REGISTRY: hkccr.ccs.tencentyun.com
-  TENCENT_IMAGE_NAME: gdgeek/blockly
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      tags: ${{ steps.meta.outputs.tags }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Extract branch name
+        id: branch
+        run: echo "name=${GITHUB_REF#refs/heads/}" >> "$GITHUB_OUTPUT"
+
+      - name: Set Docker tags
+        id: tags
+        run: |
+          BRANCH="${{ steps.branch.outputs.name }}"
+          REGISTRY="${{ secrets.TENCENT_REGISTRY_USERNAME && 'ccr.ccs.tencentyun.com' || 'ghcr.io' }}"
+          IMAGE="${REGISTRY}/${{ github.repository }}"
+          TAGS="${IMAGE}:${BRANCH}"
+          if [ "$BRANCH" = "publish" ]; then
+            TAGS="${TAGS},${IMAGE}:latest"
+          fi
+          echo "tags=${TAGS}" >> "$GITHUB_OUTPUT"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to GitHub Container Registry
+      - name: Login to Tencent Registry
+        if: ${{ secrets.TENCENT_REGISTRY_USERNAME != '' }}
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Login to Tencent Cloud Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.TENCENT_REGISTRY }}
+          registry: ccr.ccs.tencentyun.com
           username: ${{ secrets.TENCENT_REGISTRY_USERNAME }}
           password: ${{ secrets.TENCENT_REGISTRY_PASSWORD }}
 
-      - name: Extract metadata for GitHub Registry
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Extract metadata for Tencent Registry
-        id: meta-tencent
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.TENCENT_REGISTRY }}/${{ env.TENCENT_IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=sha,prefix=
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Build and push to both registries
-        uses: docker/build-push-action@v5
+      - name: Build and push
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: |
-            ${{ steps.meta.outputs.tags }}
-            ${{ steps.meta-tencent.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.tags.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

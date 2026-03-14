@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - main
-      - master
+      - develop
+      - publish
   workflow_dispatch:
 
 jobs:
@@ -13,7 +14,7 @@ jobs:
     uses: ./.github/workflows/test.yml
 
   build:
-    name: Build Docker Image
+    name: Build & Push Docker Image
     needs: test
     uses: ./.github/workflows/docker-build.yml
     permissions:
@@ -22,10 +23,3 @@ jobs:
     secrets:
       TENCENT_REGISTRY_USERNAME: ${{ secrets.TENCENT_REGISTRY_USERNAME }}
       TENCENT_REGISTRY_PASSWORD: ${{ secrets.TENCENT_REGISTRY_PASSWORD }}
-
-  deploy:
-    name: Deploy to Portainer
-    needs: build
-    uses: ./.github/workflows/deploy.yml
-    secrets:
-      PORTAINER_WEBHOOK_URL: ${{ secrets.PORTAINER_WEBHOOK_URL }}
