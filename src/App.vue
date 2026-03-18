@@ -24,7 +24,7 @@
  * @author dcoodien@google.com (Dylan Coodien)
  */
 
-import { onMounted, ref, nextTick, watch, computed } from "vue";
+import { onBeforeUnmount, onMounted, ref, nextTick, computed } from "vue";
 import * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
@@ -184,9 +184,30 @@ const handleMessage = async (message) => {
     console.error(e);
   }
 };
+
+const handleGlobalSaveShortcut = (event) => {
+  const isSaveShortcut =
+    (event.ctrlKey || event.metaKey) &&
+    event.key &&
+    event.key.toLowerCase() === "s";
+
+  if (!isSaveShortcut) {
+    return;
+  }
+
+  event.preventDefault();
+  save();
+};
+
 onMounted(async () => {
   await window.addEventListener("message", handleMessage);
+  await window.addEventListener("keydown", handleGlobalSaveShortcut);
   await postMessage("ready");
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("message", handleMessage);
+  window.removeEventListener("keydown", handleGlobalSaveShortcut);
 });
 
 let oldValue = null;
