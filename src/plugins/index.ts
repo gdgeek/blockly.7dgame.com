@@ -27,7 +27,6 @@ export function usePluginManager(): PluginManager {
     if (!workspace) return;
 
     // 1. 初始化普通插件
-    strategies.multiselect(workspace, options);
     strategies.backpack(workspace);
     strategies.search(workspace);
     strategies.multilineinputfield();

@@ -19,12 +19,3 @@ interface Window {
   WebKitBlobBuilder?: unknown
   MozBlobBuilder?: unknown
 }
-
-// 缺少类型声明的第三方模块
-declare module '@mit-app-inventor/blockly-plugin-workspace-multiselect' {
-  import type Blockly from 'blockly'
-  export class Multiselect {
-    constructor(workspace: Blockly.WorkspaceSvg)
-    init(options?: Record<string, unknown>): void
-  }
-}
