@@ -23,11 +23,3 @@ jobs:
     secrets:
       TENCENT_REGISTRY_USERNAME: ${{ secrets.TENCENT_REGISTRY_USERNAME }}
       TENCENT_REGISTRY_PASSWORD: ${{ secrets.TENCENT_REGISTRY_PASSWORD }}
-
-  deploy:
-    name: Deploy to Portainer
-    needs: build
-    if: github.ref == 'refs/heads/publish'
-    uses: ./.github/workflows/deploy.yml
-    secrets:
-      PORTAINER_WEBHOOK_URL: ${{ secrets.PORTAINER_WEBHOOK_URL }}
