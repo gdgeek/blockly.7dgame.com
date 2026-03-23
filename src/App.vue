@@ -6,7 +6,18 @@
       :options="options"
       ref="editor"
     ></BlocklyComponent>
-    <div v-else>7d game 1023</div>
+    <div v-else class="landing">
+      <div class="landing-card">
+        <div class="landing-icon">🧩</div>
+        <h1 class="landing-title">7D Game Blockly</h1>
+        <p class="landing-subtitle">可视化脚本编辑器</p>
+        <div class="landing-status">
+          <span class="dot"></span>
+          等待连接...
+        </div>
+        <p class="landing-version">{{ buildTime }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -37,6 +48,8 @@ window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
 
 const { postMessage, onAction } = useMessageBridge();
+
+const buildTime = __BUILD_TIME__;
 const { generateAll } = useCodeGenerator();
 const { buildOptions } = useToolboxSetup();
 const { saveWorkspace, watchWorkspaceReady } = useWorkspace();

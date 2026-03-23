@@ -13,6 +13,9 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  define: {
+    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+  },
   plugins: [
     vue({
       template: {
