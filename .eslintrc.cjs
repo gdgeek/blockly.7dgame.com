@@ -44,10 +44,39 @@ module.exports = {
   },
   overrides: [
     {
+      // TypeScript 文件使用 @typescript-eslint 解析器和推荐规则
+      files: ["**/*.ts"],
+      parser: "@typescript-eslint/parser",
+      plugins: ["@typescript-eslint"],
+      extends: [
+        "plugin:@typescript-eslint/recommended",
+      ],
+      rules: {
+        // 使用 @typescript-eslint 版本替代基础规则，避免冲突
+        "no-unused-vars": "off",
+        "@typescript-eslint/no-unused-vars": [
+          "warn",
+          { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+        ],
+        "no-empty-function": "off",
+        "@typescript-eslint/no-empty-function": [
+          "warn",
+          { allow: ["arrowFunctions", "methods"] },
+        ],
+      },
+    },
+    {
       // 积木块定义文件：parameters/resource/block/generator 是 Blockly API 约定的函数签名参数
-      files: ["src/blocks/**/*.js"],
+      files: ["src/blocks/**/*.js", "src/blocks/**/*.ts"],
       rules: {
         "no-unused-vars": [
+          "warn",
+          {
+            argsIgnorePattern: "^_|^parameters$|^resource$|^generator$|^block$",
+            varsIgnorePattern: "^_",
+          },
+        ],
+        "@typescript-eslint/no-unused-vars": [
           "warn",
           {
             argsIgnorePattern: "^_|^parameters$|^resource$|^generator$|^block$",

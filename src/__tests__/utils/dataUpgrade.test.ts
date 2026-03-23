@@ -15,7 +15,9 @@ describe("upgradeTweenData", () => {
     });
 
     it("returns non-object primitives as-is", () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(upgradeTweenData(42 as any)).toBe(42);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       expect(upgradeTweenData(true as any)).toBe(true);
     });
 
@@ -49,13 +51,13 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const block = result.blocks.blocks[0];
+      const block = result.blocks!.blocks![0];
 
       // fields.Time should be removed
-      expect(block.fields.Time).toBeUndefined();
+      expect(block.fields!.Time).toBeUndefined();
 
       // inputs.Time should have shadow block
-      expect(block.inputs.Time).toEqual({
+      expect(block.inputs!.Time).toEqual({
         shadow: {
           type: "math_number",
           fields: { NUM: 1.5 },
@@ -77,10 +79,10 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const block = result.blocks.blocks[0];
+      const block = result.blocks!.blocks![0];
 
-      expect(block.fields.Time).toBeUndefined();
-      expect(block.inputs.Time.shadow).toEqual({
+      expect(block.fields!.Time).toBeUndefined();
+      expect(block.inputs!.Time.shadow).toEqual({
         type: "math_number",
         fields: { NUM: 0.5 },
       });
@@ -102,10 +104,10 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const block = result.blocks.blocks[0];
+      const block = result.blocks!.blocks![0];
 
       // fields.Time should remain untouched
-      expect(block.fields.Time).toBe(2.0);
+      expect(block.fields!.Time).toBe(2.0);
       expect(block.inputs).toBeUndefined();
     });
 
@@ -129,10 +131,10 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const block = result.blocks.blocks[0];
+      const block = result.blocks!.blocks![0];
 
       // inputs.Time should remain exactly as it was
-      expect(block.inputs.Time).toEqual(existingInput);
+      expect(block.inputs!.Time).toEqual(existingInput);
     });
   });
 
@@ -150,9 +152,9 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const block = result.blocks.blocks[0];
+      const block = result.blocks!.blocks![0];
 
-      expect(block.inputs.Time).toEqual({
+      expect(block.inputs!.Time).toEqual({
         shadow: {
           type: "math_number",
           fields: { NUM: 0.03 },
@@ -184,10 +186,10 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const nested = result.blocks.blocks[0].inputs.CHILD.block;
+      const nested = result.blocks!.blocks![0].inputs!.CHILD.block!;
 
-      expect(nested.fields.Time).toBeUndefined();
-      expect(nested.inputs.Time.shadow.fields.NUM).toBe(3.0);
+      expect(nested.fields!.Time).toBeUndefined();
+      expect(nested.inputs!.Time.shadow!.fields!.NUM).toBe(3.0);
     });
 
     it("upgrades tween blocks in next chain", () => {
@@ -210,10 +212,10 @@ describe("upgradeTweenJson", () => {
       };
 
       const result = upgradeTweenJson(data);
-      const nextBlock = result.blocks.blocks[0].next.block;
+      const nextBlock = result.blocks!.blocks![0].next!.block;
 
-      expect(nextBlock.fields.Time).toBeUndefined();
-      expect(nextBlock.inputs.Time.shadow.fields.NUM).toBe(0.1);
+      expect(nextBlock.fields!.Time).toBeUndefined();
+      expect(nextBlock.inputs!.Time.shadow!.fields!.NUM).toBe(0.1);
     });
   });
 

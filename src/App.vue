@@ -35,7 +35,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 /**
  * @license
  * Copyright 2022 Google LLC
@@ -48,14 +48,30 @@
  */
 
 import { ref, nextTick, computed } from "vue";
+import type * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
-import { upgradeTweenData } from "./utils/dataUpgrade.js";
+import { upgradeTweenData } from "./utils/dataUpgrade";
 import { Access } from "./utils/Access";
+import type { UserInfo } from "./utils/Access";
 import { useMessageBridge } from "./composables/useMessageBridge";
 import { useCodeGenerator } from "./composables/useCodeGenerator";
 import { useToolboxSetup } from "./composables/useToolboxSetup";
+import type { BlocklyOptions } from "./composables/useToolboxSetup";
 import { useWorkspace } from "./composables/useWorkspace";
+
+/** Shape of the init message payload from the parent window. */
+interface InitPayload {
+  style: string;
+  parameters: unknown;
+  data: unknown;
+}
+
+/** Shape of the generated code object. */
+interface CodeState {
+  lua: string;
+  javascript: string;
+}
 
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
@@ -63,36 +79,36 @@ window.BlobBuilder =
 
 const { postMessage, onAction } = useMessageBridge();
 
-const buildTime = __BUILD_TIME__;
+const buildTime: string = __BUILD_TIME__;
 const { generateAll } = useCodeGenerator();
 const { buildOptions } = useToolboxSetup();
 const { saveWorkspace, watchWorkspaceReady } = useWorkspace();
 
-const initPayload = ref(null);
-const isUserInfoReady = ref(false);
+const initPayload = ref<InitPayload | null>(null);
+const isUserInfoReady = ref<boolean>(false);
 
-const userInfo = ref({
+const userInfo = ref<UserInfo>({
   id: "",
   role: "",
 });
-const access = computed(() => new Access(userInfo.value));
+const access = computed<Access>(() => new Access(userInfo.value));
 
-let oldValue = null;
-const editor = ref();
-const code = ref({
+let oldValue: Record<string, unknown> | null = null;
+const editor = ref<InstanceType<typeof BlocklyComponent> | null>(null);
+const code = ref<CodeState>({
   lua: "",
   javascript: "",
 });
 
-let options = ref();
+const options = ref<BlocklyOptions | undefined>();
 
 // eslint-disable-next-line no-unused-vars -- message 参数保留用于后续消息处理
-const save = (message) => {
-  const data = saveWorkspace(editor.value.workspace);
+const save = (_message: unknown): void => {
+  const data = saveWorkspace(editor.value!.workspace!);
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postMessage("post:no-change");
   } else {
-    const generated = generateAll(editor.value.workspace);
+    const generated = generateAll(editor.value!.workspace!);
     postMessage("post", {
       js: generated.js,
       lua: generated.lua,
@@ -103,7 +119,7 @@ const save = (message) => {
   }
 };
 
-const tryInit = () => {
+const tryInit = (): void => {
   if (initPayload.value && isUserInfoReady.value) {
     doInit(initPayload.value);
     initPayload.value = null;
@@ -111,16 +127,16 @@ const tryInit = () => {
   }
 };
 
-const doInit = (message) => {
+const doInit = (message: InitPayload): void => {
   console.log("doInit executed with role:", userInfo.value.role);
   console.error("init", message);
   options.value = buildOptions(message.style, message.parameters, access.value);
   nextTick(() => {
-    oldValue = message.data;
+    oldValue = message.data as Record<string, unknown> | null;
 
     const upgradedData = upgradeTweenData(message.data);
 
-    watchWorkspaceReady(editor, upgradedData, (workspace) => {
+    watchWorkspaceReady(editor as Parameters<typeof watchWorkspaceReady>[0], upgradedData as object, (workspace: Blockly.WorkspaceSvg) => {
       // 添加工作区变化的监听器
       workspace.addChangeListener(onWorkspaceChange);
       updateCode();
@@ -131,7 +147,7 @@ const doInit = (message) => {
 };
 
 // 更新 Lua 代码并发送到主页面
-const updateCode = () => {
+const updateCode = (): void => {
   if (editor.value && editor.value.workspace) {
     const blocklyData = saveWorkspace(editor.value.workspace);
     const generated = generateAll(editor.value.workspace);
@@ -144,31 +160,31 @@ const updateCode = () => {
 };
 
 // 处理工作区变化
-const onWorkspaceChange = () => {
+const onWorkspaceChange = (): void => {
   updateCode();
 };
 
 // Register message handlers
-onAction("init", (data) => {
+onAction("init", (data: unknown) => {
   console.log("blockly-init received");
-  initPayload.value = data;
+  initPayload.value = data as InitPayload;
   tryInit();
 });
 
-onAction("user-info", (data) => {
+onAction("user-info", (data: unknown) => {
   console.log("blockly-user-info received", data);
-  userInfo.value = data;
+  userInfo.value = data as UserInfo;
   isUserInfoReady.value = true;
   console.log("blockly-userInfo updated", userInfo.value);
   tryInit();
 });
 
-onAction("save", (data) => {
+onAction("save", (data: unknown) => {
   save(data);
 });
 
 // eslint-disable-next-line no-unused-vars -- 保留用于调试和后续功能
-function luaCode() {
+function luaCode(): void {
   if (editor.value && editor.value.workspace) {
     console.log("foo.value.workspace", editor.value.workspace);
     const blockCount = editor.value.workspace.getAllBlocks(false).length;
@@ -183,7 +199,7 @@ function luaCode() {
 }
 
 // eslint-disable-next-line no-unused-vars -- 保留用于调试和后续功能
-function jsCode() {
+function jsCode(): void {
   if (editor.value && editor.value.workspace) {
     const blockCount = editor.value.workspace.getAllBlocks(false).length;
     if (blockCount === 0) {

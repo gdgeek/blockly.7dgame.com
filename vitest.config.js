@@ -1,5 +1,5 @@
 import { defineConfig, mergeConfig } from "vitest/config";
-import viteConfig from "./vite.config.js";
+import viteConfig from "./vite.config.ts";
 
 export default mergeConfig(
   viteConfig,
@@ -12,9 +12,9 @@ export default mergeConfig(
       coverage: {
         provider: "v8",
         reporter: ["text", "json", "html"],
-        exclude: ["node_modules/", "src/__tests__/setup.js"],
+        exclude: ["node_modules/", "src/__tests__/setup.ts"],
       },
-      setupFiles: ["./src/__tests__/setup.js"],
+      setupFiles: ["./src/__tests__/setup.ts"],
     },
   })
 );

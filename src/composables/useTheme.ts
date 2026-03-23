@@ -4,6 +4,7 @@ import * as Blockly from 'blockly/core'
  * 浅色主题 — 基于 Classic，调整工作区背景和网格颜色
  */
 const LightTheme = Blockly.Theme.defineTheme('light', {
+  name: 'light',
   base: Blockly.Themes.Classic,
   componentStyles: {
     workspaceBackgroundColour: '#f9fafb',
@@ -21,6 +22,7 @@ const LightTheme = Blockly.Theme.defineTheme('light', {
  * 深色主题
  */
 const DarkTheme = Blockly.Theme.defineTheme('dark', {
+  name: 'dark',
   base: Blockly.Themes.Classic,
   componentStyles: {
     workspaceBackgroundColour: '#1e1e2e',

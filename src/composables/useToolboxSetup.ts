@@ -33,6 +33,8 @@ const DEFAULT_ZOOM = {
 /** Shape of the options object passed to the BlocklyComponent. */
 export interface BlocklyOptions {
   media: string
+  renderer?: string
+  theme?: unknown
   grid: typeof DEFAULT_GRID
   toolbox: unknown
   move: typeof DEFAULT_MOVE

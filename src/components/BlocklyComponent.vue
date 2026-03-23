@@ -20,7 +20,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref, shallowRef, toRaw } from "vue";
 import * as Blockly from "blockly/core";
 import "blockly/blocks";
@@ -34,26 +34,33 @@ import { overrideProcedureMessages } from "../localization/procedure_override";
 import { localizedContextMenu } from "../localization/context_menu";
 import { usePluginManager } from "../plugins";
 import { useTheme } from "../composables/useTheme";
+
 const { initPlugins, minimapState, minimapActions } = usePluginManager();
 const { watchTheme } = useTheme();
-const props = defineProps(["options"]);
-const blocklyDiv = ref();
-const blocklyToolbox = ref();
-const workspace = shallowRef();
+
+interface Props {
+  options?: Record<string, unknown>;
+}
+
+const props = defineProps<Props>();
+
+const blocklyDiv = ref<HTMLDivElement | null>(null);
+const blocklyToolbox = ref<HTMLElement | null>(null);
+const workspace = shallowRef<Blockly.WorkspaceSvg | null>(null);
 
 defineExpose({ workspace });
 
 // 简单的语言设置工具函数
-const setupLocale = () => {
+const setupLocale = (): void => {
   const lg = new URLSearchParams(window.location.search).get("language");
-  const localeMap = {
+  const localeMap: Record<string, typeof En> = {
     "zh-CN": ZhCn,
     "zh-TW": ZhTw,
     "en-US": En,
     "ja-JP": JA,
     "th-TH": Th,
   };
-  const matched = Object.keys(localeMap).find((k) => lg?.includes(k));
+  const matched = Object.keys(localeMap).find((k: string) => lg?.includes(k));
   if (matched) {
     Blockly.setLocale(localeMap[matched]);
   }
@@ -67,11 +74,11 @@ onMounted(() => {
   localizedContextMenu();
 
   // 2. 注入 Blockly
-  const options = props.options || {};
+  const options: Record<string, unknown> = props.options ? { ...props.options } : {};
   if (!options.toolbox) options.toolbox = toRaw(blocklyToolbox.value);
 
   try {
-    workspace.value = Blockly.inject(blocklyDiv.value, options);
+    workspace.value = Blockly.inject(blocklyDiv.value as HTMLDivElement, options);
     //  console.log("Blockly injected, workspace:", workspace.value);
   } catch (e) {
     // console.error("Blockly inject error:", e);
@@ -80,7 +87,7 @@ onMounted(() => {
   // 3. 一键初始化所有插件
   if (workspace.value) {
     try {
-      initPlugins(workspace.value, blocklyDiv.value, options);
+      initPlugins(workspace.value, blocklyDiv.value as HTMLDivElement, options);
       //console.log("Plugins initialized");
     } catch (e) {
       // console.error("Plugin init error:", e);
