@@ -8,18 +8,19 @@ import OutputsItem from "./outputs_item";
 import MultiOutputSignal from "./multi_output_signal";
 import InputSignalSystem from "./input_signal_system";
 import { SIGNAL_NAME } from "../../localization/index";
+// eslint-disable-next-line no-unused-vars -- 保留 SetupIt 以备后续使用
 import { RegisterData, SetupIt } from "../helper";
 
 const Setup = (toolbox, parameters, access) => {
-
   const contents = [
     InitSignal.toolbox,
     OutputSignal.toolbox,
     InputSignal.toolbox,
     MultiOutputSignal.toolbox,
     OutputsItem.toolbox,
-    ...(access.atLeast('manager') ? [OutputSignalWithParameter.toolbox,InputSignalSystem.toolbox] : []),
-    
+    ...(access.atLeast("manager")
+      ? [OutputSignalWithParameter.toolbox, InputSignalSystem.toolbox]
+      : []),
   ];
 
   toolbox.contents.push({
@@ -28,16 +29,15 @@ const Setup = (toolbox, parameters, access) => {
     colour: Type.colour,
     contents: contents,
   });
-  
+
   RegisterData(InitSignal, parameters);
   RegisterData(OutputSignal, parameters);
   RegisterData(InputSignal, parameters);
   RegisterData(MultiOutputSignal, parameters);
   RegisterData(OutputsItem, parameters);
-  if (access.atLeast('manager'))
-  {
+  if (access.atLeast("manager")) {
     RegisterData(OutputSignalWithParameter, parameters);
-    RegisterData(InputSignalSystem, parameters); 
+    RegisterData(InputSignalSystem, parameters);
   }
 };
 export { Setup };

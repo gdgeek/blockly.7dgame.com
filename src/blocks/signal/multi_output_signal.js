@@ -84,7 +84,6 @@ const block = {
               shadowBlock2.render();
               listBlock.getInput("ADD1").connection.connect(shadowBlock2.outputConnection);
               */
-
             } finally {
               Blockly.Events.enable(); // 恢复事件追踪
             }
@@ -96,14 +95,16 @@ const block = {
 
   getJavascript() {
     return function (block, generator) {
-      const listCode = generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "[]";
+      const listCode =
+        generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "[]";
       return `event.signal_array (${listCode});\n`;
     };
   },
 
   getLua() {
     return function (block, generator) {
-      const listCode = generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "{}";
+      const listCode =
+        generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "{}";
       return `_G.event.signal_array (${listCode})\n`;
     };
   },

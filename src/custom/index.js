@@ -6,7 +6,7 @@ import List from "../toolbox/system/list";
 import * as Blockly from "blockly";
 import { VARIABLE_NAME } from "../localization/index";
 import { PROCEDURE_NAME } from "../localization/index";
-import { javascriptGenerator } from "blockly/javascript";
+import { javascriptGenerator, Order as JsOrder } from "blockly/javascript";
 import { ROLES } from "../utils/Access";
 
 const Variable = {
@@ -31,6 +31,7 @@ import * as Polygen from "../blocks/polygen";
 import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
 import * as Sound from "../blocks/sound";
+// eslint-disable-next-line no-unused-vars -- Voxel 模块保留以备后续使用
 import * as Voxel from "../blocks/voxel";
 import * as Command from "../blocks/command";
 import * as Video from "../blocks/video";
@@ -72,11 +73,7 @@ javascriptGenerator.forBlock["procedures_defreturn"] = function (block) {
 
   const branch = javascriptGenerator.statementToCode(block, "STACK");
   const returnValue =
-    javascriptGenerator.valueToCode(
-      block,
-      "RETURN",
-      javascriptGenerator.ORDER_NONE
-    ) || "";
+    javascriptGenerator.valueToCode(block, "RETURN", JsOrder.NONE) || "";
   let code = "";
 
   code +=
@@ -148,7 +145,6 @@ const setup = (style, parameters, access) => {
     if (access && access.atLeast(ROLES.ADMIN)) {
       Prototype.Setup(toolbox, parameters);
     }
-
   }
   if (style.includes("verse")) {
     Signal.Setup(toolbox, parameters, access);

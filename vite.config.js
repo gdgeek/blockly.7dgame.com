@@ -13,14 +13,6 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: {
-    cors: {
-      origin: "*", // 允许任何域名
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], // 允许任何请求方法
-      allowedHeaders: "*", // 允许任何请求头
-      credentials: true, // 如果需要支持发送凭据的跨域请求，可以设置为 true
-    },
-  },
   plugins: [
     vue({
       template: {
@@ -42,9 +34,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: fileURLToPath(
-            new URL("./node_modules/blockly/media/*", import.meta.url)
-          ),
+          src: "node_modules/blockly/media/*",
           dest: "media",
         },
       ],

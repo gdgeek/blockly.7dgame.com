@@ -26,9 +26,12 @@ module.exports = {
     "plugin:prettier/recommended", // 添加 Prettier 推荐配置
   ],
   rules: {
-    "no-empty-function": "off",
-    "no-unused-vars": "off",
-    "no-empty-pattern": "off",
+    "no-empty-function": ["warn", { allow: ["arrowFunctions", "methods"] }],
+    "no-unused-vars": [
+      "warn",
+      { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+    ],
+    "no-empty-pattern": "warn",
     "prettier/prettier": [
       "error",
       {
@@ -36,4 +39,20 @@ module.exports = {
       },
     ],
   },
+  overrides: [
+    {
+      // 积木块定义文件：parameters/resource/block/generator 是 Blockly API 约定的函数签名参数
+      files: ["src/blocks/**/*.js"],
+      rules: {
+        "no-unused-vars": [
+          "warn",
+          {
+            argsIgnorePattern: "^_|^parameters$|^resource$|^generator$|^block$",
+            varsIgnorePattern: "^_",
+          },
+        ],
+        "no-empty-pattern": "off", // 空解构模式 {} 是积木块 API 的标准签名
+      },
+    },
+  ],
 };

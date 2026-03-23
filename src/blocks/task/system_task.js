@@ -76,7 +76,7 @@ const block = {
         code = "_G.system.task(" + input + ")";
       }
 
-      return [code, Blockly.Lua.ORDER_NONE];
+      return [code, generator.ORDER_NONE];
     };
     return lua;
   },

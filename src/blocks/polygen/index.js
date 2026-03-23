@@ -1,6 +1,7 @@
 import Type from "./type";
 import PolygenEntity from "./polygen_entity";
 import PlayAnimation from "./play_animation";
+// eslint-disable-next-line no-unused-vars -- 保留 SetupIt 以备后续使用
 import { RegisterData, SetupIt } from "../helper";
 import { POLYGEN_NAME } from "../../localization/index";
 import PolygenHighlight from "./polygen_highlight";

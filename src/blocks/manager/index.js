@@ -3,7 +3,7 @@ import Type from "./type";
 import GameAddScore from "./game_add_score";
 import GameReset from "./game_reset";
 import GameCountdown from "./game_countdown";
-import { MANAGER_NAME, SIGNAL_NAME } from "../../localization/index";
+import { MANAGER_NAME } from "../../localization/index"; // eslint-disable-line no-unused-vars -- SIGNAL_NAME 保留以备后续使用
 import { RegisterData, SetupIt } from "../helper";
 
 const Category = {

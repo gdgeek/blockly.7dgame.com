@@ -50,6 +50,7 @@ const block = {
           };
 
           // 保存原始的文本渲染函数
+          // eslint-disable-next-line no-unused-vars -- 保留原始引用以备回退
           const originalGetText = animationField.getText;
 
           // 重写getText函数以确保显示正确的文本

@@ -11,7 +11,7 @@ export function usePluginManager() {
 
     // 1. 初始化普通插件
     strategies.multiselect(workspace, options);
-    strategies.backpack(workspace, options);
+    strategies.backpack(workspace);
     strategies.search(workspace);
     strategies.multilineinputfield();
 

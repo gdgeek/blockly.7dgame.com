@@ -9,11 +9,11 @@
  * @returns {string|object} 升级后的数据
  */
 export function upgradeTweenData(data) {
-  if (typeof data === 'string') {
+  if (typeof data === "string") {
     // XML字符串
     // console.log('[DataUpgrade] XML string detected, upgrading XML');
     return upgradeTweenXml(data);
-  } else if (typeof data === 'object' && data !== null) {
+  } else if (typeof data === "object" && data !== null) {
     // JSON对象
     // console.log('[DataUpgrade] JSON object detected, upgrading JSON');
     return upgradeTweenJson(data);
@@ -34,10 +34,12 @@ export function upgradeTweenXml(xmlText) {
   const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
   // 找到所有类型为 task-tween 或 task-tween-to-data 的块
-  const tweenBlocks = xmlDoc.querySelectorAll('block[type="task-tween"], block[type="task-tween-to-data"]');
+  const tweenBlocks = xmlDoc.querySelectorAll(
+    'block[type="task-tween"], block[type="task-tween-to-data"]'
+  );
   // console.log('[DataUpgrade XML] 找到 task-tween 和 task-tween-to-data 块数量:', tweenBlocks.length);
 
-  tweenBlocks.forEach((block, index) => {
+  tweenBlocks.forEach((block, _index) => {
     // 检查是否有旧版的 field 标签
     const fieldTime = block.querySelector(':scope > field[name="Time"]');
 
@@ -46,16 +48,16 @@ export function upgradeTweenXml(xmlText) {
       // console.log(`[DataUpgrade XML] 块 ${index} (${block.getAttribute('type')}): 发现旧版数据 Time: ${timeValue}, 正在转换...`);
 
       // 1. 创建 <value> 标签
-      const valueTag = xmlDoc.createElement('value');
-      valueTag.setAttribute('name', 'Time');
+      const valueTag = xmlDoc.createElement("value");
+      valueTag.setAttribute("name", "Time");
 
       // 2. 创建 <shadow> 标签
-      const shadowBlock = xmlDoc.createElement('shadow');
-      shadowBlock.setAttribute('type', 'math_number');
+      const shadowBlock = xmlDoc.createElement("shadow");
+      shadowBlock.setAttribute("type", "math_number");
 
       // 3. 创建内部的 <field> 标签
-      const numField = xmlDoc.createElement('field');
-      numField.setAttribute('name', 'NUM');
+      const numField = xmlDoc.createElement("field");
+      numField.setAttribute("name", "NUM");
       numField.textContent = timeValue;
 
       // 组装结构
@@ -84,10 +86,10 @@ export function upgradeTweenXml(xmlText) {
 export function upgradeTweenJson(jsonData) {
   // console.log('[DataUpgrade JSON] 开始升级JSON:', JSON.stringify(jsonData).substring(0, 200) + '...');
 
+  // eslint-disable-next-line no-unused-vars -- 用于调试日志计数
   let tweenCount = 0;
   const upgradeBlock = (block) => {
-
-    if (block.type === 'task-tween' || block.type === 'task-tween-to-data') {
+    if (block.type === "task-tween" || block.type === "task-tween-to-data") {
       tweenCount++;
       // console.log('[DataUpgrade JSON] 找到 task-tween 或 task-tween-to-data 块:', block.id);
       // console.log('[DataUpgrade JSON] 块结构:', JSON.stringify(block, null, 2));
@@ -99,16 +101,16 @@ export function upgradeTweenJson(jsonData) {
 
         // 创建 shadow block
         const shadowBlock = {
-          type: 'math_number',
+          type: "math_number",
           fields: {
-            NUM: timeValue
-          }
+            NUM: timeValue,
+          },
         };
 
         // 设置 inputs.Time
         if (!block.inputs) block.inputs = {};
         block.inputs.Time = {
-          shadow: shadowBlock
+          shadow: shadowBlock,
         };
 
         // 移除旧的 fields.Time
@@ -121,11 +123,11 @@ export function upgradeTweenJson(jsonData) {
           if (!block.inputs) block.inputs = {};
           block.inputs.Time = {
             shadow: {
-              type: 'math_number',
+              type: "math_number",
               fields: {
-                NUM: 0.03
-              }
-            }
+                NUM: 0.03,
+              },
+            },
           };
         } else {
           // console.log('[DataUpgrade JSON] 该块已有inputs.Time');
@@ -135,7 +137,7 @@ export function upgradeTweenJson(jsonData) {
 
     // 递归处理子块
     if (block.inputs) {
-      Object.values(block.inputs).forEach(input => {
+      Object.values(block.inputs).forEach((input) => {
         if (input.block) upgradeBlock(input.block);
         if (input.shadow) upgradeBlock(input.shadow);
       });
@@ -149,7 +151,7 @@ export function upgradeTweenJson(jsonData) {
   // 递归升级所有块
   if (jsonData.blocks && jsonData.blocks.blocks) {
     // console.log('[DataUpgrade JSON] 总块数量:', jsonData.blocks.blocks.length);
-    jsonData.blocks.blocks.forEach((block, index) => {
+    jsonData.blocks.blocks.forEach((block, _index) => {
       // console.log(`[DataUpgrade JSON] 块 ${index} 类型: ${block.type}`);
       upgradeBlock(block);
     });

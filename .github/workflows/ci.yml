@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - main
-      - master
       - develop
+      - publish
   workflow_dispatch:
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
   deploy:
     name: Deploy to Portainer
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/publish'
     uses: ./.github/workflows/deploy.yml
     secrets:
       PORTAINER_WEBHOOK_URL: ${{ secrets.PORTAINER_WEBHOOK_URL }}

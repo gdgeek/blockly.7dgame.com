@@ -56,10 +56,10 @@ const block = {
         generator.ORDER_NONE
       );
       /*
-      var statements_callback = Blockly.Lua.statementToCode(
+      var statements_callback = generator.statementToCode(
         block,
         'callback',
-        Blockly.Lua.ORDER_NONE
+        generator.ORDER_NONE
       )*/
 
       //var checkbox_occupy = block.getFieldValue('occupy') === 'TRUE'

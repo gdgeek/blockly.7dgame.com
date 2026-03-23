@@ -1,6 +1,7 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
 import { Handler } from "../helper";
+// eslint-disable-next-line no-unused-vars -- 保留以备后续使用
 import { HandlerJS } from "../helperJS";
 const data = {
   name: "picture_entity",

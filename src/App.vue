@@ -10,8 +10,6 @@
   </div>
 </template>
 
-
- 
 <script setup>
 /**
  * @license
@@ -24,44 +22,55 @@
  * @author dcoodien@google.com (Dylan Coodien)
  */
 
-import { onBeforeUnmount, onMounted, ref, nextTick, computed } from "vue";
-import * as Blockly from "blockly";
+import { ref, nextTick, computed } from "vue";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
-import * as Custom from "./custom";
 import { upgradeTweenData } from "./utils/dataUpgrade.js";
-import { javascriptGenerator } from "blockly/javascript";
-import { luaGenerator } from "blockly/lua";
 import { Access } from "./utils/Access";
+import { useMessageBridge } from "./composables/useMessageBridge";
+import { useCodeGenerator } from "./composables/useCodeGenerator";
+import { useToolboxSetup } from "./composables/useToolboxSetup";
+import { useWorkspace } from "./composables/useWorkspace";
+
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
 
+const { postMessage, onAction } = useMessageBridge();
+const { generateAll } = useCodeGenerator();
+const { buildOptions } = useToolboxSetup();
+const { saveWorkspace, watchWorkspaceReady } = useWorkspace();
 
 const initPayload = ref(null);
 const isUserInfoReady = ref(false);
 
 const userInfo = ref({
   id: "",
-  //roles: [],
   role: "",
 });
 const access = computed(() => new Access(userInfo.value));
-const postMessage = (action, data = {}) => {
-  window.parent.postMessage({ action, data, from: "script.blockly" }, "*");
-};
 
+let oldValue = null;
+const editor = ref();
+const code = ref({
+  lua: "",
+  javascript: "",
+});
+
+let options = ref();
+
+// eslint-disable-next-line no-unused-vars -- message 参数保留用于后续消息处理
 const save = (message) => {
-  const data = Blockly.serialization.workspaces.save(editor.value.workspace);
+  const data = saveWorkspace(editor.value.workspace);
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postMessage("post:no-change");
   } else {
+    const generated = generateAll(editor.value.workspace);
     postMessage("post", {
-      js: javascriptGenerator.workspaceToCode(editor.value.workspace),
-      lua: luaGenerator.workspaceToCode(editor.value.workspace),
+      js: generated.js,
+      lua: generated.lua,
       data: data,
     });
-    //alert(luaGenerator.workspaceToCode(foo.value.workspace))
 
     oldValue = data;
   }
@@ -78,70 +87,30 @@ const tryInit = () => {
 const doInit = (message) => {
   console.log("doInit executed with role:", userInfo.value.role);
   console.error("init", message);
-  const toolbox = Custom.setup(message.style, message.parameters, access.value);
-  options.value = {
-    media: "media/",
-    grid: { spacing: 20, length: 3, colour: "#ccc", snap: true },
-    toolbox,
-    move: {
-      scrollbars: {
-        horizontal: true,
-        vertical: true,
-      },
-      drag: true,
-      wheel: false,
-    },
-    zoom: {
-      startScale: 1.0,
-      maxScale: 3,
-      minScale: 0.3,
-      controls: true,
-      wheel: true,
-      pinch: true,
-    },
-  };
+  options.value = buildOptions(message.style, message.parameters, access.value);
   nextTick(() => {
     oldValue = message.data;
-   
+
     const upgradedData = upgradeTweenData(message.data);
 
-    const loadWorkspace = (retries = 0) => {
-      if (editor.value && editor.value.workspace) {
-        // console.log("loadWorkspace: workspace found, loading data");
-        try {
-          Blockly.serialization.workspaces.load(upgradedData, editor.value.workspace);
-        //  console.log("loadWorkspace: data loaded");
-        } catch (e) {
-         // console.error("loadWorkspace: error loading data", e);
-        }
-
-        // 添加工作区变化的监听器
-        editor.value.workspace.addChangeListener(onWorkspaceChange);
-        updateCode();
-      } else {
-        if (retries < 100) {
-          // console.log(`loadWorkspace retry: ${retries}, editor: ${!!editor.value}, workspace: ${!!(editor.value && editor.value.workspace)}`);
-          setTimeout(() => loadWorkspace(retries + 1), 50);
-        } else {
-        //  console.error("Blockly workspace failed to initialize in time after 100 retries.");
-        }
-      }
-    };
-    
-    loadWorkspace();
+    watchWorkspaceReady(editor, upgradedData, (workspace) => {
+      // 添加工作区变化的监听器
+      workspace.addChangeListener(onWorkspaceChange);
+      updateCode();
+    }, () => {
+      postMessage('error', { message: 'Workspace failed to initialize within 5 seconds' });
+    });
   });
 };
 
 // 更新 Lua 代码并发送到主页面
 const updateCode = () => {
   if (editor.value && editor.value.workspace) {
-    const blocklyData = Blockly.serialization.workspaces.save(
-      editor.value.workspace
-    );
-    //console.log("更新Lua 代码：", code.value.lua);
+    const blocklyData = saveWorkspace(editor.value.workspace);
+    const generated = generateAll(editor.value.workspace);
     postMessage("update", {
-      lua: luaGenerator.workspaceToCode(editor.value.workspace),
-      js: javascriptGenerator.workspaceToCode(editor.value.workspace),
+      lua: generated.lua,
+      js: generated.js,
       blocklyData: blocklyData,
     });
   }
@@ -152,73 +121,26 @@ const onWorkspaceChange = () => {
   updateCode();
 };
 
-const handleMessage = async (message) => {
-  try {
-    if (!message.data || !message.data.action || !message.data.from) {
-      return;
-    }
-    if (
-      message.data.from !== "script.meta.web" &&
-      message.data.from !== "script.verse.web"
-    ) {
-      return;
-    }
-
-    const action = message.data.action;
-    const data = message.data.data;
-
-    if (action === "init") {      
-      console.log("blockly-init received");
-      initPayload.value = data;
-      tryInit();
-    } else if (action === "user-info") {
-      console.log("blockly-user-info received", data);
-      userInfo.value = data;
-      isUserInfoReady.value = true;
-      console.log("blockly-userInfo updated", userInfo.value);
-      tryInit();
-    } else if (action === "save") {
-      save(data);
-    }
-  } catch (e) {
-    console.error(e);
-  }
-};
-
-const handleGlobalSaveShortcut = (event) => {
-  const isSaveShortcut =
-    (event.ctrlKey || event.metaKey) &&
-    event.key &&
-    event.key.toLowerCase() === "s";
-
-  if (!isSaveShortcut) {
-    return;
-  }
-
-  event.preventDefault();
-  save();
-};
-
-onMounted(async () => {
-  await window.addEventListener("message", handleMessage);
-  await window.addEventListener("keydown", handleGlobalSaveShortcut);
-  await postMessage("ready");
+// Register message handlers
+onAction("init", (data) => {
+  console.log("blockly-init received");
+  initPayload.value = data;
+  tryInit();
 });
 
-onBeforeUnmount(() => {
-  window.removeEventListener("message", handleMessage);
-  window.removeEventListener("keydown", handleGlobalSaveShortcut);
+onAction("user-info", (data) => {
+  console.log("blockly-user-info received", data);
+  userInfo.value = data;
+  isUserInfoReady.value = true;
+  console.log("blockly-userInfo updated", userInfo.value);
+  tryInit();
 });
 
-let oldValue = null;
-const editor = ref();
-const code = ref({
-  lua: "",
-  javascript: "",
+onAction("save", (data) => {
+  save(data);
 });
 
-let options = ref();
-
+// eslint-disable-next-line no-unused-vars -- 保留用于调试和后续功能
 function luaCode() {
   if (editor.value && editor.value.workspace) {
     console.log("foo.value.workspace", editor.value.workspace);
@@ -227,12 +149,13 @@ function luaCode() {
       console.log("工作区为空，无法生成 Lua 代码");
       code.value.lua = "";
     } else {
-      code.value.lua = luaGenerator.workspaceToCode(editor.value.workspace);
+      code.value.lua = generateAll(editor.value.workspace).lua;
       console.log("Lua 代码：", code.value);
     }
   }
 }
 
+// eslint-disable-next-line no-unused-vars -- 保留用于调试和后续功能
 function jsCode() {
   if (editor.value && editor.value.workspace) {
     const blockCount = editor.value.workspace.getAllBlocks(false).length;
@@ -240,9 +163,7 @@ function jsCode() {
       console.log("工作区为空，无法生成 JavaScript 代码");
       code.value.javascript = "";
     } else {
-      code.value.javascript = javascriptGenerator.workspaceToCode(
-        editor.value.workspace
-      );
+      code.value.javascript = generateAll(editor.value.workspace).js;
       console.log("JavaScript 代码：", code.value);
     }
   }

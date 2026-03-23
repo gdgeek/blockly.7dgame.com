@@ -1,5 +1,5 @@
 import Type from "./type";
-import * as Blockly from "blockly";
+import * as Blockly from "blockly"; // eslint-disable-line no-unused-vars -- 注册积木块需要 Blockly 全局可用
 import Vector3Data from "./vector3_data";
 import TransformData from "./transform_data";
 import { DATA_NAME } from "../../localization/index";

@@ -1,3 +1,7 @@
+// TODO: @mit-app-inventor/blockly-plugin-workspace-multiselect@1.0.2 requires blockly >=11 <12
+// and is NOT compatible with Blockly 12.x. The import is kept but initialization is wrapped in
+// try-catch to gracefully degrade. Monitor https://github.com/mit-cml/workspace-multiselect
+// for a Blockly 12 compatible release.
 import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
 import { Backpack } from "@blockly/workspace-backpack";
 import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
@@ -22,11 +26,15 @@ export const strategies = {
       Blockly.ContextMenuRegistry.registry.unregister("workspaceSelectAll");
       console.log("Plugin: Multiselect loaded");
     } catch (e) {
-      console.error("Multiselect init error", e);
+      // Expected to fail with Blockly 12 until multiselect releases a compatible version
+      console.warn(
+        "Plugin: Multiselect failed to initialize (likely Blockly 12 incompatibility):",
+        e.message
+      );
     }
   },
 
-  backpack: (workspace, options) => {
+  backpack: (workspace) => {
     try {
       const backpackOptions = {
         allowEmptyBackpackOpen: true,
@@ -43,7 +51,7 @@ export const strategies = {
       plugin.init();
       console.log("Plugin: Backpack loaded");
     } catch (e) {
-      console.error("Backpack init error", e);
+      console.error("Backpack init error:", e);
     }
   },
 
@@ -53,7 +61,7 @@ export const strategies = {
       plugin.init();
       console.log("Plugin: Search loaded");
     } catch (e) {
-      console.error("Search init error", e);
+      console.error("Search init error:", e);
     }
   },
 
@@ -62,7 +70,7 @@ export const strategies = {
       registerFieldMultilineInput();
       console.log("MultilineInputField registered");
     } catch (e) {
-      console.error("MultilineInputField register error", e);
+      console.error("MultilineInputField register error:", e);
     }
   },
 };

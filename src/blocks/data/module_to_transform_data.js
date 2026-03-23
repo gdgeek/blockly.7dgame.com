@@ -1,5 +1,3 @@
-import * as Blockly from "blockly";
-import * as Lua from "blockly/lua";
 import DataType from "./type";
 const data = {
   name: "module_to_transform_data",
@@ -30,19 +28,19 @@ const block = {
     };
     return block;
   },
-  getLua({ index }) {
-    const lua = function (block) {
-      var value_entity = Blockly.Lua.valueToCode(
+  getLua({ index: _index }) {
+    const lua = function (block, generator) {
+      var value_entity = generator.valueToCode(
         block,
         "entity",
-        Blockly.Lua.ORDER_NONE
+        generator.ORDER_NONE
       );
 
       var code = "CS.MLua.Point.ToTransformData(" + value_entity + ")\n";
       // return code
       // var code = 'CS.UnityEngine.Vector3()'
       // TODO: Change ORDER_NONE to the correct strength.
-      return [code, Blockly.Lua.ORDER_NONE];
+      return [code, generator.ORDER_NONE];
     };
     return lua;
   },

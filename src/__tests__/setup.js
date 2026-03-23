@@ -5,22 +5,22 @@
 
 // 模拟 window.matchMedia（某些组件可能需要）
 Object.defineProperty(window, "matchMedia", {
-    writable: true,
-    value: (query) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addListener: () => { },
-        removeListener: () => { },
-        addEventListener: () => { },
-        removeEventListener: () => { },
-        dispatchEvent: () => { },
-    }),
+  writable: true,
+  value: (query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
+  }),
 });
 
 // 模拟 ResizeObserver
 globalThis.ResizeObserver = class ResizeObserver {
-    observe() { }
-    unobserve() { }
-    disconnect() { }
+  observe() {}
+  unobserve() {}
+  disconnect() {}
 };

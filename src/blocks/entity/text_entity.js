@@ -1,6 +1,5 @@
 import DataType from "./type";
 import Helper from "../helper";
-import * as Blockly from "blockly";
 
 const data = {
   name: "text_entity",
@@ -54,7 +53,7 @@ const block = {
       // TODO: Assemble Lua into code variable.
       // var code = "CS.MLua.Handler('" + index + "', '" + dropdown_text + "')"
       // TODO: Change ORDER_NONE to the correct strength.
-      return [Helper.handler(dropdown), Blockly.Lua.ORDER_NONE];
+      return [Helper.handler(dropdown), generator.ORDER_NONE];
     };
     return lua;
   },

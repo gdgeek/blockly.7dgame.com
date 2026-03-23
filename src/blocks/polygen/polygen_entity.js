@@ -23,7 +23,7 @@ const block = {
             let opt = [["none", ""]];
             if (resource && resource.polygen) {
               const polygen = resource.polygen;
-             // console.log("resource: ", resource);
+              // console.log("resource: ", resource);
               polygen.forEach((poly) => {
                 opt.push([poly.name, poly.uuid]);
               });

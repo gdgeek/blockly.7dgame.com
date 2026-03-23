@@ -14,6 +14,7 @@
 
 import * as Blockly from "blockly/core";
 import { javascriptGenerator, Order } from "blockly/javascript";
+// eslint-disable-next-line no-unused-vars -- 保留 Lua 生成器以备后续使用
 import { luaGenerator } from "blockly/lua";
 import * as Lua from "blockly/lua";
 Blockly.Blocks["stock_buy_simple"] = {
@@ -94,7 +95,7 @@ javascriptGenerator.forBlock["stock_fetch_price"] = function (
   const valueFetch = generator.valueToCode(block, "Fetch", Order.ATOMIC);
   const variableVariable = generator.nameDB_.getName(
     block.getFieldValue("variable"),
-    Blockly.names.NameType.VARIABLE
+    Blockly.Names.NameType.VARIABLE
   );
   const code = `fetch_price(${valueFetch},${variableVariable});\n`;
   return code;
