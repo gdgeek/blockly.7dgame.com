@@ -6,6 +6,7 @@
       :options="options"
       ref="editor"
     ></BlocklyComponent>
+    <div v-if="options" class="build-version">{{ buildTime }}</div>
     <div v-else class="landing">
       <div class="landing-bg">
         <div class="landing-orb landing-orb--1"></div>
@@ -235,6 +236,17 @@ body {
   width: calc(100% - 16px);
   height: calc(100% - 16px);
   overflow: hidden;
+}
+
+.build-version {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  font-size: 11px;
+  color: rgba(120, 120, 140, 0.6);
+  pointer-events: none;
+  z-index: 100;
+  font-family: monospace;
 }
 
 /* Landing page */

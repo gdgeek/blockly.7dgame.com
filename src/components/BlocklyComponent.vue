@@ -33,7 +33,9 @@ import * as Th from "blockly/msg/th";
 import { overrideProcedureMessages } from "../localization/procedure_override";
 import { localizedContextMenu } from "../localization/context_menu";
 import { usePluginManager } from "../plugins";
+import { useTheme } from "../composables/useTheme";
 const { initPlugins, minimapState, minimapActions } = usePluginManager();
+const { watchTheme } = useTheme();
 const props = defineProps(["options"]);
 const blocklyDiv = ref();
 const blocklyToolbox = ref();
@@ -83,6 +85,9 @@ onMounted(() => {
     } catch (e) {
       // console.error("Plugin init error:", e);
     }
+
+    // 4. 监听系统深色/浅色模式切换
+    watchTheme(workspace.value);
   }
 });
 </script>
@@ -98,7 +103,6 @@ onMounted(() => {
   height: 100%;
   width: 100%;
   text-align: left;
-  background: #000;
 }
 
 /* --- Minimap 按钮样式 --- */
