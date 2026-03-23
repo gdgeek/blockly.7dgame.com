@@ -19,6 +19,9 @@ module.exports = {
     es2021: true,
     node: true,
   },
+  globals: {
+    __BUILD_TIME__: "readonly",
+  },
   extends: [
     "plugin:vue/vue3-essential",
     "eslint:recommended",
