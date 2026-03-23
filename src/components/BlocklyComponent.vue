@@ -70,9 +70,9 @@ onMounted(() => {
 
   try {
     workspace.value = Blockly.inject(blocklyDiv.value, options);
-  //  console.log("Blockly injected, workspace:", workspace.value);
+    //  console.log("Blockly injected, workspace:", workspace.value);
   } catch (e) {
-   // console.error("Blockly inject error:", e);
+    // console.error("Blockly inject error:", e);
   }
 
   // 3. 一键初始化所有插件
@@ -81,7 +81,7 @@ onMounted(() => {
       initPlugins(workspace.value, blocklyDiv.value, options);
       //console.log("Plugins initialized");
     } catch (e) {
-     // console.error("Plugin init error:", e);
+      // console.error("Plugin init error:", e);
     }
   }
 });

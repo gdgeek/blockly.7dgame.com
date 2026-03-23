@@ -11,6 +11,7 @@ const block = {
   colour: DataType.colour,
   getBlockJson(parameters) {
     // 确保parameters存在，避免出错
+    // eslint-disable-next-line no-unused-vars -- 防御性赋值，确保参数可用
     parameters = parameters || {};
 
     const json = {

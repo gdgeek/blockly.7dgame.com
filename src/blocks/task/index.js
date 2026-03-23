@@ -1,5 +1,5 @@
 import Type from "./type";
-import * as Blockly from "blockly";
+import * as Blockly from "blockly"; // eslint-disable-line no-unused-vars -- 注册积木块需要 Blockly 全局可用
 import { RegisterData, SetupIt } from "../helper";
 
 import TweenToData from "./tween_to_data";

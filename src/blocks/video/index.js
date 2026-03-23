@@ -1,7 +1,9 @@
 import Type from "./type";
 import { RegisterData, SetupIt } from "../helper";
 import VideoEntity from "./video_entity";
+// eslint-disable-next-line no-unused-vars -- 注册积木块需要导入，当前被注释掉的代码中使用
 import PlayVideo from "./play_video";
+// eslint-disable-next-line no-unused-vars -- 注册积木块需要导入，当前被注释掉的代码中使用
 import PlayVideoCallback from "./play_video_callback";
 import PlayVideo2 from "./play_video2";
 import PauseVideo from "./pause_video";

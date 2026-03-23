@@ -5,15 +5,15 @@ import { LOG_NAME } from "../../localization/index";
 import LogType from "./type";
 
 const Category = {
-    kind: "category",
-    name: LOG_NAME[window.lg],
-    colour: LogType.colour,
-    contents: [LogResetUuid.toolbox, LogKeyValue.toolbox],
+  kind: "category",
+  name: LOG_NAME[window.lg],
+  colour: LogType.colour,
+  contents: [LogResetUuid.toolbox, LogKeyValue.toolbox],
 };
 
 function Register(parameters) {
-    RegisterData(LogResetUuid, parameters);
-    RegisterData(LogKeyValue, parameters);
+  RegisterData(LogResetUuid, parameters);
+  RegisterData(LogKeyValue, parameters);
 }
 
 const Setup = SetupIt(Category, Register);

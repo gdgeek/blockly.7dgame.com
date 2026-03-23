@@ -313,7 +313,8 @@ Blockly.Msg.EVENT_INPUT = {
 Blockly.Msg.EVENT_INPUT_TOOLTIP = {
   "zh-CN": "当场景触发实体的输入信号时执行的事件",
   "en-US": "Event executed when the scene triggers the entity's input signal",
-  "ja-JP": "シーンがエンティティの入力信号をトリガーしたときに実行されるイベント",
+  "ja-JP":
+    "シーンがエンティティの入力信号をトリガーしたときに実行されるイベント",
   "zh-TW": "當場景觸發實體的輸入訊號時執行的事件",
   "th-TH": "เหตุการณ์ที่ดำเนินการเมื่อฉากทริกเกอร์สัญญาณอินพุตของเอนทิตี",
 };
@@ -605,8 +606,6 @@ Blockly.Msg.OTHER_SLEEP = {
   "th-TH": "หลับ %1 วินาที",
 };
 
-
-
 // 管理signal
 export const MANAGER_NAME = {
   "zh-CN": "管理",
@@ -657,10 +656,13 @@ Blockly.Msg.SIGNAL_OUTPUT_SIGNAL = {
 };
 Blockly.Msg.SIGNAL_OUTPUT_SIGNAL_TOOLTIP = {
   "zh-CN": "激活实体的输入信号,执行实体对应的输入信号事件",
-  "en-US": "Activate the entity's input signal and execute the entity's corresponding input signal event",
-  "ja-JP": "エンティティの入力信号をアクティブにし、エンティティの対応する入力信号イベントを実行する",
+  "en-US":
+    "Activate the entity's input signal and execute the entity's corresponding input signal event",
+  "ja-JP":
+    "エンティティの入力信号をアクティブにし、エンティティの対応する入力信号イベントを実行する",
   "zh-TW": "激活實體的輸入訊號,執行實體對應的輸入訊號事件",
-  "th-TH": "เปิดใช้งานสัญญาณอินพุตของเอนทิตีและดำเนินการเหตุการณ์สัญญาณอินพุตที่สอดคล้องกันของเอนทิตี",
+  "th-TH":
+    "เปิดใช้งานสัญญาณอินพุตของเอนทิตีและดำเนินการเหตุการณ์สัญญาณอินพุตที่สอดคล้องกันของเอนทิตี",
 };
 Blockly.Msg.SIGNAL_INPUT_SIGNAL = {
   "zh-CN": "接收信号 %1 %2 %3",
@@ -1012,8 +1014,10 @@ Blockly.Msg.LOG_ERROR = {
 
 Blockly.Msg.LOG_KEY_VALUE_TOOLTIP = {
   "zh-CN": "将消息记录到调试控制台 (键值可用字符: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
-  "en-US": "Log a value to the debug console (Key allowed chars: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
-  "ja-JP": "値をデバッグコンソールに記録します (キー使用可能文字: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+  "en-US":
+    "Log a value to the debug console (Key allowed chars: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
+  "ja-JP":
+    "値をデバッグコンソールに記録します (キー使用可能文字: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
   "zh-TW": "將消息記錄到調試控制台 (鍵值可用字符: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
   "th-TH": "บันทึกค่าไปยังคอนโซล (อักขระคีย์ที่ใช้ได้: Aa-Zz/ 0-9/ _/ -/ ./ ~)",
 };
@@ -1024,4 +1028,20 @@ Blockly.Msg.LOG_RESET_UUID = {
   "ja-JP": "ログ uuid をリセット",
   "zh-TW": "重置日誌 uuid",
   "th-TH": "รีเซ็ต uuid",
+};
+
+//原型Prototype
+export const PROTOTYPE_NAME = {
+  "zh-CN": "原型",
+  "en-US": "Prototype",
+  "ja-JP": "プロトタイプ",
+  "zh-TW": "原型",
+  "th-TH": "ต้นแบบ",
+};
+Blockly.Msg.PROTOTYPE_BOOK = {
+  "zh-CN": "原型 书 %1 页码 %2 %3 %4",
+  "en-US": "Prototype Book %1 Page %2 %3 %4",
+  "ja-JP": "プロトタイプブック %1 ページ %2 %3 %4",
+  "zh-TW": "原型 書 %1 页码 %2 %3 %4",
+  "th-TH": "หนังสือต้นแบบ %1 หน้า %2 %3 %4",
 };

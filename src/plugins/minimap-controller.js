@@ -1,4 +1,4 @@
-import { reactive, toRaw } from "vue";
+import { reactive } from "vue";
 import { PositionedMinimap } from "@blockly/workspace-minimap";
 
 export class MinimapController {

@@ -49,7 +49,7 @@ const block = {
     };
     return script;
   },
-  getLua({ index }) {
+  getLua({ index: _index }) {
     const lua = function (block, generator) {
       var statements_content = generator.valueToCode(
         block,

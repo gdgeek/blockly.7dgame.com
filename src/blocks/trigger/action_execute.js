@@ -54,7 +54,7 @@ const block = {
       var statements_content = generator.valueToCode(
         block,
         "content",
-        Blockly.JavaScript.ORDER_NONE
+        generator.ORDER_NONE
       );
 
       var dropdown_option = block.getFieldValue("Action");
@@ -75,7 +75,7 @@ const block = {
       var statements_content = generator.valueToCode(
         block,
         "content",
-        Blockly.Lua.ORDER_NONE
+        generator.ORDER_NONE
       );
 
       var dropdown_option = block.getFieldValue("Action");
