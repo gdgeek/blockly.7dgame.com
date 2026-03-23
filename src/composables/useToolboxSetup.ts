@@ -1,5 +1,6 @@
 import * as Custom from '../custom'
 import type { Access } from '../utils/Access'
+import { useTheme } from './useTheme'
 
 /** Default grid configuration for the Blockly workspace. */
 const DEFAULT_GRID = {
@@ -46,6 +47,8 @@ export interface BlocklyOptions {
  * place so App.vue doesn't need to know about them.
  */
 export function useToolboxSetup() {
+  const { getTheme } = useTheme()
+
   /**
    * Build the full Blockly options object for a given style, parameter set,
    * and access level.
@@ -59,6 +62,8 @@ export function useToolboxSetup() {
 
     return {
       media: 'media/',
+      renderer: 'thrasos',
+      theme: getTheme(),
       grid: { ...DEFAULT_GRID },
       toolbox,
       move: {
