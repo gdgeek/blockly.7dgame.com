@@ -14,7 +14,9 @@ import { viteStaticCopy } from "vite-plugin-static-copy";
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    __BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+    __BUILD_TIME__: JSON.stringify(
+      new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" })
+    ),
   },
   plugins: [
     vue({
@@ -43,6 +45,9 @@ export default defineConfig({
       ],
     }),
   ],
+  server: {
+    port: 3000,
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),

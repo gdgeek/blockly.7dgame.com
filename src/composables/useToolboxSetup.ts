@@ -59,6 +59,7 @@ export function useToolboxSetup() {
 
     return {
       media: 'media/',
+      renderer: 'thrasos',
       grid: { ...DEFAULT_GRID },
       toolbox,
       move: {
