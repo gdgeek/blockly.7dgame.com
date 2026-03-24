@@ -91,6 +91,17 @@ if (window.lg.includes("zh-CN")) {
   Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_FIRST = "设置列表第一项的值。";
   Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_LAST = "设置列表最后一项的值。";
   Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_FROM = "设置列表指定位置的值。";
+
+  Blockly.Msg.PROCEDURES_DEFNORETURN_TOOLTIP =
+    "创建一个不带输出值的函数。作用：把一组可复用步骤封装起来，通过函数名在其他地方重复调用，避免重复拼积木。";
+  Blockly.Msg.PROCEDURES_DEFRETURN_TOOLTIP =
+    "创建一个带输出值的函数。作用：在执行一组逻辑后返回一个结果，供条件判断、计算或赋值继续使用。";
+  Blockly.Msg.PROCEDURES_IFRETURN_TOOLTIP =
+    "如果条件成立，就立即返回一个值或直接结束当前函数。作用：用于提前结束函数，避免继续执行后续逻辑。";
+  Blockly.Msg.PROCEDURES_CALLNORETURN_TOOLTIP =
+    "运行这个不带返回值的函数。作用：用于触发一段封装好的流程，不需要接收结果。";
+  Blockly.Msg.PROCEDURES_CALLRETURN_TOOLTIP =
+    "运行这个带返回值的函数，并得到其返回结果。作用：把函数结果作为表达式输入到计算或判断中。";
 }
 
 export const LOGIC_NAME: LocalizedMessages = {
@@ -463,7 +474,7 @@ Msg.ENTITY_MOVABLE_ALL = {
   "th-TH": "ทุกโหนดสามารถเคลื่อนไหวได้ %1",
 };
 Msg.ENTITY_ROTATABLE = {
-  "zh-CN": "节点 %1 是否自旋转 %2",
+  "zh-CN": "节点 %1 的 自旋转 开启/停止 %2",
   "en-US": "Point %1 is rotatable %2",
   "ja-JP": "エンティティ %1 が自動回転可能かどうかをフィルタリングする %2",
   "zh-TW": "節點 %1 是否自旋轉 %2",
@@ -501,14 +512,14 @@ Msg.POLYGEN_POLYGEN_HIGHLIGHT = {
 };
 
 Msg.POLYGEN_MOVABLE = {
-  "zh-CN": "模型 %1 是否移动 %2",
+  "zh-CN": "模型 %1 的 可移动 开启/关闭 %2",
   "en-US": "Polygen %1 is movable %2",
   "ja-JP": "モデル %1 が移動可能かどうかをフィルタリングする %2",
   "zh-TW": "模型 %1 是否移动 %2",
   "th-TH": "โมเดล %1 สามารถเคลื่อนไหวได้ %2",
 };
 Msg.POLYGEN_MOVABLE_ALL = {
-  "zh-CN": "所有模型 是否移动 %1",
+  "zh-CN": "所有模型的 可移动 开启/关闭 %1",
   "en-US": "All polygens is movable %1",
   "ja-JP": "すべてのモデルが移動可能かどうかをフィルタリングする %1",
   "zh-TW": "所有模型 是否移动 %1",
