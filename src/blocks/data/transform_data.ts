@@ -11,8 +11,9 @@ const block: BlockDefinition = {
   type: DataType.name,
   getBlock(_parameters: unknown): object {
     const block = {
-      init: function (this: { jsonInit: (json: object) => void }) {
-        this.jsonInit({
+      init: function () {
+        const current = this as { jsonInit: (_json: object) => void };
+        current.jsonInit({
           type: data.name,
           message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["DATA_TRANSFORM_DATA"][window.lg],
           args0: [

@@ -10,8 +10,9 @@ const block: BlockDefinition = {
   type: DataType.name,
   getBlock(_parameters: unknown): object {
     const block = {
-      init: function (this: { jsonInit: (json: object) => void }) {
-        this.jsonInit({
+      init: function () {
+        const current = this as { jsonInit: (_json: object) => void };
+        current.jsonInit({
           type: data.name,
           message0: "空间数据 %1",
           args0: [

@@ -11,8 +11,9 @@ const block: BlockDefinition = {
   colour: DataType.colour,
   getBlock(_parameters: unknown): object {
     const block = {
-      init: function (this: { jsonInit: (json: object) => void }) {
-        this.jsonInit({
+      init: function () {
+        const current = this as { jsonInit: (_json: object) => void };
+        current.jsonInit({
           type: data.name,
           message0: "X %1 Y %2 Z %3",
           args0: [
