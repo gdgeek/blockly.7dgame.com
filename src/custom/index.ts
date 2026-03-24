@@ -8,7 +8,8 @@ import { VARIABLE_NAME } from "../localization/index";
 import { PROCEDURE_NAME } from "../localization/index";
 import { javascriptGenerator, Order as JsOrder } from "blockly/javascript";
 import { ROLES, Access } from "../utils/Access";
-import type { Toolbox, ToolboxCategory } from "../blocks/helper";
+import { RegisterData } from "../blocks/helper";
+import type { BlockDefinition, Toolbox, ToolboxCategory } from "../blocks/helper";
 
 const Variable: ToolboxCategory = {
   kind: "category",
@@ -28,6 +29,7 @@ import * as Trigger from "../blocks/trigger";
 import * as Event from "../blocks/event";
 import * as Task from "../blocks/task";
 import * as Entity from "../blocks/entity";
+import EntityBlock from "../blocks/entity/entity";
 import * as Polygen from "../blocks/polygen";
 import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
@@ -47,10 +49,18 @@ const sep: ToolboxCategory = {
   kind: "sep",
   name: "",
 };
-const toolbox: Toolbox = {
+
+const createToolbox = (): Toolbox => ({
   kind: "categoryToolbox",
-  contents: [Logic as ToolboxCategory, Loop as ToolboxCategory, Math as ToolboxCategory, Texts as ToolboxCategory, List as ToolboxCategory, sep],
-};
+  contents: [
+    Logic as ToolboxCategory,
+    Loop as ToolboxCategory,
+    Math as ToolboxCategory,
+    Texts as ToolboxCategory,
+    List as ToolboxCategory,
+    sep,
+  ],
+});
 
 // 重写Procedure生成器
 // const originalProceduresDefreturn =
@@ -127,6 +137,12 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
 };
 
 const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
+  const toolbox = createToolbox();
+
+  // Some verse/task toolbox templates use `type: "entity"` as default input.
+  // Register this base block even when the Entity category is hidden.
+  RegisterData(EntityBlock as BlockDefinition, parameters);
+
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
     Task.Setup(toolbox, parameters);
