@@ -52,7 +52,7 @@ const block: BlockDefinition = {
       previousStatement: null,
       nextStatement: null,
       colour: DataType.colour,
-      tooltip: "设置节点是否自旋转",
+      tooltip: "控制节点的自旋转启停。",
       helpUrl: "",
     };
     return json;
@@ -135,6 +135,21 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      entity: {
+        block: {
+          type: "entity",
+        },
+      },
+      rotatable: {
+        block: {
+          type: "logic_boolean",
+          fields: {
+            BOOL: "TRUE",
+          },
+        },
+      },
+    },
   },
 };
 

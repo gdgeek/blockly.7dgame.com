@@ -20,11 +20,11 @@ const Category = {
   name: (TASK_NAME as Record<string, string>)[window.lg],
   colour: Type.colour,
   contents: [
+    RunTask.toolbox,
     TweenToData.toolbox,
     TweenToObject.toolbox,
     TaskArray.toolbox,
     TaskCricle.toolbox,
-    RunTask.toolbox,
     SleepTask.toolbox,
     TaskPlaySound.toolbox,
     TaskPlayVideo.toolbox,

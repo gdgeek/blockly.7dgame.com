@@ -115,6 +115,58 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      From: {
+        block: {
+          type: "entity",
+        },
+      },
+      Transform: {
+        block: {
+          type: "transform_data",
+          inputs: {
+            position: {
+              block: {
+                type: "vector3_data",
+                inputs: {
+                  X: { shadow: { type: "math_number", fields: { NUM: 0 } } },
+                  Y: { shadow: { type: "math_number", fields: { NUM: 0 } } },
+                  Z: { shadow: { type: "math_number", fields: { NUM: 0 } } },
+                },
+              },
+            },
+            rotate: {
+              block: {
+                type: "vector3_data",
+                inputs: {
+                  X: { shadow: { type: "math_number", fields: { NUM: 0 } } },
+                  Y: { shadow: { type: "math_number", fields: { NUM: 0 } } },
+                  Z: { shadow: { type: "math_number", fields: { NUM: 0 } } },
+                },
+              },
+            },
+            scale: {
+              block: {
+                type: "vector3_data",
+                inputs: {
+                  X: { shadow: { type: "math_number", fields: { NUM: 1 } } },
+                  Y: { shadow: { type: "math_number", fields: { NUM: 1 } } },
+                  Z: { shadow: { type: "math_number", fields: { NUM: 1 } } },
+                },
+              },
+            },
+          },
+        },
+      },
+      Time: {
+        block: {
+          type: "math_number",
+          fields: {
+            NUM: 0,
+          },
+        },
+      },
+    },
   },
 };
 export default block;
