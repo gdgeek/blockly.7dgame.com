@@ -83,33 +83,34 @@ const block: BlockDefinition = {
   getBlock(parameters: unknown): object {
     const typedParams = parameters as BlockParameters;
     const data = {
-      init: function (this: EntityBlockInstance) {
+      init: function () {
+        const current = this as unknown as EntityBlockInstance;
         const json = block.getBlockJson!(parameters);
-        this.jsonInit(json);
+        current.jsonInit(json);
 
         // 保存原始参数
-        this.blockParameters = typedParams;
+        current.blockParameters = typedParams;
         // 保存原始下拉选项
-        this.originalOptions = this.getOriginalOptions();
+        current.originalOptions = current.getOriginalOptions();
         // 保存当前的tooltips信息和连接信息
-        this.tooltipsData = null;
+        current.tooltipsData = null;
         // 保存父块信息，用于检测断开连接
-        this.parentBlockId = null;
+        current.parentBlockId = null;
         // 保存当前选中的实体UUID
-        this.selectedEntityUuid = null;
+        current.selectedEntityUuid = null;
 
         // 监听块的变化事件
-        this.setOnChange((event: { type: string }) => {
-          const selectedUuid = this.getFieldValue("Entity");
+        current.setOnChange((event: { type: string }) => {
+          const selectedUuid = current.getFieldValue("Entity");
 
           // 只有在 Entity 的 UUID 改变时，才触发更新事件
-          if (this.selectedEntityUuid !== selectedUuid) {
-            this.selectedEntityUuid = selectedUuid;
+          if (current.selectedEntityUuid !== selectedUuid) {
+            current.selectedEntityUuid = selectedUuid;
 
             // 触发更新事件
             Blockly.Events.fire(
               new Blockly.Events.BlockChange(
-                this as unknown as Blockly.Block,
+                current as unknown as Blockly.Block,
                 "field",
                 "Entity",
                 "",
@@ -123,15 +124,16 @@ const block: BlockDefinition = {
             event.type === Blockly.Events.BLOCK_MOVE
           ) {
             // 检测是否断开了与visual_tooltip的连接
-            this.checkConnectionState();
+            current.checkConnectionState();
           }
         });
       },
 
       // 获取原始选项
-      getOriginalOptions: function (this: EntityBlockInstance): [string, string][] {
+      getOriginalOptions: function (): [string, string][] {
+        const current = this as unknown as EntityBlockInstance;
         const opt: [string, string][] = [["none", ""]];
-        const resource = this.blockParameters && this.blockParameters.resource;
+        const resource = current.blockParameters && current.blockParameters.resource;
         if (resource && resource.entity) {
           resource.entity.forEach((ent) => {
             opt.push([ent.name, ent.uuid]);
@@ -141,42 +143,45 @@ const block: BlockDefinition = {
       },
 
       // 检测连接状态
-      checkConnectionState: function (this: EntityBlockInstance) {
+      checkConnectionState: function () {
+        const current = this as unknown as EntityBlockInstance;
         // 获取父块
-        const parentBlock = this.getParent();
+        const parentBlock = current.getParent();
         const parentBlockId = parentBlock ? parentBlock.id : null;
 
         // 如果有tooltipsData但没有父块，或者父块ID变了，说明断开了连接
         if (
-          this.tooltipsData &&
+          current.tooltipsData &&
           (parentBlockId === null ||
-            parentBlockId !== this.tooltipsData.sourceBlockId)
+            parentBlockId !== current.tooltipsData.sourceBlockId)
         ) {
           // 恢复原始选项
-          this.restoreOriginalOptions();
-          this.tooltipsData = null;
-          this.parentBlockId = null;
+          current.restoreOriginalOptions();
+          current.tooltipsData = null;
+          current.parentBlockId = null;
         }
 
         // 更新父块ID
-        this.parentBlockId = parentBlockId;
+        current.parentBlockId = parentBlockId;
       },
 
       // 恢复原始选项
-      restoreOriginalOptions: function (this: EntityBlockInstance) {
-        const field = this.getField("Entity");
+      restoreOriginalOptions: function () {
+        const current = this as unknown as EntityBlockInstance;
+        const field = current.getField("Entity");
         if (!field) return;
 
         // 恢复原始选项
-        field.menuGenerator_ = this.originalOptions;
+        field.menuGenerator_ = current.originalOptions;
 
         // 强制重新渲染
         field.forceRerender();
       },
 
       // 更新下拉选项的方法，供其他模块使用
-      updateDropdownOptions: function (this: EntityBlockInstance, options: [string, string][]) {
-        const field = this.getField("Entity");
+      updateDropdownOptions: function (options: [string, string][]) {
+        const current = this as unknown as EntityBlockInstance;
+        const field = current.getField("Entity");
         if (!field) return;
 
         // 更新选项
@@ -193,7 +198,8 @@ const block: BlockDefinition = {
       },
 
       // 根据tooltipsData更新实体选项
-      updateEntityOptions: function (this: EntityBlockInstance, tooltipsData: TooltipsData) {
+      updateEntityOptions: function (tooltipsData: TooltipsData) {
+        const current = this as unknown as EntityBlockInstance;
         if (
           !tooltipsData ||
           !tooltipsData.tooltipsInfo ||
@@ -202,18 +208,18 @@ const block: BlockDefinition = {
           return;
 
         // 保存tooltipsData，包括来源块ID
-        this.tooltipsData = tooltipsData;
-        this.parentBlockId = tooltipsData.sourceBlockId;
+        current.tooltipsData = tooltipsData;
+        current.parentBlockId = tooltipsData.sourceBlockId;
 
         // 获取字段
-        const field = this.getField("Entity");
+        const field = current.getField("Entity");
         if (!field) return;
 
         // 获取当前值
         const currentValue = field.getValue();
 
         // 检查实体列表中是否有匹配的parentUuid
-        const resource = this.blockParameters && this.blockParameters.resource;
+        const resource = current.blockParameters && current.blockParameters.resource;
         if (!resource || !resource.entity) return;
 
         // 收集所有匹配的实体
