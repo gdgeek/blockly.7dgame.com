@@ -135,6 +135,21 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      entity: {
+        block: {
+          type: "entity",
+        },
+      },
+      rotatable: {
+        block: {
+          type: "logic_boolean",
+          fields: {
+            BOOL: "TRUE",
+          },
+        },
+      },
+    },
   },
 };
 

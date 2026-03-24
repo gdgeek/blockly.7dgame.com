@@ -107,6 +107,26 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      From: {
+        block: {
+          type: "entity",
+        },
+      },
+      To: {
+        block: {
+          type: "entity",
+        },
+      },
+      Time: {
+        block: {
+          type: "math_number",
+          fields: {
+            NUM: 0,
+          },
+        },
+      },
+    },
   },
 };
 export default block;

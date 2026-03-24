@@ -64,6 +64,13 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      video: {
+        block: {
+          type: "video_entity",
+        },
+      },
+    },
   },
 };
 export default block;

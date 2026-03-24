@@ -23,6 +23,76 @@ const lg: string = urlParams.get("language") || "en-US";
 window.lg = lg; // 将 lg 挂载到全局 window 对象上
 console.log("当前语言是: ", window.lg);
 
+if (window.lg.includes("zh-CN")) {
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_1 = "如果条件成立，就执行里面的语句。";
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_2 = "如果条件成立执行第一段，否则执行第二段。";
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_3 = "按顺序判断多个条件，命中后执行对应语句。";
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_4 = "按顺序判断多个条件；都不满足时执行“否则”语句。";
+  Blockly.Msg.CONTROLS_REPEAT_TOOLTIP = "把里面的语句重复执行指定次数。";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_WHILE = "当条件为真时，持续执行里面的语句。";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_UNTIL = "当条件为假时，持续执行里面的语句。";
+  Blockly.Msg.CONTROLS_FOR_TOOLTIP = "让变量按起始到结束逐步变化，每一步都执行一次语句。";
+  Blockly.Msg.CONTROLS_FOREACH_TOOLTIP = "依次取出列表里的每一项，并执行一次语句。";
+  Blockly.Msg.CONTROLS_FLOW_STATEMENTS_TOOLTIP_BREAK = "立即结束当前循环。";
+  Blockly.Msg.CONTROLS_FLOW_STATEMENTS_TOOLTIP_CONTINUE = "跳过本次循环剩余语句，进入下一次循环。";
+
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_EQ = "判断左右两边是否相等。";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_NEQ = "判断左右两边是否不相等。";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_LT = "判断左边是否小于右边。";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_LTE = "判断左边是否小于或等于右边。";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_GT = "判断左边是否大于右边。";
+  Blockly.Msg.LOGIC_COMPARE_TOOLTIP_GTE = "判断左边是否大于或等于右边。";
+  Blockly.Msg.LOGIC_OPERATION_TOOLTIP_AND = "只有左右条件都为真，结果才为真。";
+  Blockly.Msg.LOGIC_OPERATION_TOOLTIP_OR = "左右条件只要有一个为真，结果就为真。";
+  Blockly.Msg.LOGIC_NEGATE_TOOLTIP = "把真变成假，把假变成真。";
+  Blockly.Msg.LOGIC_BOOLEAN_TOOLTIP = "布尔常量，只有“真”或“假”两种值。";
+  Blockly.Msg.LOGIC_NULL_TOOLTIP = "空值，表示“没有值”。";
+  Blockly.Msg.LOGIC_TERNARY_TOOLTIP = "根据条件在两个值中选一个作为结果。";
+
+  Blockly.Msg.MATH_NUMBER_TOOLTIP = "数字常量，可直接参与计算。";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_ADD = "返回两个数相加的结果。";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MINUS = "返回两个数相减的结果。";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_MULTIPLY = "返回两个数相乘的结果。";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_DIVIDE = "返回两个数相除的结果。";
+  Blockly.Msg.MATH_ARITHMETIC_TOOLTIP_POWER = "返回一个数的幂运算结果。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_ROOT = "返回一个数的平方根。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_ABS = "返回一个数的绝对值。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_NEG = "返回一个数取反后的值。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_LN = "返回一个数的自然对数。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_LOG10 = "返回一个数以 10 为底的对数。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_EXP = "返回 e 的该数次幂。";
+  Blockly.Msg.MATH_SINGLE_TOOLTIP_POW10 = "返回 10 的该数次幂。";
+  Blockly.Msg.MATH_ROUND_TOOLTIP = "将数字四舍五入为最接近的整数。";
+  Blockly.Msg.MATH_ROUND_TOOLTIPUP = "将数字向上取整。";
+  Blockly.Msg.MATH_ROUND_TOOLTIPDOWN = "将数字向下取整。";
+  Blockly.Msg.MATH_MODULO_TOOLTIP = "返回除法运算后的余数。";
+
+  Blockly.Msg.TEXT_TEXT_TOOLTIP = "文本常量，可输入一句话或一个单词。";
+  Blockly.Msg.TEXT_JOIN_TOOLTIP = "把多个文本按顺序拼接成一个文本。";
+  Blockly.Msg.TEXT_APPEND_TOOLTIP = "在变量末尾追加一段文本。";
+  Blockly.Msg.TEXT_LENGTH_TOOLTIP = "返回文本长度（字符个数）。";
+  Blockly.Msg.TEXT_ISEMPTY_TOOLTIP = "判断文本是否为空。";
+  Blockly.Msg.TEXT_INDEXOF_TOOLTIP = "查找文本中某段内容首次出现的位置。";
+  Blockly.Msg.TEXT_CHARAT_TOOLTIP = "获取文本中指定位置的字符。";
+  Blockly.Msg.TEXT_GET_SUBSTRING_TOOLTIP = "截取文本中的一部分内容。";
+
+  Blockly.Msg.LISTS_CREATE_EMPTY_TOOLTIP = "创建一个空列表。";
+  Blockly.Msg.LISTS_CREATE_WITH_TOOLTIP = "创建一个包含多个元素的列表。";
+  Blockly.Msg.LISTS_REPEAT_TOOLTIP = "创建一个列表，并把同一项重复多次。";
+  Blockly.Msg.LISTS_LENGTH_TOOLTIP = "返回列表中元素数量。";
+  Blockly.Msg.LISTS_ISEMPTY_TOOLTIP = "判断列表是否为空。";
+  Blockly.Msg.LISTS_INDEX_OF_TOOLTIP = "返回元素在列表中的位置，找不到则返回 0。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_GET_FIRST = "获取列表第一项。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_GET_LAST = "获取列表最后一项。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_GET_FROM = "获取列表指定位置的项。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_FIRST = "移除并返回列表第一项。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_LAST = "移除并返回列表最后一项。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM = "移除并返回列表指定位置的项。";
+  Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_FIRST = "设置列表第一项的值。";
+  Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_LAST = "设置列表最后一项的值。";
+  Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_FROM = "设置列表指定位置的值。";
+}
+
 export const LOGIC_NAME: LocalizedMessages = {
   "zh-CN": "逻辑",
   "en-US": "Logic",
@@ -65,11 +135,11 @@ export const LIST_NAME: LocalizedMessages = {
 
 // data
 export const DATA_NAME: LocalizedMessages = {
-  "zh-CN": "数据",
-  "en-US": "Data",
-  "ja-JP": "データ",
-  "zh-TW": "數據",
-  "th-TH": "ข้อมูล",
+  "zh-CN": "坐标",
+  "en-US": "Coordinate",
+  "ja-JP": "座標",
+  "zh-TW": "座標",
+  "th-TH": "พิกัด",
 };
 Msg.DATA_TRANSFORM_DATA = {
   "zh-CN": "位置 %1 旋转 %2 缩放 %3",
@@ -88,18 +158,18 @@ export const TASK_NAME: LocalizedMessages = {
   "th-TH": "งาน",
 };
 Msg.TASK_TWEEN_TO_DATA = {
-  "zh-CN": "物体 %1 移动到 %2 用时 %3 %4 差值方式 %5",
-  "en-US": "Move object %1 to %2 in %3 %4 easing method %5",
-  "ja-JP": "オブジェクト %1 を %2 まで %3 %4 の方法で移動 %5",
-  "zh-TW": "物體 %1 移動到 %2 用時 %3 %4 插值方式 %5",
-  "th-TH": "วัตถุ %1 ย้ายไป %2 ใช้เวลา %3 %4 วิธีการแก้ไข %5",
+  "zh-CN": "节点 %1 移动到坐标 %2 用时 %3 %4 差值方式 %5",
+  "en-US": "Move node %1 to coordinate %2 in %3 %4 easing method %5",
+  "ja-JP": "ノード %1 を座標 %2 まで %3 %4 の方法で移動 %5",
+  "zh-TW": "節點 %1 移動到座標 %2 用時 %3 %4 插值方式 %5",
+  "th-TH": "ย้ายโหนด %1 ไปยังพิกัด %2 ใช้เวลา %3 %4 วิธีการแก้ไข %5",
 };
 Msg.TASK_TWEEN_OBJECT = {
-  "zh-CN": "物体 %1 移动到目标 %2 用时 %3 %4 差值方式 %5",
-  "en-US": "Move object %1 to target %2 in %3 %4 easing method %5",
-  "ja-JP": "オブジェクト %1 をターゲット %2 まで %3 %4 の方法で移動 %5",
-  "zh-TW": "物體 %1 移動到目標 %2 用時 %3 %4 插值方式 %5",
-  "th-TH": "วัตถุ %1 ย้ายไปเป้าหมาย %2 ใช้เวลา %3 %4 วิธีการแก้ไข %5",
+  "zh-CN": "节点 %1 移动到节点 %2 用时 %3 %4 差值方式 %5",
+  "en-US": "Move node %1 to node %2 in %3 %4 easing method %5",
+  "ja-JP": "ノード %1 をノード %2 まで %3 %4 の方法で移動 %5",
+  "zh-TW": "節點 %1 移動到節點 %2 用時 %3 %4 插值方式 %5",
+  "th-TH": "ย้ายโหนด %1 ไปยังโหนด %2 ใช้เวลา %3 %4 วิธีการแก้ไข %5",
 };
 Msg.TASK_ARRAY = {
   "zh-CN": "任务数组 %1 %2",

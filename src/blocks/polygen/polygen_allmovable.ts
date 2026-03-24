@@ -151,6 +151,16 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      movable: {
+        block: {
+          type: "logic_boolean",
+          fields: {
+            BOOL: "TRUE",
+          },
+        },
+      },
+    },
   },
 };
 export default block;

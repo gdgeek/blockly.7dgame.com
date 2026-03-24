@@ -61,6 +61,13 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      sound: {
+        block: {
+          type: "sound_entity",
+        },
+      },
+    },
   },
 };
 export default block;
