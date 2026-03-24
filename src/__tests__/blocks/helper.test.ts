@@ -1,8 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("blockly", () => ({
-  default: { Blocks: {} },
+  default: {
+    Blocks: {},
+    Tooltip: {
+      getCustomTooltip: () => null,
+      setCustomTooltip: () => undefined,
+      getTooltipOfObject: () => "",
+      LIMIT: 50,
+    },
+    utils: {
+      string: {
+        wrap: (text: string) => text,
+      },
+    },
+  },
   Blocks: {},
+  Tooltip: {
+    getCustomTooltip: () => null,
+    setCustomTooltip: () => undefined,
+    getTooltipOfObject: () => "",
+    LIMIT: 50,
+  },
+  utils: {
+    string: {
+      wrap: (text: string) => text,
+    },
+  },
 }));
 vi.mock("blockly/lua", () => ({
   luaGenerator: { forBlock: {} },

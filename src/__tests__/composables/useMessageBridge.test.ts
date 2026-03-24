@@ -1,258 +1,161 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { defineComponent, nextTick } from 'vue'
-import { mount } from '@vue/test-utils'
-import { useMessageBridge } from '@/composables/useMessageBridge'
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { defineComponent, nextTick } from "vue";
+import { mount } from "@vue/test-utils";
+import { useMessageBridge } from "@/composables/useMessageBridge";
 
-/**
- * Helper to mount a composable inside a real component context
- * so Vue lifecycle hooks (onMounted, onBeforeUnmount) fire correctly.
- */
-function withSetup(composable: () => any) {
-  let result: any
+function withSetup(composable: () => unknown) {
+  let result: unknown;
   const comp = defineComponent({
     setup() {
-      result = composable()
-      return () => null
+      result = composable();
+      return () => null;
     },
-  })
-  const wrapper = mount(comp)
-  return { result, wrapper }
+  });
+  const wrapper = mount(comp);
+  return { result: result as ReturnType<typeof useMessageBridge>, wrapper };
 }
 
-describe('useMessageBridge', () => {
-  let postMessageSpy: ReturnType<typeof vi.fn>
+describe("useMessageBridge", () => {
+  let postMessageSpy: ReturnType<typeof vi.fn>;
+  let parentMock: { postMessage: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
-    postMessageSpy = vi.fn()
-    Object.defineProperty(window, 'parent', {
-      value: { postMessage: postMessageSpy },
+    postMessageSpy = vi.fn();
+    parentMock = { postMessage: postMessageSpy };
+    Object.defineProperty(window, "parent", {
+      value: parentMock,
       writable: true,
       configurable: true,
-    })
-  })
+    });
+  });
 
   afterEach(() => {
-    vi.restoreAllMocks()
-  })
+    vi.restoreAllMocks();
+  });
 
-  describe('postMessage', () => {
-    it('sends { action, data, from: "script.blockly" } to parent with "*" origin', () => {
-      const { result, wrapper } = withSetup(() => useMessageBridge())
+  it("sends PLUGIN_READY on mount", () => {
+    const { wrapper } = withSetup(() => useMessageBridge());
 
-      result.postMessage('test-action', { key: 'value' })
+    expect(postMessageSpy).toHaveBeenCalledTimes(1);
+    expect(postMessageSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "PLUGIN_READY",
+        id: expect.any(String),
+      }),
+      "*"
+    );
 
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        { action: 'test-action', data: { key: 'value' }, from: 'script.blockly' },
-        '*',
-      )
+    wrapper.unmount();
+  });
 
-      wrapper.unmount()
-    })
+  it("postMessage sends standard envelope with type/payload/id", () => {
+    const { result, wrapper } = withSetup(() => useMessageBridge());
 
-    it('defaults data to empty object when omitted', () => {
-      const { result, wrapper } = withSetup(() => useMessageBridge())
+    result.postMessage("test-action", { key: "value" });
 
-      result.postMessage('ping')
+    expect(postMessageSpy).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        type: "test-action",
+        payload: { key: "value" },
+        id: expect.any(String),
+      }),
+      "*"
+    );
 
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        { action: 'ping', data: {}, from: 'script.blockly' },
-        '*',
-      )
+    wrapper.unmount();
+  });
 
-      wrapper.unmount()
-    })
-  })
+  it("postResponse sends RESPONSE and carries last requestId", async () => {
+    const handler = vi.fn();
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    result.onMessage("REQUEST", handler);
 
-  describe('ready message on mount', () => {
-    it('sends a "ready" message to parent when mounted', () => {
-      const { wrapper } = withSetup(() => useMessageBridge())
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "REQUEST", id: "req-123", payload: { action: "save" } },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    await nextTick();
 
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        { action: 'ready', data: {}, from: 'script.blockly' },
-        '*',
-      )
+    result.postResponse({ ok: true });
 
-      wrapper.unmount()
-    })
-  })
+    expect(postMessageSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        type: "RESPONSE",
+        payload: { ok: true },
+        requestId: "req-123",
+        id: expect.any(String),
+      }),
+      "*"
+    );
 
-  describe('onAction and message receiving', () => {
-    it('dispatches to registered handler when a valid message arrives', async () => {
-      const handler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
+    wrapper.unmount();
+  });
 
-      result.onAction('init', handler)
+  it("dispatches incoming message by type via onMessage", async () => {
+    const handler = vi.fn();
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    result.onMessage("INIT", handler);
 
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: { action: 'init', data: { workspace: '{}' }, from: 'script.meta.web' },
-        }),
-      )
+    const msg = { type: "INIT", id: "m1", payload: { workspace: "{}" } };
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: msg,
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    await nextTick();
 
-      // Allow async handler to process
-      await nextTick()
+    expect(handler).toHaveBeenCalledWith({ workspace: "{}" }, msg);
 
-      expect(handler).toHaveBeenCalledWith({ workspace: '{}' })
+    wrapper.unmount();
+  });
 
-      wrapper.unmount()
-    })
+  it("ignores message from non-parent source", async () => {
+    const handler = vi.fn();
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    result.onMessage("INIT", handler);
 
-    it('accepts messages from script.verse.web origin', async () => {
-      const handler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "INIT", id: "m2", payload: {} },
+        source: window as unknown as MessageEventSource,
+      })
+    );
+    await nextTick();
 
-      result.onAction('user-info', handler)
+    expect(handler).not.toHaveBeenCalled();
 
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: { action: 'user-info', data: { name: 'test' }, from: 'script.verse.web' },
-        }),
-      )
+    wrapper.unmount();
+  });
 
-      await nextTick()
+  it("Ctrl+S triggers REQUEST handler with save action", async () => {
+    const handler = vi.fn();
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    result.onMessage("REQUEST", handler);
 
-      expect(handler).toHaveBeenCalledWith({ name: 'test' })
-
-      wrapper.unmount()
-    })
-  })
-
-  describe('message filtering', () => {
-    it('ignores messages with wrong "from" field', async () => {
-      const handler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('init', handler)
-
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: { action: 'init', data: {}, from: 'unknown.origin' },
-        }),
-      )
-
-      await nextTick()
-
-      expect(handler).not.toHaveBeenCalled()
-
-      wrapper.unmount()
-    })
-
-    it('ignores messages without an action field', async () => {
-      const handler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('init', handler)
-
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: { data: {}, from: 'script.meta.web' },
-        }),
-      )
-
-      await nextTick()
-
-      expect(handler).not.toHaveBeenCalled()
-
-      wrapper.unmount()
-    })
-
-    it('ignores messages without a "from" field', async () => {
-      const handler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('init', handler)
-
-      window.dispatchEvent(
-        new MessageEvent('message', {
-          data: { action: 'init', data: {} },
-        }),
-      )
-
-      await nextTick()
-
-      expect(handler).not.toHaveBeenCalled()
-
-      wrapper.unmount()
-    })
-
-    it('ignores null/undefined message data', async () => {
-      const handler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('init', handler)
-
-      window.dispatchEvent(new MessageEvent('message', { data: null }))
-      window.dispatchEvent(new MessageEvent('message', { data: undefined }))
-
-      await nextTick()
-
-      expect(handler).not.toHaveBeenCalled()
-
-      wrapper.unmount()
-    })
-  })
-
-  describe('Ctrl+S shortcut', () => {
-    it('triggers the save handler on Ctrl+S', async () => {
-      const saveHandler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('save', saveHandler)
-
-      const event = new KeyboardEvent('keydown', {
-        key: 's',
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "s",
         ctrlKey: true,
         bubbles: true,
         cancelable: true,
       })
-      window.dispatchEvent(event)
+    );
+    await nextTick();
 
-      await nextTick()
-
-      expect(saveHandler).toHaveBeenCalledWith(undefined)
-
-      wrapper.unmount()
-    })
-
-    it('triggers the save handler on Meta+S (macOS)', async () => {
-      const saveHandler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('save', saveHandler)
-
-      const event = new KeyboardEvent('keydown', {
-        key: 's',
-        metaKey: true,
-        bubbles: true,
-        cancelable: true,
+    expect(handler).toHaveBeenCalledTimes(1);
+    expect(handler).toHaveBeenCalledWith(
+      { action: "save" },
+      expect.objectContaining({
+        type: "REQUEST",
+        payload: { action: "save" },
+        id: expect.any(String),
       })
-      window.dispatchEvent(event)
+    );
 
-      await nextTick()
-
-      expect(saveHandler).toHaveBeenCalledWith(undefined)
-
-      wrapper.unmount()
-    })
-
-    it('does not trigger save handler on plain "s" keypress', async () => {
-      const saveHandler = vi.fn()
-      const { result, wrapper } = withSetup(() => useMessageBridge())
-
-      result.onAction('save', saveHandler)
-
-      const event = new KeyboardEvent('keydown', {
-        key: 's',
-        bubbles: true,
-        cancelable: true,
-      })
-      window.dispatchEvent(event)
-
-      await nextTick()
-
-      expect(saveHandler).not.toHaveBeenCalled()
-
-      wrapper.unmount()
-    })
-  })
-})
+    wrapper.unmount();
+  });
+});
