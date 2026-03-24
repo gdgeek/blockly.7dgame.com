@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { nextTick } from 'vue'
+import type * as Blockly from 'blockly/core'
 
 // Mock blockly/core before importing useTheme
 const mockSetTheme = vi.fn()
@@ -58,6 +59,12 @@ async function loadUseTheme() {
   return mod.useTheme()
 }
 
+interface ThemeWithName {
+  name?: string
+}
+
+type WorkspaceWithSetTheme = Pick<Blockly.WorkspaceSvg, 'setTheme'>
+
 describe('useTheme', () => {
   describe('isDark computed', () => {
     it('follows system preference (light) when forcedDark is null', async () => {
@@ -95,23 +102,23 @@ describe('useTheme', () => {
     it('returns light theme when isDark is false', async () => {
       mqlMatches = false
       const { getTheme } = await loadUseTheme()
-      const theme = getTheme()
-      expect((theme as any).name).toBe('light')
+      const theme = getTheme() as ThemeWithName
+      expect(theme.name).toBe('light')
     })
 
     it('returns dark theme when isDark is true', async () => {
       mqlMatches = true
       const { getTheme } = await loadUseTheme()
-      const theme = getTheme()
-      expect((theme as any).name).toBe('dark')
+      const theme = getTheme() as ThemeWithName
+      expect(theme.name).toBe('dark')
     })
 
     it('returns dark theme after setDark(true)', async () => {
       mqlMatches = false
       const { getTheme, setDark } = await loadUseTheme()
       setDark(true)
-      const theme = getTheme()
-      expect((theme as any).name).toBe('dark')
+      const theme = getTheme() as ThemeWithName
+      expect(theme.name).toBe('dark')
     })
   })
 
@@ -133,15 +140,15 @@ describe('useTheme', () => {
       mqlMatches = false
       const { watchTheme, setDark } = await loadUseTheme()
 
-      const workspace = { setTheme: mockSetTheme } as any
+      const workspace = { setTheme: mockSetTheme } as WorkspaceWithSetTheme
       const cleanup = watchTheme(workspace)
 
       setDark(true)
       await nextTick()
 
       expect(mockSetTheme).toHaveBeenCalled()
-      const lastTheme = mockSetTheme.mock.calls[mockSetTheme.mock.calls.length - 1][0]
-      expect((lastTheme as any).name).toBe('dark')
+      const lastTheme = mockSetTheme.mock.calls[mockSetTheme.mock.calls.length - 1][0] as ThemeWithName
+      expect(lastTheme.name).toBe('dark')
 
       cleanup()
     })
@@ -150,7 +157,7 @@ describe('useTheme', () => {
       mqlMatches = false
       const { watchTheme } = await loadUseTheme()
 
-      const workspace = { setTheme: mockSetTheme } as any
+      const workspace = { setTheme: mockSetTheme } as WorkspaceWithSetTheme
       const cleanup = watchTheme(workspace)
 
       // Simulate system theme change
@@ -167,7 +174,7 @@ describe('useTheme', () => {
       mqlMatches = false
       const { watchTheme, setDark } = await loadUseTheme()
 
-      const workspace = { setTheme: mockSetTheme } as any
+      const workspace = { setTheme: mockSetTheme } as WorkspaceWithSetTheme
       const cleanup = watchTheme(workspace)
 
       setDark(false)
@@ -188,7 +195,7 @@ describe('useTheme', () => {
       mqlMatches = false
       const { watchTheme } = await loadUseTheme()
 
-      const workspace = { setTheme: mockSetTheme } as any
+      const workspace = { setTheme: mockSetTheme } as WorkspaceWithSetTheme
       const cleanup = watchTheme(workspace)
 
       const listenerCountBefore = mqlListeners.length

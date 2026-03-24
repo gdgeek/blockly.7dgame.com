@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { defineComponent, ref, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
+import type * as Blockly from 'blockly'
 
 const mockSave = vi.fn()
 const mockLoad = vi.fn()
@@ -9,15 +10,15 @@ vi.mock('blockly', () => ({
   default: {
     serialization: {
       workspaces: {
-        save: (...args: any[]) => mockSave(...args),
-        load: (...args: any[]) => mockLoad(...args),
+        save: (...args: unknown[]) => mockSave(...args),
+        load: (...args: unknown[]) => mockLoad(...args),
       },
     },
   },
   serialization: {
     workspaces: {
-      save: (...args: any[]) => mockSave(...args),
-      load: (...args: any[]) => mockLoad(...args),
+      save: (...args: unknown[]) => mockSave(...args),
+      load: (...args: unknown[]) => mockLoad(...args),
     },
   },
 }))
@@ -28,8 +29,8 @@ import { useWorkspace } from '@/composables/useWorkspace'
  * Helper to mount a composable inside a real component context
  * so Vue lifecycle hooks (onBeforeUnmount) fire correctly.
  */
-function withSetup(composable: () => any) {
-  let result: any
+function withSetup<T>(composable: () => T) {
+  let result!: T
   const comp = defineComponent({
     setup() {
       result = composable()
@@ -38,6 +39,10 @@ function withSetup(composable: () => any) {
   })
   const wrapper = mount(comp)
   return { result, wrapper }
+}
+
+interface EditorRefLike {
+  workspace: Blockly.WorkspaceSvg | null
 }
 
 describe('useWorkspace', () => {
@@ -99,7 +104,7 @@ describe('useWorkspace', () => {
 
     it('loads data and calls onReady when editor ref workspace becomes available later', async () => {
       const fakeWorkspace = { id: 'ws-4' }
-      const editorRef = ref(undefined) as any
+      const editorRef = ref<EditorRefLike | undefined>(undefined)
       const data = { blocks: [] }
       const onReady = vi.fn()
 
@@ -124,7 +129,7 @@ describe('useWorkspace', () => {
     it('calls onTimeout after 5 seconds when workspace never becomes available', () => {
       vi.useFakeTimers()
 
-      const editorRef = ref(undefined) as any
+      const editorRef = ref<EditorRefLike | undefined>(undefined)
       const data = { blocks: [] }
       const onReady = vi.fn()
       const onTimeout = vi.fn()
@@ -152,7 +157,7 @@ describe('useWorkspace', () => {
     it('cleans up watcher and timeout when component unmounts before workspace is ready', () => {
       vi.useFakeTimers()
 
-      const editorRef = ref(undefined) as any
+      const editorRef = ref<EditorRefLike | undefined>(undefined)
       const data = { blocks: [] }
       const onReady = vi.fn()
       const onTimeout = vi.fn()

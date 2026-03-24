@@ -17,9 +17,10 @@ vi.mock('blockly', () => ({
 import { javascriptGenerator } from 'blockly/javascript'
 import { luaGenerator } from 'blockly/lua'
 import { useCodeGenerator } from '@/composables/useCodeGenerator'
+import type Blockly from 'blockly'
 
 describe('useCodeGenerator', () => {
-  const fakeWorkspace = { id: 'test-workspace' } as any
+  const fakeWorkspace = { id: 'test-workspace' } as unknown as Blockly.Workspace
 
   beforeEach(() => {
     vi.clearAllMocks()
