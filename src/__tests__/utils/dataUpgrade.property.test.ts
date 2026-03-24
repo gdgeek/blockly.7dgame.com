@@ -12,7 +12,13 @@ const blockTypeArb = fc.constantFrom(
 );
 
 // Generate a simple block with optional fields.Time
-const blockArb: fc.Arbitrary<any> = fc.record({
+interface TestBlock {
+  type: string;
+  id: string;
+  fields?: { Time: number };
+}
+
+const blockArb: fc.Arbitrary<TestBlock> = fc.record({
   type: blockTypeArb,
   id: fc.string({ minLength: 1, maxLength: 10 }),
   fields: fc.option(
