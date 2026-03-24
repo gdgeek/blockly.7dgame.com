@@ -15,7 +15,7 @@ import SleepTask from "./sleep_task";
 import "../../localization/index";
 import { TASK_NAME } from "../../localization/index";
 
-const Category = {
+const FullCategory = {
   kind: "category",
   name: (TASK_NAME as Record<string, string>)[window.lg],
   colour: Type.colour,
@@ -32,7 +32,19 @@ const Category = {
   ],
 };
 
-function Register(parameters: unknown): void {
+const LiteCategory = {
+  kind: "category",
+  name: (TASK_NAME as Record<string, string>)[window.lg],
+  colour: Type.colour,
+  contents: [
+    RunTask.toolbox,
+    TaskArray.toolbox,
+    TaskCricle.toolbox,
+    SleepTask.toolbox,
+  ],
+};
+
+function RegisterFull(parameters: unknown): void {
   RegisterData(TweenToData as BlockDefinition, parameters);
   RegisterData(TweenToObject as BlockDefinition, parameters);
   RegisterData(TaskArray as BlockDefinition, parameters);
@@ -44,5 +56,13 @@ function Register(parameters: unknown): void {
   RegisterData(TaskPlayAnimation as BlockDefinition, parameters);
 }
 
-const Setup = SetupIt(Category, Register);
-export { Setup };
+function RegisterLite(parameters: unknown): void {
+  RegisterData(TaskArray as BlockDefinition, parameters);
+  RegisterData(TaskCricle as BlockDefinition, parameters);
+  RegisterData(RunTask as BlockDefinition, parameters);
+  RegisterData(SleepTask as BlockDefinition, parameters);
+}
+
+const Setup = SetupIt(FullCategory, RegisterFull);
+const SetupLite = SetupIt(LiteCategory, RegisterLite);
+export { Setup, SetupLite };

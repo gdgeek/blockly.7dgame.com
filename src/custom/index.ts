@@ -8,8 +8,7 @@ import { VARIABLE_NAME } from "../localization/index";
 import { PROCEDURE_NAME } from "../localization/index";
 import { javascriptGenerator, Order as JsOrder } from "blockly/javascript";
 import { ROLES, Access } from "../utils/Access";
-import { RegisterData } from "../blocks/helper";
-import type { BlockDefinition, Toolbox, ToolboxCategory } from "../blocks/helper";
+import type { Toolbox, ToolboxCategory } from "../blocks/helper";
 
 const Variable: ToolboxCategory = {
   kind: "category",
@@ -29,7 +28,6 @@ import * as Trigger from "../blocks/trigger";
 import * as Event from "../blocks/event";
 import * as Task from "../blocks/task";
 import * as Entity from "../blocks/entity";
-import EntityBlock from "../blocks/entity/entity";
 import * as Polygen from "../blocks/polygen";
 import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
@@ -139,13 +137,14 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
 const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
   const toolbox = createToolbox();
 
-  // Some verse/task toolbox templates use `type: "entity"` as default input.
-  // Register this base block even when the Entity category is hidden.
-  RegisterData(EntityBlock as BlockDefinition, parameters);
-
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
-    Task.Setup(toolbox, parameters);
+    // Scene script (base+verse) uses a reduced task set to avoid invalid refs.
+    if (style.includes("verse") && !style.includes("meta")) {
+      Task.SetupLite(toolbox, parameters);
+    } else {
+      Task.Setup(toolbox, parameters);
+    }
     if (access && access.atLeast(ROLES.ADMIN)) {
       Parameter.Setup(toolbox, parameters);
       Log.Setup(toolbox, parameters);
