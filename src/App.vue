@@ -80,11 +80,11 @@ const options = ref<BlocklyOptions | undefined>();
 const save = (): void => {
   const data = saveWorkspace(editor.value!.workspace!);
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
-    postResponse({ action: 'save', noChange: true });
+    postResponse({ action: "save", noChange: true });
   } else {
     const generated = generateAll(editor.value!.workspace!);
     postResponse({
-      action: 'save',
+      action: "save",
       js: generated.js,
       lua: generated.lua,
       data: data,
@@ -104,13 +104,21 @@ const doInit = (config: InitConfig): void => {
 
     const upgradedData = upgradeTweenData(config.data);
 
-    watchWorkspaceReady(editor as Parameters<typeof watchWorkspaceReady>[0], upgradedData as object, (workspace: Blockly.WorkspaceSvg) => {
-      // 添加工作区变化的监听器
-      workspace.addChangeListener(onWorkspaceChange);
-      updateCode();
-    }, () => {
-      postMessage('EVENT', { event: 'error', message: 'Workspace failed to initialize within 5 seconds' });
-    });
+    watchWorkspaceReady(
+      editor as Parameters<typeof watchWorkspaceReady>[0],
+      upgradedData as object,
+      (workspace: Blockly.WorkspaceSvg) => {
+        // 添加工作区变化的监听器
+        workspace.addChangeListener(onWorkspaceChange);
+        updateCode();
+      },
+      () => {
+        postMessage("EVENT", {
+          event: "error",
+          message: "Workspace failed to initialize within 5 seconds",
+        });
+      }
+    );
   });
 };
 

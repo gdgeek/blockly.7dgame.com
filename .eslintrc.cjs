@@ -28,6 +28,9 @@ module.exports = {
     "@vue/eslint-config-prettier",
     "plugin:prettier/recommended", // 添加 Prettier 推荐配置
   ],
+  parserOptions: {
+    parser: "@typescript-eslint/parser",
+  },
   rules: {
     "no-empty-function": ["warn", { allow: ["arrowFunctions", "methods"] }],
     "no-unused-vars": [

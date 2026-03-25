@@ -74,11 +74,16 @@ onMounted(() => {
   localizedContextMenu();
 
   // 2. 注入 Blockly
-  const options: Record<string, unknown> = props.options ? { ...props.options } : {};
+  const options: Record<string, unknown> = props.options
+    ? { ...props.options }
+    : {};
   if (!options.toolbox) options.toolbox = toRaw(blocklyToolbox.value);
 
   try {
-    workspace.value = Blockly.inject(blocklyDiv.value as HTMLDivElement, options);
+    workspace.value = Blockly.inject(
+      blocklyDiv.value as HTMLDivElement,
+      options
+    );
     //  console.log("Blockly injected, workspace:", workspace.value);
   } catch (e) {
     // console.error("Blockly inject error:", e);
