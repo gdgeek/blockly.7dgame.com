@@ -47,7 +47,8 @@ const sep: ToolboxCategory = {
   kind: "sep",
   name: "",
 };
-const toolbox: Toolbox = {
+
+const createToolbox = (): Toolbox => ({
   kind: "categoryToolbox",
   contents: [
     Logic as ToolboxCategory,
@@ -57,7 +58,7 @@ const toolbox: Toolbox = {
     List as ToolboxCategory,
     sep,
   ],
-};
+});
 
 // 重写Procedure生成器
 // const originalProceduresDefreturn =
@@ -140,9 +141,15 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
 };
 
 const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
+  const toolbox = createToolbox();
+
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
-    Task.Setup(toolbox, parameters);
+    if (style.includes("verse") && !style.includes("meta")) {
+      Task.SetupLite(toolbox, parameters);
+    } else {
+      Task.Setup(toolbox, parameters);
+    }
     if (access && access.atLeast(ROLES.ADMIN)) {
       Parameter.Setup(toolbox, parameters);
       Log.Setup(toolbox, parameters);
