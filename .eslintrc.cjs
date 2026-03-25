@@ -64,6 +64,13 @@ module.exports = {
       },
     },
     {
+      // 测试文件：允许 any 类型（mock 对象常用）
+      files: ["src/__tests__/**/*.ts"],
+      rules: {
+        "@typescript-eslint/no-explicit-any": "off",
+      },
+    },
+    {
       // 积木块定义文件：parameters/resource/block/generator 是 Blockly API 约定的函数签名参数
       files: ["src/blocks/**/*.js"],
       rules: {
