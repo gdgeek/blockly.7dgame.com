@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "task-tween",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TASK_TWEEN_OBJECT"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["TASK_TWEEN_OBJECT"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -64,8 +70,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const js = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const js = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
       const easy = block.getFieldValue("Easy");
       const from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
@@ -84,8 +95,13 @@ const block: BlockDefinition = {
     };
     return js;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
       const easy = block.getFieldValue("Easy");
       const from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);

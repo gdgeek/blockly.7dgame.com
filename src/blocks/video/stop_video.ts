@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "stop_video",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["VIDEO_STOP"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["VIDEO_STOP"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -37,13 +43,17 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
       return `await video.stop(${video});\n`;
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
       return `_G.video.stop(${video})\n`;

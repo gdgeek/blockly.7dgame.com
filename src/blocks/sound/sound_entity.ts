@@ -1,7 +1,11 @@
 import DataType from "./type";
 import { Handler } from "../helper";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "sound_entity",
@@ -26,7 +30,9 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SOUND_SOUND"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SOUND_SOUND"][window.lg],
       args0: [
         {
           type: "field_dropdown",
@@ -59,8 +65,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const dropdown_polygen = block.getFieldValue("Sound");
       return [
         `handleSound(${JSON.stringify(dropdown_polygen)})`,
@@ -69,8 +80,13 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const dropdown_polygen = block.getFieldValue("Sound");
       return [Handler(dropdown_polygen), generator.ORDER_NONE];
     };

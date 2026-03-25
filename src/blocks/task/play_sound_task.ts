@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "play_sound_task",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TASK_PLAY_SOUND_TASK"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["TASK_PLAY_SOUND_TASK"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -37,10 +43,22 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const parentBlock = (block as unknown as { getParent: () => { type: string; getInputTargetBlock: (name: string) => unknown } | null }).getParent();
+      const parentBlock = (
+        block as unknown as {
+          getParent: () => {
+            type: string;
+            getInputTargetBlock: (name: string) => unknown;
+          } | null;
+        }
+      ).getParent();
       const isAssignment =
         parentBlock &&
         (parentBlock.type === "variables_set" ||
@@ -53,8 +71,13 @@ const block: BlockDefinition = {
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
       const code = "_G.sound.play_task(" + sound + ")\n";
       return [code, generator.ORDER_NONE];

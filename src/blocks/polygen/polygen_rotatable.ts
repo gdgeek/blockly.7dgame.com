@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "polygen_rotatable",
@@ -33,11 +37,13 @@ const block: BlockDefinition = {
   type: DataType.name,
   colour: DataType.colour,
   getBlockJson(_parameters: unknown): object {
-    const Msg = Blockly.Msg as unknown as Record<string, Record<string, string>>;
+    const Msg = Blockly.Msg as unknown as Record<
+      string,
+      Record<string, string>
+    >;
     const json = {
       type: "block_type",
-      message0:
-        Msg["POLYGEN_ROTATABLE"][window.lg] || "模型 %1 是否自旋转 %2",
+      message0: Msg["POLYGEN_ROTATABLE"][window.lg] || "模型 %1 是否自旋转 %2",
       args0: [
         {
           type: "input_value",
@@ -78,7 +84,10 @@ const block: BlockDefinition = {
         });
       },
 
-      updateEntityOptions: function (this: RotatableBlockInstance, resource: BlockParameters["resource"]) {
+      updateEntityOptions: function (
+        this: RotatableBlockInstance,
+        resource: BlockParameters["resource"]
+      ) {
         if (!resource || !resource.polygen) return;
 
         const entityBlock = this.getInputTargetBlock("entity");
@@ -100,7 +109,9 @@ const block: BlockDefinition = {
     return data;
   },
 
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const value_entity = generator.valueToCode(
         block,
@@ -117,7 +128,9 @@ const block: BlockDefinition = {
     };
   },
 
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const value_entity = generator.valueToCode(
         block,

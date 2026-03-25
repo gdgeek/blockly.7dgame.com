@@ -1,7 +1,11 @@
 import * as Blockly from "blockly";
 import EventType from "./type";
 import * as Helper from "../helper";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "rectangle_parameter",
@@ -14,7 +18,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["PARAMETER_RECTANGLE"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["PARAMETER_RECTANGLE"][window.lg],
       args0: [
         {
           type: "input_dummy",
@@ -47,8 +53,13 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return function (_block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return function (
+      _block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const value_anchor = generator.valueToCode(
         _block,
         "Anchor",
@@ -59,8 +70,13 @@ const block: BlockDefinition = {
       return [code, generator.ORDER_NONE];
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return function (_block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return function (
+      _block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const value_anchor = generator.valueToCode(
         _block,
         "Anchor",

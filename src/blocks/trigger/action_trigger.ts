@@ -1,6 +1,10 @@
 import TriggerType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "action_trigger",
@@ -26,7 +30,9 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TRIGGER_ACTION_TRIGGER"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["TRIGGER_ACTION_TRIGGER"][window.lg],
       args0: [
         {
           type: "field_dropdown",
@@ -75,8 +81,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const dropdown_option = block.getFieldValue("Action");
       const statements_content = generator.statementToCode(block, "content");
       const code = `
@@ -90,8 +101,13 @@ const block: BlockDefinition = {
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const dropdown_option = block.getFieldValue("Action");
       const statements_content = generator.statementToCode(block, "content");
 

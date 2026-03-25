@@ -1,6 +1,10 @@
 import TriggerType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "gesture_trigger",
@@ -36,7 +40,9 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["GESTURE_TRIGGER"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["GESTURE_TRIGGER"][window.lg],
       args0: [
         {
           type: "field_dropdown",

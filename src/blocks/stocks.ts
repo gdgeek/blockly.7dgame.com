@@ -105,10 +105,11 @@ javascriptGenerator.forBlock["stock_fetch_price"] = function (
   generator: JavascriptGenerator
 ): string {
   const valueFetch = generator.valueToCode(block, "Fetch", Order.ATOMIC);
-  const variableVariable = generator.nameDB_?.getName(
-    block.getFieldValue("variable") as string,
-    Blockly.Names.NameType.VARIABLE
-  ) ?? "";
+  const variableVariable =
+    generator.nameDB_?.getName(
+      block.getFieldValue("variable") as string,
+      Blockly.Names.NameType.VARIABLE
+    ) ?? "";
   const code = `fetch_price(${valueFetch},${variableVariable});\n`;
   return code;
 };

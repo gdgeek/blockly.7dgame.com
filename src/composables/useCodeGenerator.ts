@@ -1,11 +1,11 @@
-import { javascriptGenerator } from 'blockly/javascript'
-import { luaGenerator } from 'blockly/lua'
-import type Blockly from 'blockly'
+import { javascriptGenerator } from "blockly/javascript";
+import { luaGenerator } from "blockly/lua";
+import type Blockly from "blockly";
 
 /** Shape returned by `generateAll`. */
 export interface GeneratedCode {
-  js: string
-  lua: string
+  js: string;
+  lua: string;
 }
 
 /**
@@ -19,15 +19,15 @@ export function useCodeGenerator() {
    * Generate JavaScript code from the given Blockly workspace.
    */
   const generateJavaScript = (workspace: Blockly.Workspace): string => {
-    return javascriptGenerator.workspaceToCode(workspace)
-  }
+    return javascriptGenerator.workspaceToCode(workspace);
+  };
 
   /**
    * Generate Lua code from the given Blockly workspace.
    */
   const generateLua = (workspace: Blockly.Workspace): string => {
-    return luaGenerator.workspaceToCode(workspace)
-  }
+    return luaGenerator.workspaceToCode(workspace);
+  };
 
   /**
    * Generate both JavaScript and Lua code in one call.
@@ -36,12 +36,12 @@ export function useCodeGenerator() {
     return {
       js: generateJavaScript(workspace),
       lua: generateLua(workspace),
-    }
-  }
+    };
+  };
 
   return {
     generateJavaScript,
     generateLua,
     generateAll,
-  }
+  };
 }

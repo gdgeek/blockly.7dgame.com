@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "init_signal",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_INIT_SIGNAL"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_INIT_SIGNAL"][window.lg],
       args0: [
         {
           type: "input_dummy",
@@ -24,7 +30,9 @@ const block: BlockDefinition = {
         },
       ],
       colour: EventType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_INIT_SIGNAL_TOOLTIP"][window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_INIT_SIGNAL_TOOLTIP"][window.lg],
       helpUrl: "",
     };
     return json;
@@ -38,8 +46,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const statements_content = generator.statementToCode(block, "content");
 
       const code = `verse['#init'] = async function(parameter) {
@@ -54,8 +67,13 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const statements_content = generator.statementToCode(block, "content");
 
       const code =

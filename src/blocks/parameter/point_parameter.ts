@@ -1,7 +1,11 @@
 import * as Blockly from "blockly";
 import EventType from "./type";
 import * as Helper from "../helper";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "point_parameter",
@@ -14,7 +18,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["PARAMETER_ENTITY"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["PARAMETER_ENTITY"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -39,15 +45,33 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return function (_block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
-      const input = generator.valueToCode(_block, "Input", generator.ORDER_NONE);
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return function (
+      _block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
+      const input = generator.valueToCode(
+        _block,
+        "Input",
+        generator.ORDER_NONE
+      );
       return [Helper.PointJS(input), generator.ORDER_NONE];
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return function (_block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
-      const input = generator.valueToCode(_block, "Input", generator.ORDER_NONE);
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return function (
+      _block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
+      const input = generator.valueToCode(
+        _block,
+        "Input",
+        generator.ORDER_NONE
+      );
       return [Helper.Point(input), generator.ORDER_NONE];
     };
   },

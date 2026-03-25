@@ -14,7 +14,11 @@ interface MinimapActions {
 }
 
 interface PluginManager {
-  initPlugins: (workspace: Blockly.WorkspaceSvg, blocklyDiv: HTMLElement, options?: PluginOptions) => void;
+  initPlugins: (
+    workspace: Blockly.WorkspaceSvg,
+    blocklyDiv: HTMLElement,
+    options?: PluginOptions
+  ) => void;
   minimapState: MinimapController["state"];
   minimapActions: MinimapActions;
 }
@@ -23,7 +27,11 @@ export function usePluginManager(): PluginManager {
   const minimapCtrl = new MinimapController();
 
   // 对外暴露的 API
-  const initPlugins = (workspace: Blockly.WorkspaceSvg, blocklyDiv: HTMLElement, options: PluginOptions = {}): void => {
+  const initPlugins = (
+    workspace: Blockly.WorkspaceSvg,
+    blocklyDiv: HTMLElement,
+    options: PluginOptions = {}
+  ): void => {
     if (!workspace) return;
 
     // 1. 初始化普通插件

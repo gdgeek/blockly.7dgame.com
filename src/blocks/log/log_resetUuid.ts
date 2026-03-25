@@ -1,6 +1,10 @@
 import * as Blockly from "blockly";
 import LogType from "./type";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "log_reset_uuid",
@@ -14,13 +18,17 @@ const block: BlockDefinition = {
     const { resource } = (parameters ?? {}) as { resource?: unknown };
     return {
       type: LogType.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_RESET_UUID"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["LOG_RESET_UUID"][window.lg],
       args0: [],
       inputsInline: true,
       previousStatement: null,
       nextStatement: null,
       colour: LogType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_RESET_UUID"][window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["LOG_RESET_UUID"][window.lg],
       helpUrl: "",
     };
   },
@@ -32,14 +40,24 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return function (_block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return function (
+      _block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const code = `log.resetUuid();\n`;
       return code;
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return function (_block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return function (
+      _block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const code = `log.resetUuid()\n`;
       return code;
     };

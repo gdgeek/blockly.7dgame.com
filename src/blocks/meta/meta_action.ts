@@ -1,6 +1,10 @@
 import TriggerType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "meta_action",
@@ -11,10 +15,15 @@ const block: BlockDefinition = {
   type: TriggerType.name,
   colour: TriggerType.colour,
   getBlockJson(parameters: unknown): object {
-    const { resource } = parameters as { resource?: { action?: { name: string; uuid: string }[] } };
+    const { resource } = parameters as {
+      resource?: { action?: { name: string; uuid: string }[] };
+    };
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["META_ACTION"][window.lg] + "!",
+      message0:
+        (Blockly.Msg as unknown as Record<string, Record<string, string>>)[
+          "META_ACTION"
+        ][window.lg] + "!",
       args0: [
         {
           type: "field_dropdown",
@@ -24,9 +33,11 @@ const block: BlockDefinition = {
             if (resource && resource.action) {
               const action = resource.action;
               console.error("action", action);
-              action.forEach(({ name, uuid }: { name: string; uuid: string }) => {
-                opt.push([name, uuid]);
-              });
+              action.forEach(
+                ({ name, uuid }: { name: string; uuid: string }) => {
+                  opt.push([name, uuid]);
+                }
+              );
             }
             return opt;
           },
@@ -53,7 +64,9 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const dropdown_option = block.getFieldValue("Action");
       const statements_content = generator.statementToCode(block, "content");
@@ -69,7 +82,9 @@ const block: BlockDefinition = {
       return code;
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const dropdown_option = block.getFieldValue("Action");
       const statements_content = generator.statementToCode(block, "content");

@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "task_array",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TASK_ARRAY"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["TASK_ARRAY"][window.lg],
       args0: [
         {
           type: "field_dropdown",
@@ -46,8 +52,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const type = block.getFieldValue("ArrayType");
       const array = generator.valueToCode(
         block,
@@ -59,8 +70,13 @@ const block: BlockDefinition = {
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const type = block.getFieldValue("ArrayType");
       const array = generator.valueToCode(
         block,

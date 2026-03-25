@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "output_mult_signal",
@@ -14,7 +18,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     return {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_OUTPUT_MULT_SIGNAL"]?.[window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_OUTPUT_MULT_SIGNAL"]?.[window.lg],
       args0: [
         {
           type: "input_value",
@@ -25,7 +31,9 @@ const block: BlockDefinition = {
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_OUTPUT_MULT_SIGNAL_TOOLTIP"]?.[window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_OUTPUT_MULT_SIGNAL_TOOLTIP"]?.[window.lg],
       helpUrl: "",
     };
   },
@@ -38,7 +46,15 @@ const block: BlockDefinition = {
       },
 
       // 核心逻辑：当块被拖入工作区时自动执行
-      onchange(this: { id: string; isInFlyout: boolean; workspace: Blockly.Workspace; getInput: (name: string) => Blockly.Input | null }, event: Blockly.Events.Abstract) {
+      onchange(
+        this: {
+          id: string;
+          isInFlyout: boolean;
+          workspace: Blockly.Workspace;
+          getInput: (name: string) => Blockly.Input | null;
+        },
+        event: Blockly.Events.Abstract
+      ) {
         // 仅在"创建块"事件、针对当前块、且不在左侧菜单预览时触发
         if (
           event.type === Blockly.Events.BLOCK_CREATE &&
@@ -53,12 +69,34 @@ const block: BlockDefinition = {
             Blockly.Events.disable(); // 暂停事件追踪，将创建动作合并为一个原子操作
             try {
               // 1. 创建"列表块"
-              const listBlock = workspace.newBlock("lists_create_with") as Blockly.BlockSvg;
+              const listBlock = workspace.newBlock(
+                "lists_create_with"
+              ) as Blockly.BlockSvg;
               // 设置为 2 个插槽
-              if ((listBlock as unknown as { loadExtraState?: (state: object) => void }).loadExtraState) {
-                (listBlock as unknown as { loadExtraState: (state: object) => void }).loadExtraState({ itemCount: 2 });
-              } else if ((listBlock as unknown as { updateShape_?: (count: number) => void }).updateShape_) {
-                (listBlock as unknown as { updateShape_: (count: number) => void }).updateShape_(2);
+              if (
+                (
+                  listBlock as unknown as {
+                    loadExtraState?: (state: object) => void;
+                  }
+                ).loadExtraState
+              ) {
+                (
+                  listBlock as unknown as {
+                    loadExtraState: (state: object) => void;
+                  }
+                ).loadExtraState({ itemCount: 2 });
+              } else if (
+                (
+                  listBlock as unknown as {
+                    updateShape_?: (count: number) => void;
+                  }
+                ).updateShape_
+              ) {
+                (
+                  listBlock as unknown as {
+                    updateShape_: (count: number) => void;
+                  }
+                ).updateShape_(2);
               }
               listBlock.initSvg();
               listBlock.render();
@@ -67,7 +105,9 @@ const block: BlockDefinition = {
               listInput.connection!.connect(listBlock.outputConnection!);
 
               // 2. 在第一个插槽 (ADD0) 创建一个阴影信号项
-              const shadowBlock = workspace.newBlock("output_signal_item") as Blockly.BlockSvg;
+              const shadowBlock = workspace.newBlock(
+                "output_signal_item"
+              ) as Blockly.BlockSvg;
               shadowBlock.setShadow(true);
               shadowBlock.initSvg();
               shadowBlock.render();
@@ -85,7 +125,9 @@ const block: BlockDefinition = {
     };
   },
 
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const listCode =
         generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "[]";
@@ -93,7 +135,9 @@ const block: BlockDefinition = {
     };
   },
 
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const listCode =
         generator.valueToCode(block, "LIST", generator.ORDER_ATOMIC) || "{}";

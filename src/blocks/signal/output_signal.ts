@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "output_signal",
@@ -28,13 +32,17 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_OUTPUT_SIGNAL"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_OUTPUT_SIGNAL"][window.lg],
       args0: [
         {
           type: "field_dropdown",
           name: "Output",
           options: function (): [string, string][] {
-            const opt: [string, string][] = [["none", JSON.stringify({ index: "", uuid: "" })]];
+            const opt: [string, string][] = [
+              ["none", JSON.stringify({ index: "", uuid: "" })],
+            ];
             if (resource && resource.events && resource.events.outputs) {
               const output = resource.events.outputs;
               output.forEach(({ title, index, uuid }) => {
@@ -48,7 +56,9 @@ const block: BlockDefinition = {
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_OUTPUT_SIGNAL_TOOLTIP"][window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_OUTPUT_SIGNAL_TOOLTIP"][window.lg],
       helpUrl: "",
     };
     return json;
@@ -62,8 +72,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const output_event = block.getFieldValue("Output");
       const data = JSON.parse(output_event);
       const code = `event.signal('${data.index}', '${data.uuid}');\n`;
@@ -71,11 +86,17 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const output_event = block.getFieldValue("Output");
       const data = JSON.parse(output_event);
-      const code = "_G.event.signal('" + data.index + "', '" + data.uuid + "')\n";
+      const code =
+        "_G.event.signal('" + data.index + "', '" + data.uuid + "')\n";
       return code;
     };
     return lua;

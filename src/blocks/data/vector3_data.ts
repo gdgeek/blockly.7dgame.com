@@ -1,5 +1,9 @@
 import DataType from "./type";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "vector3_data",
@@ -68,7 +72,8 @@ const block: BlockDefinition = {
       const value_x = generator.valueToCode(block, "X", generator.ORDER_ATOMIC);
       const value_y = generator.valueToCode(block, "Y", generator.ORDER_ATOMIC);
       const value_z = generator.valueToCode(block, "Z", generator.ORDER_ATOMIC);
-      const code = "CS.UnityEngine.Vector3(" + [value_x, value_y, value_z] + ")";
+      const code =
+        "CS.UnityEngine.Vector3(" + [value_x, value_y, value_z] + ")";
       return [code, generator.ORDER_NONE];
     };
     return lua;

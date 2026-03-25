@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "game_reset",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["GAME_RESET"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["GAME_RESET"][window.lg],
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
@@ -30,14 +36,24 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return function (_block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return function (
+      _block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const code = `managers.game_reset(parameter);\n`;
       return code;
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return function (_block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return function (
+      _block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const code = `_G.managers.game_reset(parameter)\n`;
       return code;
     };

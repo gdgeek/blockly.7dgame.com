@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "play_video",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["VIDEO_PLAY"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["VIDEO_PLAY"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -38,12 +44,25 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
       const isInActionTrigger =
-        (block as unknown as { getSurroundParent: () => { type: string } | null }).getSurroundParent() &&
-        (block as unknown as { getSurroundParent: () => { type: string } | null }).getSurroundParent()?.type === "action_trigger";
+        (
+          block as unknown as {
+            getSurroundParent: () => { type: string } | null;
+          }
+        ).getSurroundParent() &&
+        (
+          block as unknown as {
+            getSurroundParent: () => { type: string } | null;
+          }
+        ).getSurroundParent()?.type === "action_trigger";
       const code = `await video.play(${video}${
         isInActionTrigger ? ", true" : ""
       });\n`;
@@ -51,8 +70,13 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
       return "_G.video.play(" + video + ")\n";
     };

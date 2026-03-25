@@ -5,15 +5,15 @@ import * as Blockly from "blockly";
 const Msg = Blockly.Msg as Record<string, string | Record<string, string>>;
 
 /** 支持的语言代码联合类型 */
-export type LanguageCode = 'zh-CN' | 'en-US' | 'ja-JP' | 'zh-TW' | 'th-TH';
+export type LanguageCode = "zh-CN" | "en-US" | "ja-JP" | "zh-TW" | "th-TH";
 
 /** 多语言消息映射接口 */
 export interface LocalizedMessages {
-  'zh-CN': string;
-  'en-US': string;
-  'ja-JP': string;
-  'zh-TW': string;
-  'th-TH': string;
+  "zh-CN": string;
+  "en-US": string;
+  "ja-JP": string;
+  "zh-TW": string;
+  "th-TH": string;
   [key: string]: string;
 }
 
@@ -25,16 +25,24 @@ console.log("当前语言是: ", window.lg);
 
 if (window.lg.includes("zh-CN")) {
   Blockly.Msg.CONTROLS_IF_TOOLTIP_1 = "如果条件成立，就执行里面的语句。";
-  Blockly.Msg.CONTROLS_IF_TOOLTIP_2 = "如果条件成立执行第一段，否则执行第二段。";
-  Blockly.Msg.CONTROLS_IF_TOOLTIP_3 = "按顺序判断多个条件，命中后执行对应语句。";
-  Blockly.Msg.CONTROLS_IF_TOOLTIP_4 = "按顺序判断多个条件；都不满足时执行“否则”语句。";
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_2 =
+    "如果条件成立执行第一段，否则执行第二段。";
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_3 =
+    "按顺序判断多个条件，命中后执行对应语句。";
+  Blockly.Msg.CONTROLS_IF_TOOLTIP_4 =
+    "按顺序判断多个条件；都不满足时执行“否则”语句。";
   Blockly.Msg.CONTROLS_REPEAT_TOOLTIP = "把里面的语句重复执行指定次数。";
-  Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_WHILE = "当条件为真时，持续执行里面的语句。";
-  Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_UNTIL = "当条件为假时，持续执行里面的语句。";
-  Blockly.Msg.CONTROLS_FOR_TOOLTIP = "让变量按起始到结束逐步变化，每一步都执行一次语句。";
-  Blockly.Msg.CONTROLS_FOREACH_TOOLTIP = "依次取出列表里的每一项，并执行一次语句。";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_WHILE =
+    "当条件为真时，持续执行里面的语句。";
+  Blockly.Msg.CONTROLS_WHILEUNTIL_TOOLTIP_UNTIL =
+    "当条件为假时，持续执行里面的语句。";
+  Blockly.Msg.CONTROLS_FOR_TOOLTIP =
+    "让变量按起始到结束逐步变化，每一步都执行一次语句。";
+  Blockly.Msg.CONTROLS_FOREACH_TOOLTIP =
+    "依次取出列表里的每一项，并执行一次语句。";
   Blockly.Msg.CONTROLS_FLOW_STATEMENTS_TOOLTIP_BREAK = "立即结束当前循环。";
-  Blockly.Msg.CONTROLS_FLOW_STATEMENTS_TOOLTIP_CONTINUE = "跳过本次循环剩余语句，进入下一次循环。";
+  Blockly.Msg.CONTROLS_FLOW_STATEMENTS_TOOLTIP_CONTINUE =
+    "跳过本次循环剩余语句，进入下一次循环。";
 
   Blockly.Msg.LOGIC_COMPARE_TOOLTIP_EQ = "判断左右两边是否相等。";
   Blockly.Msg.LOGIC_COMPARE_TOOLTIP_NEQ = "判断左右两边是否不相等。";
@@ -43,7 +51,8 @@ if (window.lg.includes("zh-CN")) {
   Blockly.Msg.LOGIC_COMPARE_TOOLTIP_GT = "判断左边是否大于右边。";
   Blockly.Msg.LOGIC_COMPARE_TOOLTIP_GTE = "判断左边是否大于或等于右边。";
   Blockly.Msg.LOGIC_OPERATION_TOOLTIP_AND = "只有左右条件都为真，结果才为真。";
-  Blockly.Msg.LOGIC_OPERATION_TOOLTIP_OR = "左右条件只要有一个为真，结果就为真。";
+  Blockly.Msg.LOGIC_OPERATION_TOOLTIP_OR =
+    "左右条件只要有一个为真，结果就为真。";
   Blockly.Msg.LOGIC_NEGATE_TOOLTIP = "把真变成假，把假变成真。";
   Blockly.Msg.LOGIC_BOOLEAN_TOOLTIP = "布尔常量，只有“真”或“假”两种值。";
   Blockly.Msg.LOGIC_NULL_TOOLTIP = "空值，表示“没有值”。";
@@ -81,13 +90,15 @@ if (window.lg.includes("zh-CN")) {
   Blockly.Msg.LISTS_REPEAT_TOOLTIP = "创建一个列表，并把同一项重复多次。";
   Blockly.Msg.LISTS_LENGTH_TOOLTIP = "返回列表中元素数量。";
   Blockly.Msg.LISTS_ISEMPTY_TOOLTIP = "判断列表是否为空。";
-  Blockly.Msg.LISTS_INDEX_OF_TOOLTIP = "返回元素在列表中的位置，找不到则返回 0。";
+  Blockly.Msg.LISTS_INDEX_OF_TOOLTIP =
+    "返回元素在列表中的位置，找不到则返回 0。";
   Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_GET_FIRST = "获取列表第一项。";
   Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_GET_LAST = "获取列表最后一项。";
   Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_GET_FROM = "获取列表指定位置的项。";
   Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_FIRST = "移除并返回列表第一项。";
   Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_LAST = "移除并返回列表最后一项。";
-  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM = "移除并返回列表指定位置的项。";
+  Blockly.Msg.LISTS_GET_INDEX_TOOLTIP_REMOVE_FROM =
+    "移除并返回列表指定位置的项。";
   Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_FIRST = "设置列表第一项的值。";
   Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_LAST = "设置列表最后一项的值。";
   Blockly.Msg.LISTS_SET_INDEX_TOOLTIP_SET_FROM = "设置列表指定位置的值。";

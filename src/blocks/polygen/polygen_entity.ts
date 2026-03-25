@@ -1,7 +1,11 @@
 import DataType from "./type";
 import { Handler } from "../helper";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "polygen_entity",
@@ -54,7 +58,10 @@ const block: BlockDefinition = {
   colour: DataType.colour,
   getBlockJson(parameters: unknown): object {
     const { resource } = parameters as BlockParameters;
-    const Msg = Blockly.Msg as unknown as Record<string, Record<string, string>>;
+    const Msg = Blockly.Msg as unknown as Record<
+      string,
+      Record<string, string>
+    >;
     const json = {
       type: data.name,
       message0: Msg["POLYGEN_POLYGEN_ENTITY"][window.lg],
@@ -128,7 +135,9 @@ const block: BlockDefinition = {
       },
 
       // 获取原始选项
-      getOriginalOptions: function (this: PolygenEntityBlockInstance): [string, string][] {
+      getOriginalOptions: function (
+        this: PolygenEntityBlockInstance
+      ): [string, string][] {
         const opt: [string, string][] = [["none", ""]];
         const resource = this.blockParameters && this.blockParameters.resource;
         if (resource && resource.polygen) {
@@ -167,7 +176,10 @@ const block: BlockDefinition = {
       },
 
       // 更新下拉选项的方法，供其他模块使用
-      updateDropdownOptions: function (this: PolygenEntityBlockInstance, options: [string, string][]) {
+      updateDropdownOptions: function (
+        this: PolygenEntityBlockInstance,
+        options: [string, string][]
+      ) {
         const field = this.getField("Polygen");
         if (!field) return;
 
@@ -180,7 +192,10 @@ const block: BlockDefinition = {
       },
 
       // 根据tooltipsData更新实体选项
-      updateEntityOptions: function (this: PolygenEntityBlockInstance, tooltipsData: TooltipsData) {
+      updateEntityOptions: function (
+        this: PolygenEntityBlockInstance,
+        tooltipsData: TooltipsData
+      ) {
         if (
           !tooltipsData ||
           !tooltipsData.tooltipsInfo ||
@@ -211,7 +226,10 @@ const block: BlockDefinition = {
         });
 
         if (matchedPolygens.length > 0) {
-          const options: [string, string][] = [["none", ""], ...matchedPolygens];
+          const options: [string, string][] = [
+            ["none", ""],
+            ...matchedPolygens,
+          ];
           field.menuGenerator_ = options;
 
           if (!parentUuids.includes(currentValue) && currentValue !== "") {
@@ -227,8 +245,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const dropdown_polygen = block.getFieldValue("Polygen");
       return [
         `handlePolygen(${JSON.stringify(dropdown_polygen)})`,
@@ -237,8 +260,13 @@ const block: BlockDefinition = {
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const dropdown_polygen = block.getFieldValue("Polygen");
       return [Handler(dropdown_polygen), generator.ORDER_NONE];
     };

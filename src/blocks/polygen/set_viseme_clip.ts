@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "set_viseme_clip",
@@ -11,7 +15,10 @@ const block: BlockDefinition = {
   type: DataType.name,
   colour: DataType.colour,
   getBlockJson(_parameters: unknown): object {
-    const Msg = Blockly.Msg as unknown as Record<string, Record<string, string>>;
+    const Msg = Blockly.Msg as unknown as Record<
+      string,
+      Record<string, string>
+    >;
     const json = {
       type: data.name,
       message0: Msg["POLYGEN_SET_VISEME_CLIP"][window.lg],
@@ -44,8 +51,13 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const value_sound = generator.valueToCode(
         block,
         "sound",
@@ -61,8 +73,13 @@ const block: BlockDefinition = {
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const value_sound = generator.valueToCode(
         block,
         "sound",

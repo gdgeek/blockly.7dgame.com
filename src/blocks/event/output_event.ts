@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "output_event",
@@ -27,7 +31,9 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["EVENT_OUTPUT"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["EVENT_OUTPUT"][window.lg],
       args0: [
         {
           type: "field_dropdown",
@@ -47,7 +53,9 @@ const block: BlockDefinition = {
       previousStatement: null,
       nextStatement: null,
       colour: EventType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["EVENT_OUTPUT_TOOLTIP"][window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["EVENT_OUTPUT_TOOLTIP"][window.lg],
       helpUrl: "",
     };
     return json;
@@ -61,18 +69,29 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const output_event = block.getFieldValue("Output");
       const code = `event.trigger(index, '${output_event}', parameter);`;
       return code;
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const output_event = block.getFieldValue("Output");
-      const code = "_G.event.trigger(index,'" + output_event + "', parameter)\n";
+      const code =
+        "_G.event.trigger(index,'" + output_event + "', parameter)\n";
       return code;
     };
     return lua;

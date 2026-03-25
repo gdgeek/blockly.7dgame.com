@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "input_event",
@@ -27,7 +31,9 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["EVENT_INPUT"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["EVENT_INPUT"][window.lg],
       args0: [
         {
           type: "field_dropdown",
@@ -52,7 +58,9 @@ const block: BlockDefinition = {
         },
       ],
       colour: EventType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["EVENT_INPUT_TOOLTIP"][window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["EVENT_INPUT_TOOLTIP"][window.lg],
       helpUrl: "",
     };
     return json;
@@ -66,8 +74,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const dropdown_option = block.getFieldValue("Event");
       const statements_content = generator.statementToCode(block, "content");
 
@@ -83,8 +96,13 @@ meta['#${dropdown_option}'] = async function(parameter) {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const dropdown_option = block.getFieldValue("Event");
       const statements_content = generator.statementToCode(block, "content");
 

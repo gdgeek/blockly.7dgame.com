@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "input_signal_system",
@@ -13,14 +17,26 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_INPUT_SIGNAL_SYSTEM"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_INPUT_SIGNAL_SYSTEM"][window.lg],
       args0: [
         {
           type: "field_dropdown",
           name: "Event",
           options: [
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_BEGIN_SIGNAL"]?.[window.lg], "begin"],
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_END_SIGNAL"]?.[window.lg], "end"],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["SIGNAL_BEGIN_SIGNAL"]?.[window.lg],
+              "begin",
+            ],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["SIGNAL_END_SIGNAL"]?.[window.lg],
+              "end",
+            ],
             ["拍照", "photo"],
           ],
         },
@@ -48,8 +64,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const dropdown_option = block.getFieldValue("Event");
       const statements_content = generator.statementToCode(block, "content");
 
@@ -65,8 +86,13 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const dropdown_option = block.getFieldValue("Event");
       const statements_content = generator.statementToCode(block, "content");
 

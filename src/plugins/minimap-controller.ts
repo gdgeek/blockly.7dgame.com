@@ -38,7 +38,11 @@ export class MinimapController {
     this.SAFE_HEIGHT = 550;
   }
 
-  init(workspace: Blockly.WorkspaceSvg, blocklyDiv: HTMLElement, options: MinimapOptions): void {
+  init(
+    workspace: Blockly.WorkspaceSvg,
+    blocklyDiv: HTMLElement,
+    options: MinimapOptions
+  ): void {
     if (options.minimap === false) return;
 
     this.workspace = workspace;
@@ -50,7 +54,9 @@ export class MinimapController {
       this.minimapPlugin.init();
 
       // 获取地图 DOM (Blockly 生成的)
-      const mapEl = blocklyDiv.querySelector(".blockly-minimap") as HTMLElement | null;
+      const mapEl = blocklyDiv.querySelector(
+        ".blockly-minimap"
+      ) as HTMLElement | null;
       if (mapEl) {
         mapEl.classList.add("minimap-hidden"); // 初始隐藏
         this._bindDomEvents(mapEl);
@@ -86,7 +92,9 @@ export class MinimapController {
   // --- 内部私有方法 ---
 
   private _toggleDom(show: boolean): void {
-    const mapEl = this.blocklyDiv?.querySelector(".blockly-minimap") as HTMLElement | null;
+    const mapEl = this.blocklyDiv?.querySelector(
+      ".blockly-minimap"
+    ) as HTMLElement | null;
     if (mapEl) {
       if (show) mapEl.classList.remove("minimap-hidden");
       else mapEl.classList.add("minimap-hidden");
@@ -101,13 +109,15 @@ export class MinimapController {
   }
 
   private _startResizeObserver(): void {
-    this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-      for (const entry of entries) {
-        const height = entry.contentRect.height;
-        this.state.isEnoughSpace = height >= this.SAFE_HEIGHT;
-        if (!this.state.isEnoughSpace) this.hide(0);
+    this.resizeObserver = new ResizeObserver(
+      (entries: ResizeObserverEntry[]) => {
+        for (const entry of entries) {
+          const height = entry.contentRect.height;
+          this.state.isEnoughSpace = height >= this.SAFE_HEIGHT;
+          if (!this.state.isEnoughSpace) this.hide(0);
+        }
       }
-    });
+    );
     this.resizeObserver.observe(this.blocklyDiv!);
   }
 

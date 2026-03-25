@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "visual_tooltip",
@@ -28,7 +32,10 @@ interface TooltipBlockInstance {
   setOnChange: (callback: (event: { type: string }) => void) => void;
   getInput: (name: string) => { connection: unknown } | null;
   getInputTargetBlock: (name: string) => {
-    updateEntityOptions?: (data: { tooltipsInfo: TooltipInfo[]; sourceBlockId: string }) => void;
+    updateEntityOptions?: (data: {
+      tooltipsInfo: TooltipInfo[];
+      sourceBlockId: string;
+    }) => void;
   } | null;
   updateConnectedBlock: () => void;
 }
@@ -43,7 +50,9 @@ const block: BlockDefinition = {
 
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TOOLTIP_VISUAL"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["TOOLTIP_VISUAL"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -75,7 +84,11 @@ const block: BlockDefinition = {
 
         this.tooltipsInfo = [];
 
-        if (typedParams && typedParams.resource && typedParams.resource.action) {
+        if (
+          typedParams &&
+          typedParams.resource &&
+          typedParams.resource.action
+        ) {
           const tooltipActions = typedParams.resource.action.filter(
             (action) => action.type === "Tooltip"
           );
@@ -125,8 +138,13 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const value_entity = generator.valueToCode(
         block,
         "entity",
@@ -142,8 +160,13 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const value_entity = generator.valueToCode(
         block,
         "entity",

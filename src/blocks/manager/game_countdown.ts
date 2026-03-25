@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "game_countdown",
@@ -13,7 +17,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["GAME_COUNTDOWN"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["GAME_COUNTDOWN"][window.lg],
       args0: [
         {
           type: "field_number",
@@ -37,15 +43,25 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return function (block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return function (
+      block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const seconds = block.getFieldValue("Seconds");
       const code = `managers.game_countdown(${seconds}, parameter);\n`;
       return code;
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return function (block: BlocklyBlock, _generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return function (
+      block: BlocklyBlock,
+      _generator: BlocklyGenerator
+    ): string {
       const seconds = block.getFieldValue("Seconds");
       const code = `_G.managers.game_countdown(${seconds}, parameter)\n`;
       return code;

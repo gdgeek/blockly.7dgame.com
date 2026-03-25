@@ -42,16 +42,20 @@ class SharpConstantProvider extends Blockly.blockRendering.ConstantProvider {
   override makeOutsideCorners(): SharpOutsideCorners {
     const radius: number = this.CORNER_RADIUS;
 
-    const topLeft: string = Blockly.utils.svgPaths.moveBy(-radius, 0) +
+    const topLeft: string =
+      Blockly.utils.svgPaths.moveBy(-radius, 0) +
       Blockly.utils.svgPaths.lineOnAxis("v", -radius);
 
-    const topRight: string = Blockly.utils.svgPaths.lineOnAxis("h", radius) +
+    const topRight: string =
+      Blockly.utils.svgPaths.lineOnAxis("h", radius) +
       Blockly.utils.svgPaths.lineOnAxis("v", radius);
 
-    const bottomRight: string = Blockly.utils.svgPaths.lineOnAxis("v", radius) +
+    const bottomRight: string =
+      Blockly.utils.svgPaths.lineOnAxis("v", radius) +
       Blockly.utils.svgPaths.lineOnAxis("h", -radius);
 
-    const bottomLeft: string = Blockly.utils.svgPaths.lineOnAxis("h", -radius) +
+    const bottomLeft: string =
+      Blockly.utils.svgPaths.lineOnAxis("h", -radius) +
       Blockly.utils.svgPaths.lineOnAxis("v", -radius);
 
     return {
@@ -69,10 +73,12 @@ class SharpConstantProvider extends Blockly.blockRendering.ConstantProvider {
   override makeInsideCorners(): SharpInsideCorners {
     const radius: number = this.CORNER_RADIUS;
 
-    const pathTopLeft: string = Blockly.utils.svgPaths.lineOnAxis("h", -radius) +
+    const pathTopLeft: string =
+      Blockly.utils.svgPaths.lineOnAxis("h", -radius) +
       Blockly.utils.svgPaths.lineOnAxis("v", radius);
 
-    const pathBottomLeft: string = Blockly.utils.svgPaths.lineOnAxis("v", radius) +
+    const pathBottomLeft: string =
+      Blockly.utils.svgPaths.lineOnAxis("v", radius) +
       Blockly.utils.svgPaths.lineOnAxis("h", -radius);
 
     return {

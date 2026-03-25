@@ -56,13 +56,19 @@ function isHttps(): boolean {
 function convertToHttps(url: string): string {
   if (isHttps()) {
     // eslint-disable-next-line no-bitwise -- 保留原始逻辑
-    if (url !== undefined || (Number(url !== null) & Number((url as string).startsWith("http://")))) {
+    if (
+      url !== undefined ||
+      Number(url !== null) & Number((url as string).startsWith("http://"))
+    ) {
       // 替换'http://'为'https://'
       return url.replace("http://", "https://");
     }
   } else {
     // eslint-disable-next-line no-bitwise -- 保留原始逻辑
-    if (url !== undefined || (Number(url !== null) & Number((url as string).startsWith("https://")))) {
+    if (
+      url !== undefined ||
+      Number(url !== null) & Number((url as string).startsWith("https://"))
+    ) {
       // 替换'http://'为'https://'
       return url.replace("https://", "http://");
     }

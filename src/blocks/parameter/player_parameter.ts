@@ -1,7 +1,11 @@
 import EventType from "./type";
 import * as Helper from "../helper";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "player_parameter",
@@ -14,17 +18,31 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["PARAMETER_PLAYER"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["PARAMETER_PLAYER"][window.lg],
       args0: [
         {
           type: "field_dropdown",
           name: "PlayerType",
           options: [
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["PARAMETER_PLAYER_OPTIONS_INDEX"][window.lg], "index"],
-            ["Id", "id"],
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["PARAMETER_PLAYER_OPTIONS_SERVER"][window.lg], "server"],
             [
-              (Blockly.Msg as unknown as Record<string, Record<string, string>>)["PARAMETER_PLAYER_OPTIONS_RANDOM_CLIENT"][window.lg],
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["PARAMETER_PLAYER_OPTIONS_INDEX"][window.lg],
+              "index",
+            ],
+            ["Id", "id"],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["PARAMETER_PLAYER_OPTIONS_SERVER"][window.lg],
+              "server",
+            ],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["PARAMETER_PLAYER_OPTIONS_RANDOM_CLIENT"][window.lg],
               "random_client",
             ],
           ],
@@ -51,17 +69,35 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return function (_block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return function (
+      _block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const type = _block.getFieldValue("PlayerType");
-      const id = generator.valueToCode(_block, "Player", generator.ORDER_ATOMIC);
+      const id = generator.valueToCode(
+        _block,
+        "Player",
+        generator.ORDER_ATOMIC
+      );
       return [Helper.PlayerJS(type, id), generator.ORDER_NONE];
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return function (_block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return function (
+      _block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const type = _block.getFieldValue("PlayerType");
-      const id = generator.valueToCode(_block, "Player", generator.ORDER_ATOMIC);
+      const id = generator.valueToCode(
+        _block,
+        "Player",
+        generator.ORDER_ATOMIC
+      );
       return [Helper.Player(type, id), generator.ORDER_NONE];
     };
   },

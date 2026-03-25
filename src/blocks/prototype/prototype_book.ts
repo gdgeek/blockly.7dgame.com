@@ -1,6 +1,10 @@
 import PrototypeType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "prototype_book",
@@ -33,7 +37,10 @@ const block: BlockDefinition = {
   colour: PrototypeType.colour,
   getBlockJson(parameters: unknown): object {
     const { resource } = parameters as BlockParameters;
-    const Msg = Blockly.Msg as unknown as Record<string, Record<string, string>>;
+    const Msg = Blockly.Msg as unknown as Record<
+      string,
+      Record<string, string>
+    >;
     const json = {
       type: data.name,
       message0: Msg["PROTOTYPE_BOOK"][window.lg],
@@ -114,8 +121,13 @@ const block: BlockDefinition = {
     };
     return blockDef;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const book_uuid = block.getFieldValue("Book");
       const page_value = block.getFieldValue("Page");
       const statements_content = generator.statementToCode(block, "content");
@@ -131,8 +143,13 @@ meta['@${book_uuid}${page_value}'] = async function(parameter) {
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const book_uuid = block.getFieldValue("Book");
       const page_value = block.getFieldValue("Page");
       const statements_content = generator.statementToCode(block, "content");

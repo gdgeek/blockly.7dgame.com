@@ -1,6 +1,10 @@
 import * as Blockly from "blockly";
 import DataType from "./type";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "transform_data",
@@ -15,7 +19,9 @@ const block: BlockDefinition = {
         const current = this as { jsonInit: (_json: object) => void };
         current.jsonInit({
           type: data.name,
-          message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["DATA_TRANSFORM_DATA"][window.lg],
+          message0: (
+            Blockly.Msg as unknown as Record<string, Record<string, string>>
+          )["DATA_TRANSFORM_DATA"][window.lg],
           args0: [
             {
               type: "input_value",

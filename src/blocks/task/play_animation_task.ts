@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "play_animation_task",
@@ -25,7 +29,9 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     const json = {
       type: data.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TASK_PLAY_ANIMATION_TASK"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["TASK_PLAY_ANIMATION_TASK"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -52,12 +58,19 @@ const block: BlockDefinition = {
         const json = block.getBlockJson!(parameters);
         (this as { jsonInit: (json: object) => void }).jsonInit(json);
 
-        const animationField = (this as { getField: (name: string) => Record<string, unknown> | null }).getField("animation");
+        const animationField = (
+          this as { getField: (name: string) => Record<string, unknown> | null }
+        ).getField("animation");
         if (animationField) {
-          animationField.doClassValidation_ = function (newValue: string): string {
+          animationField.doClassValidation_ = function (
+            newValue: string
+          ): string {
             return newValue;
           };
-          animationField.getText = function (this: { getValue: () => string; getOptions: () => [string, string][] }): string {
+          animationField.getText = function (this: {
+            getValue: () => string;
+            getOptions: () => [string, string][];
+          }): string {
             const currentValue = this.getValue();
             const matchingOption = this.getOptions().find(
               (opt: [string, string]) => opt[1] === currentValue
@@ -69,24 +82,49 @@ const block: BlockDefinition = {
         (this as Record<string, unknown>).lastPolygenUuid = null;
 
         (this as { setOnChange: (fn: () => void) => void }).setOnChange(() => {
-          (this as { updateAnimationOptions: (resource: BlockParameters["resource"]) => void }).updateAnimationOptions(blockParams.resource);
+          (
+            this as {
+              updateAnimationOptions: (
+                resource: BlockParameters["resource"]
+              ) => void;
+            }
+          ).updateAnimationOptions(blockParams.resource);
         });
 
         setTimeout(() => {
-          (this as { updateAnimationOptions: (resource: BlockParameters["resource"]) => void }).updateAnimationOptions(blockParams.resource);
+          (
+            this as {
+              updateAnimationOptions: (
+                resource: BlockParameters["resource"]
+              ) => void;
+            }
+          ).updateAnimationOptions(blockParams.resource);
         }, 0);
       },
 
-      updateAnimationOptions: function (this: Record<string, unknown>, resource: BlockParameters["resource"]): void {
-        const polygenBlock = (this as { getInputTargetBlock: (name: string) => { getFieldValue: (name: string) => string } | null }).getInputTargetBlock("polygen");
+      updateAnimationOptions: function (
+        this: Record<string, unknown>,
+        resource: BlockParameters["resource"]
+      ): void {
+        const polygenBlock = (
+          this as {
+            getInputTargetBlock: (
+              name: string
+            ) => { getFieldValue: (name: string) => string } | null;
+          }
+        ).getInputTargetBlock("polygen");
         const selectedPolygenUuid = polygenBlock
           ? polygenBlock.getFieldValue("Polygen")
           : "";
 
-        const animationField = (this as { getField: (name: string) => Record<string, unknown> | null }).getField("animation");
+        const animationField = (
+          this as { getField: (name: string) => Record<string, unknown> | null }
+        ).getField("animation");
         if (!animationField) return;
 
-        const currentValue = (animationField as { getValue: () => string }).getValue();
+        const currentValue = (
+          animationField as { getValue: () => string }
+        ).getValue();
 
         const modelChanged =
           this.lastPolygenUuid !== null &&
@@ -116,24 +154,40 @@ const block: BlockDefinition = {
         animationField.menuGenerator_ = options;
 
         if (modelChanged) {
-          (animationField as { setValue: (v: string) => void }).setValue("none");
+          (animationField as { setValue: (v: string) => void }).setValue(
+            "none"
+          );
         } else {
-          (animationField as { setValue: (v: string) => void }).setValue(currentValue);
+          (animationField as { setValue: (v: string) => void }).setValue(
+            currentValue
+          );
           (animationField as { forceRerender: () => void }).forceRerender();
         }
       },
     };
     return data;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const javascript = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const javascript = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const animation = block.getFieldValue("animation");
       const polygen = generator.valueToCode(
         block,
         "polygen",
         generator.ORDER_NONE
       );
-      const parentBlock = (block as unknown as { getParent: () => { type: string; getInputTargetBlock: (name: string) => unknown } | null }).getParent();
+      const parentBlock = (
+        block as unknown as {
+          getParent: () => {
+            type: string;
+            getInputTargetBlock: (name: string) => unknown;
+          } | null;
+        }
+      ).getParent();
       const isAssignment =
         parentBlock &&
         (parentBlock.type === "variables_set" ||
@@ -141,13 +195,20 @@ const block: BlockDefinition = {
           (parentBlock.type === "lists_setIndex" &&
             block === parentBlock.getInputTargetBlock("TO")));
       const methodName = isAssignment ? "createTask" : "playTask";
-      const code = `animation.${methodName}(${polygen}, ${JSON.stringify(animation)})`;
+      const code = `animation.${methodName}(${polygen}, ${JSON.stringify(
+        animation
+      )})`;
       return [code, generator.ORDER_NONE];
     };
     return javascript;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const animation = block.getFieldValue("animation");
       const polygen = generator.valueToCode(
         block,

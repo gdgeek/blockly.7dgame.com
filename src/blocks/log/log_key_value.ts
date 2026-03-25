@@ -1,6 +1,10 @@
 import * as Blockly from "blockly";
 import LogType from "./type";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "log_key_value",
@@ -14,15 +18,32 @@ const block: BlockDefinition = {
     const { resource } = (parameters ?? {}) as { resource?: unknown };
     return {
       type: LogType.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_KEY_VALUE"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["LOG_KEY_VALUE"][window.lg],
       args0: [
         {
           type: "field_dropdown",
           name: "DATATYPE",
           options: [
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_RECORD"][window.lg], "record"],
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_WARNING"][window.lg], "warning"],
-            [(Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_ERROR"][window.lg], "error"],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["LOG_RECORD"][window.lg],
+              "record",
+            ],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["LOG_WARNING"][window.lg],
+              "warning",
+            ],
+            [
+              (
+                Blockly.Msg as unknown as Record<string, Record<string, string>>
+              )["LOG_ERROR"][window.lg],
+              "error",
+            ],
           ],
         },
         {
@@ -40,13 +61,20 @@ const block: BlockDefinition = {
       previousStatement: null,
       nextStatement: null,
       colour: LogType.colour,
-      tooltip: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["LOG_KEY_VALUE_TOOLTIP"][window.lg],
+      tooltip: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["LOG_KEY_VALUE_TOOLTIP"][window.lg],
       helpUrl: "",
     };
   },
   getBlock(parameters: unknown): object {
     return {
-      init: function (this: { jsonInit: (json: object) => void; getField: (name: string) => { setValidator: (fn: (newValue: string) => string) => void } | null }) {
+      init: function (this: {
+        jsonInit: (json: object) => void;
+        getField: (name: string) => {
+          setValidator: (fn: (newValue: string) => string) => void;
+        } | null;
+      }) {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
 
@@ -59,7 +87,9 @@ const block: BlockDefinition = {
       },
     };
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const dataType = block.getFieldValue("DATATYPE");
       const key = block.getFieldValue("KEY");
@@ -70,7 +100,9 @@ const block: BlockDefinition = {
       return code;
     };
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const dataType = block.getFieldValue("DATATYPE");
       const key = block.getFieldValue("KEY");

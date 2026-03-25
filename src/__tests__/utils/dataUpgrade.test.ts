@@ -1,8 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  upgradeTweenData,
-  upgradeTweenJson,
-} from "@/utils/dataUpgrade";
+import { upgradeTweenData, upgradeTweenJson } from "@/utils/dataUpgrade";
 
 describe("upgradeTweenData", () => {
   describe("auto-detection", () => {

@@ -1,6 +1,10 @@
 import DataType from "./type";
 import { Handler } from "../helper";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "text_entity",
@@ -53,11 +57,21 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return this.getLua(parameters) as (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown];
+  getJavascript(
+    parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    return this.getLua(parameters) as (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ) => [string, unknown];
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const dropdown = block.getFieldValue("Text");
       return [Handler(dropdown), generator.ORDER_NONE];
     };

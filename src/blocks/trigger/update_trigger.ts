@@ -1,6 +1,10 @@
 import TriggerType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "update_trigger",
@@ -15,7 +19,9 @@ const block: BlockDefinition = {
       init: function (this: { jsonInit: (json: object) => void }) {
         this.jsonInit({
           type: data.name,
-          message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["TRIGGER_UPDATE"][window.lg],
+          message0: (
+            Blockly.Msg as unknown as Record<string, Record<string, string>>
+          )["TRIGGER_UPDATE"][window.lg],
           args0: [
             {
               type: "input_dummy",
@@ -33,8 +39,13 @@ const block: BlockDefinition = {
     };
     return block;
   },
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const statements_content = generator.statementToCode(block, "content");
       const code = `
   meta['@update'] = function(interval) {
@@ -46,8 +57,13 @@ const block: BlockDefinition = {
     };
     return script;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const statements_content = generator.statementToCode(block, "content");
       const code =
         "meta['@update'] = function(interval) \n\

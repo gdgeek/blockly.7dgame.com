@@ -47,8 +47,7 @@ const sep: ToolboxCategory = {
   kind: "sep",
   name: "",
 };
-
-const createToolbox = (): Toolbox => ({
+const toolbox: Toolbox = {
   kind: "categoryToolbox",
   contents: [
     Logic as ToolboxCategory,
@@ -58,7 +57,7 @@ const createToolbox = (): Toolbox => ({
     List as ToolboxCategory,
     sep,
   ],
-});
+};
 
 // 重写Procedure生成器
 // const originalProceduresDefreturn =
@@ -68,7 +67,7 @@ const createToolbox = (): Toolbox => ({
 
 // 带返回值的异步函数生成器
 javascriptGenerator.forBlock["procedures_defreturn"] = function (
-  block: Blockly.Block,
+  block: Blockly.Block
 ): string | null {
   const funcName = javascriptGenerator.nameDB_!.getName(
     block.getFieldValue("NAME"),
@@ -76,7 +75,8 @@ javascriptGenerator.forBlock["procedures_defreturn"] = function (
   );
 
   const args: string[] = [];
-  const blockArguments = (block as Blockly.Block & { arguments_: string[] }).arguments_;
+  const blockArguments = (block as Blockly.Block & { arguments_: string[] })
+    .arguments_;
   for (let i = 0; i < blockArguments.length; i++) {
     args[i] = javascriptGenerator.nameDB_!.getName(
       blockArguments[i],
@@ -97,13 +97,15 @@ javascriptGenerator.forBlock["procedures_defreturn"] = function (
   }
   code += "}";
 
-  (javascriptGenerator as unknown as { definitions_: Record<string, string> }).definitions_["%" + funcName] = code;
+  (
+    javascriptGenerator as unknown as { definitions_: Record<string, string> }
+  ).definitions_["%" + funcName] = code;
   return null;
 };
 
 // 不带返回值的异步函数生成器
 javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
-  block: Blockly.Block,
+  block: Blockly.Block
 ): string | null {
   const funcName = javascriptGenerator.nameDB_!.getName(
     block.getFieldValue("NAME"),
@@ -111,7 +113,8 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
   );
 
   const args: string[] = [];
-  const blockArguments = (block as Blockly.Block & { arguments_: string[] }).arguments_;
+  const blockArguments = (block as Blockly.Block & { arguments_: string[] })
+    .arguments_;
   for (let i = 0; i < blockArguments.length; i++) {
     args[i] = javascriptGenerator.nameDB_!.getName(
       blockArguments[i],
@@ -130,21 +133,16 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
     branch +
     "}";
 
-  (javascriptGenerator as unknown as { definitions_: Record<string, string> }).definitions_["%" + funcName] = code;
+  (
+    javascriptGenerator as unknown as { definitions_: Record<string, string> }
+  ).definitions_["%" + funcName] = code;
   return null;
 };
 
 const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
-  const toolbox = createToolbox();
-
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
-    // Scene script (base+verse) uses a reduced task set to avoid invalid refs.
-    if (style.includes("verse") && !style.includes("meta")) {
-      Task.SetupLite(toolbox, parameters);
-    } else {
-      Task.Setup(toolbox, parameters);
-    }
+    Task.Setup(toolbox, parameters);
     if (access && access.atLeast(ROLES.ADMIN)) {
       Parameter.Setup(toolbox, parameters);
       Log.Setup(toolbox, parameters);

@@ -38,7 +38,7 @@ module.exports = {
     "prettier/prettier": [
       "error",
       {
-        endOfLine: "crlf", // 确保使用 CRLF 行尾序列
+        endOfLine: "auto", // 自动适配行尾序列，兼容 CI 环境
       },
     ],
   },
@@ -48,9 +48,7 @@ module.exports = {
       files: ["**/*.ts"],
       parser: "@typescript-eslint/parser",
       plugins: ["@typescript-eslint"],
-      extends: [
-        "plugin:@typescript-eslint/recommended",
-      ],
+      extends: ["plugin:@typescript-eslint/recommended"],
       rules: {
         // 使用 @typescript-eslint 版本替代基础规则，避免冲突
         "no-unused-vars": "off",
@@ -67,7 +65,7 @@ module.exports = {
     },
     {
       // 积木块定义文件：parameters/resource/block/generator 是 Blockly API 约定的函数签名参数
-      files: ["src/blocks/**/*.js", "src/blocks/**/*.ts"],
+      files: ["src/blocks/**/*.js"],
       rules: {
         "no-unused-vars": [
           "warn",
@@ -76,6 +74,14 @@ module.exports = {
             varsIgnorePattern: "^_",
           },
         ],
+        "no-empty-pattern": "off", // 空解构模式 {} 是积木块 API 的标准签名
+      },
+    },
+    {
+      // 积木块 TypeScript 文件：关闭基础 no-unused-vars，只用 @typescript-eslint 版本
+      files: ["src/blocks/**/*.ts"],
+      rules: {
+        "no-unused-vars": "off",
         "@typescript-eslint/no-unused-vars": [
           "warn",
           {

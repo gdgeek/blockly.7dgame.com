@@ -1,6 +1,10 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "output_signal_item",
@@ -29,13 +33,17 @@ const block: BlockDefinition = {
     const { resource } = parameters as BlockParameters;
     return {
       type: EventType.name,
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["SIGNAL_OUTPUT_SIGNAL_ITEM"]?.[window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["SIGNAL_OUTPUT_SIGNAL_ITEM"]?.[window.lg],
       args0: [
         {
           type: "field_dropdown",
           name: "Output",
           options: function (): [string, string][] {
-            const opt: [string, string][] = [["none", JSON.stringify({ index: "", uuid: "" })]];
+            const opt: [string, string][] = [
+              ["none", JSON.stringify({ index: "", uuid: "" })],
+            ];
             if (resource && resource.events && resource.events.outputs) {
               resource.events.outputs.forEach(({ title, index, uuid }) => {
                 opt.push([title, JSON.stringify({ index, uuid })]);
@@ -61,16 +69,26 @@ const block: BlockDefinition = {
     return data;
   },
 
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const script = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const script = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const data = JSON.parse(block.getFieldValue("Output"));
       return [JSON.stringify(data), generator.ORDER_ATOMIC];
     };
     return script;
   },
 
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): [string, unknown] {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): [string, unknown] {
       const data = JSON.parse(block.getFieldValue("Output"));
       return [`{'${data.index}', '${data.uuid}' }`, generator.ORDER_ATOMIC];
     };

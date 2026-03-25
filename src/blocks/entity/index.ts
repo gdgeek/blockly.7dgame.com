@@ -21,7 +21,11 @@ void EntityUnxploded;
 void EntityMovable;
 void EntityAllmovable;
 
-const Setup = (toolbox: Toolbox, parameters: unknown, _access: unknown): void => {
+const Setup = (
+  toolbox: Toolbox,
+  parameters: unknown,
+  _access: unknown
+): void => {
   // 根据用户角色过滤内容
   const contents = [
     Entity.toolbox,

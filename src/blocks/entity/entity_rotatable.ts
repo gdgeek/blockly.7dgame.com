@@ -1,6 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "entity_rotatable",
@@ -35,7 +39,9 @@ const block: BlockDefinition = {
   getBlockJson(_parameters: unknown): object {
     const json = {
       type: "block_type",
-      message0: (Blockly.Msg as unknown as Record<string, Record<string, string>>)["ENTITY_ROTATABLE"][window.lg],
+      message0: (
+        Blockly.Msg as unknown as Record<string, Record<string, string>>
+      )["ENTITY_ROTATABLE"][window.lg],
       args0: [
         {
           type: "input_value",
@@ -76,7 +82,10 @@ const block: BlockDefinition = {
         });
       },
 
-      updateEntityOptions: function (this: RotatableBlockInstance, resource: BlockParameters["resource"]) {
+      updateEntityOptions: function (
+        this: RotatableBlockInstance,
+        resource: BlockParameters["resource"]
+      ) {
         if (!resource || !resource.entity) return;
 
         const entityBlock = this.getInputTargetBlock("entity");
@@ -98,7 +107,9 @@ const block: BlockDefinition = {
     return data;
   },
 
-  getJavascript(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getJavascript(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const value_entity = generator.valueToCode(
         block,
@@ -115,7 +126,9 @@ const block: BlockDefinition = {
     };
   },
 
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
       const value_entity = generator.valueToCode(
         block,

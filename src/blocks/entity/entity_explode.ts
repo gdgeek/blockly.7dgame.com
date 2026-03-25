@@ -1,5 +1,9 @@
 import DataType from "./type";
-import type { BlockDefinition, BlocklyBlock, BlocklyGenerator } from "../helper";
+import type {
+  BlockDefinition,
+  BlocklyBlock,
+  BlocklyGenerator,
+} from "../helper";
 
 const data = {
   name: "entity_explode",
@@ -42,11 +46,21 @@ const block: BlockDefinition = {
     };
     return data;
   },
-  getJavascript(parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return this.getLua(parameters) as (block: BlocklyBlock, generator: BlocklyGenerator) => string;
+  getJavascript(
+    parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    return this.getLua(parameters) as (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ) => string;
   },
-  getLua(_parameters: unknown): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    const lua = function (block: BlocklyBlock, generator: BlocklyGenerator): string {
+  getLua(
+    _parameters: unknown
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+    const lua = function (
+      block: BlocklyBlock,
+      generator: BlocklyGenerator
+    ): string {
       const number_distance = block.getFieldValue("distance");
       const value_entity = generator.valueToCode(
         block,
