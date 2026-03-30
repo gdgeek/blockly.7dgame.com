@@ -150,7 +150,7 @@ const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
     } else {
       Task.Setup(toolbox, parameters);
     }
-    if (access && access.atLeast(ROLES.ADMIN)) {
+    if (access && access.atLeast(ROLES.MANAGER)) {
       Parameter.Setup(toolbox, parameters);
       Log.Setup(toolbox, parameters);
     }
@@ -170,13 +170,13 @@ const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
     Sound.Setup(toolbox, parameters);
     // Voxel.Setup(toolbox, parameters);
     // Other.Setup(toolbox, parameters)
-    if (access && access.atLeast(ROLES.ADMIN)) {
+    if (access && access.atLeast(ROLES.MANAGER)) {
       Prototype.Setup(toolbox, parameters);
     }
   }
   if (style.includes("verse")) {
     Signal.Setup(toolbox, parameters, access);
-    if (access && access.atLeast(ROLES.ADMIN)) {
+    if (access && access.atLeast(ROLES.MANAGER)) {
       Manager.Setup(toolbox, parameters);
     }
     //toolbox.contents.push(DataCategory)
