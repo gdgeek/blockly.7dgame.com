@@ -557,4 +557,8 @@ onBeforeUnmount(() => {
   fill: #ff6347 !important;
   stroke: #ff4500 !important;
 }
+
+:global(.blocklyMainBackground) {
+  stroke: none !important;
+}
 </style>
