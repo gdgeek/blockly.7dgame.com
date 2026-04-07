@@ -26,7 +26,6 @@ module.exports = {
     "plugin:vue/vue3-essential",
     "eslint:recommended",
     "@vue/eslint-config-prettier",
-    "plugin:prettier/recommended", // 添加 Prettier 推荐配置
   ],
   parserOptions: {
     parser: "@typescript-eslint/parser",

@@ -8,7 +8,7 @@
     ></BlocklyComponent>
     <div v-if="options" class="build-version">{{ buildTime }}</div>
     <div v-else class="landing">
-      <span class="landing-text">脚本编辑器载入中 ({{ buildTime }})</span>
+      <span class="landing-spinner" aria-label="loading"></span>
     </div>
   </div>
 </template>
@@ -262,18 +262,29 @@ body {
   background: #f5f5f5;
 }
 
-.landing-text {
-  font-size: 14px;
-  color: #666;
-  font-family: monospace;
+.landing-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgb(6 167 238 / 18%);
+  border-top-color: #06a7ee;
+  border-radius: 50%;
+  animation: landing-spin 0.8s linear infinite;
+}
+
+@keyframes landing-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   .landing {
     background: #1e1e1e;
   }
-  .landing-text {
-    color: #888;
+
+  .landing-spinner {
+    border-color: rgb(80 160 255 / 18%);
+    border-top-color: #5db2ff;
   }
 }
 </style>
