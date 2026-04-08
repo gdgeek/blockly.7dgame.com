@@ -471,7 +471,7 @@ onBeforeUnmount(() => {
   width: 32px;
   height: 32px;
   cursor: pointer;
-  z-index: 70;
+  z-index: 15;
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
@@ -529,7 +529,7 @@ onBeforeUnmount(() => {
 }
 
 :global(.blockly-minimap) {
-  z-index: 80 !important;
+  z-index: 15 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   transition: opacity 0.3s ease, visibility 0.3s ease;
 }
