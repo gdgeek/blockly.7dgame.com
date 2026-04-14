@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Access, ROLES, ROLE_ABILITY } from "@/utils/Access";
-import type { Role, UserInfo } from "@/utils/Access";
+import type { Role } from "@/utils/Access";
 
 describe("Access", () => {
   describe("role getter", () => {

@@ -6,7 +6,8 @@
     "start": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx --fix --ignore-path .gitignore",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage"
@@ -17,13 +18,14 @@
     "@blockly/plugin-workspace-search": "^10.1.7",
     "@blockly/workspace-backpack": "^7.0.9",
     "@blockly/workspace-minimap": "^0.3.8",
-    "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
     "blockly": "^12.2.0",
     "element-plus": "^2.13.0",
     "vue": "^3.5.26"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.15.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.1",
+    "@typescript-eslint/parser": "^8.57.1",
     "@vitejs/plugin-vue": "^5.1.0",
     "@vitest/coverage-v8": "^2.1.8",
     "@vue/eslint-config-prettier": "^7.1.0",

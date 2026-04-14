@@ -1,8 +1,32 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("blockly", () => ({
-  default: { Blocks: {} },
+  default: {
+    Blocks: {},
+    Tooltip: {
+      getCustomTooltip: () => null,
+      setCustomTooltip: () => undefined,
+      getTooltipOfObject: () => "",
+      LIMIT: 50,
+    },
+    utils: {
+      string: {
+        wrap: (text: string) => text,
+      },
+    },
+  },
   Blocks: {},
+  Tooltip: {
+    getCustomTooltip: () => null,
+    setCustomTooltip: () => undefined,
+    getTooltipOfObject: () => "",
+    LIMIT: 50,
+  },
+  utils: {
+    string: {
+      wrap: (text: string) => text,
+    },
+  },
 }));
 vi.mock("blockly/lua", () => ({
   luaGenerator: { forBlock: {} },
@@ -91,9 +115,7 @@ describe("helper", () => {
 
   describe("Handler", () => {
     it("returns correct format with uuid", () => {
-      expect(Handler("abc-123")).toBe(
-        "_G.helper.handler(index, 'abc-123')"
-      );
+      expect(Handler("abc-123")).toBe("_G.helper.handler(index, 'abc-123')");
     });
   });
 
@@ -152,9 +174,7 @@ describe("helper", () => {
     });
 
     it("returns id player format", () => {
-      expect(Player("id", "player-1")).toBe(
-        "_G.argument.id_player(player-1)"
-      );
+      expect(Player("id", "player-1")).toBe("_G.argument.id_player(player-1)");
     });
 
     it("returns server player format", () => {
@@ -172,17 +192,13 @@ describe("helper", () => {
 
   describe("Anchor", () => {
     it("returns correct format with key", () => {
-      expect(Anchor("spawn_point")).toBe(
-        "_G.argument.anchor('spawn_point')"
-      );
+      expect(Anchor("spawn_point")).toBe("_G.argument.anchor('spawn_point')");
     });
   });
 
   describe("Range", () => {
     it("returns correct format with anchor and radius", () => {
-      expect(Range("myAnchor", 10)).toBe(
-        "_G.argument.range(myAnchor, 10)"
-      );
+      expect(Range("myAnchor", 10)).toBe("_G.argument.range(myAnchor, 10)");
     });
 
     it("handles string radius", () => {
