@@ -45,7 +45,7 @@ interface Toolbox {
 type SupportedLanguage = "zh-CN" | "en-US" | "ja-JP" | "zh-TW" | "th-TH";
 
 type TooltipLocalization = Record<SupportedLanguage, string>;
-type BlocklyTooltipRender = (container: HTMLDivElement, hoveredElement: Element) => void;
+type BlocklyTooltipRender = (container: Element, hoveredElement: Element) => void;
 
 const EMPTY_TOOLTIP_CLASS = "blockly-tooltip-empty-hidden";
 const EMPTY_TOOLTIP_STYLE_ID = "blockly-empty-tooltip-style";
@@ -388,7 +388,7 @@ function isMeaningfulTooltip(value: unknown): value is string {
     return false;
   }
   const text = value.trim();
-  return Boolean(text) && text.length >= 8 && !WEAK_TOOLTIP_SET.has(text);
+  return text.length >= 8 && !WEAK_TOOLTIP_SET.has(text);
 }
 
 function sanitizeBlockText(text: string): string {
@@ -483,7 +483,7 @@ function ensureNoEmptyTooltipBubble(): void {
   }
 
   const previousRenderer = Blockly.Tooltip.getCustomTooltip() as BlocklyTooltipRender | null;
-  Blockly.Tooltip.setCustomTooltip((container: HTMLDivElement, hoveredElement: Element) => {
+  Blockly.Tooltip.setCustomTooltip((container: Element, hoveredElement: Element) => {
     const raw = Blockly.Tooltip.getTooltipOfObject(hoveredElement);
     const blockType = resolveBlockTypeFromTooltipTarget(hoveredElement);
     const thumbnailUrl = getTooltipThumbnailUrl(blockType);

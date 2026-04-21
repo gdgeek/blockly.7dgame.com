@@ -15,7 +15,7 @@ const block: BlockDefinition = {
   getBlock(_parameters: unknown): object {
     const block = {
       init: function () {
-        const current = this as { jsonInit: (_json: object) => void };
+        const current = this as unknown as { jsonInit: (_json: object) => void };
         current.jsonInit({
           type: data.name,
           message0: "空间数据 %1",

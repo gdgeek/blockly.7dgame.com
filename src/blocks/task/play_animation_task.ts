@@ -56,7 +56,7 @@ const block: BlockDefinition = {
     const data = {
       init: function (this: Record<string, unknown>) {
         const json = block.getBlockJson!(parameters);
-        (this as { jsonInit: (json: object) => void }).jsonInit(json);
+        (this as unknown as { jsonInit: (json: object) => void }).jsonInit(json);
 
         const animationField = (
           this as { getField: (name: string) => Record<string, unknown> | null }

@@ -81,7 +81,7 @@ const block: BlockDefinition = {
   getBlock(parameters: unknown): object {
     const data = {
       init: function () {
-        const current = this as { jsonInit: (_json: object) => void };
+        const current = this as unknown as { jsonInit: (_json: object) => void };
         const json = block.getBlockJson!(parameters);
         current.jsonInit(json);
       },
