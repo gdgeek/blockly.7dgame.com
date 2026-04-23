@@ -113,6 +113,7 @@ import * as JA from "blockly/msg/ja";
 import * as Th from "blockly/msg/th";
 
 import { overrideProcedureMessages } from "../localization/procedure_override";
+import { overrideMathRandomRangeMessages } from "../localization/math_override";
 import { localizedContextMenu } from "../localization/context_menu";
 import { usePluginManager } from "../plugins";
 import { useTheme } from "../composables/useTheme";
@@ -385,6 +386,7 @@ onMounted(() => {
   //console.log("BlocklyComponent onMounted");
   // 1. 多语言配置
   setupLocale();
+  overrideMathRandomRangeMessages();
   overrideProcedureMessages();
   localizedContextMenu();
 
@@ -560,5 +562,35 @@ onBeforeUnmount(() => {
 
 :global(.blocklyMainBackground) {
   stroke: none !important;
+}
+
+/* 去掉 Blockly 左侧分类栏默认焦点/选中描边，保留分类色条和选中底色。 */
+:global(.blocklyToolboxDiv),
+:global(.blocklyToolboxDiv:focus),
+:global(.blocklyToolboxDiv:focus-visible),
+:global(.blocklyToolboxCategoryContainer),
+:global(.blocklyToolboxCategoryContainer:focus),
+:global(.blocklyToolboxCategoryContainer:focus-visible),
+:global(.blocklyToolboxCategory),
+:global(.blocklyToolboxCategory:focus),
+:global(.blocklyToolboxCategory:focus-visible),
+:global(.blocklyToolboxSelected),
+:global(.blocklyToolboxSelected:focus),
+:global(.blocklyToolboxSelected:focus-visible),
+:global(.blocklyTreeRoot),
+:global(.blocklyTreeRoot:focus),
+:global(.blocklyTreeRoot:focus-visible),
+:global(.blocklyTreeRow),
+:global(.blocklyTreeRow:focus),
+:global(.blocklyTreeRow:focus-visible),
+:global(.blocklyTreeSelected),
+:global(.blocklyTreeSelected:focus),
+:global(.blocklyTreeSelected:focus-visible) {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+:global(.blocklyToolboxDiv) {
+  border: 0 !important;
 }
 </style>
