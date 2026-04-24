@@ -25,6 +25,8 @@ interface MultiselectDraggableCompat {
   workspace: Blockly.WorkspaceSvg;
   subDraggables: Map<unknown, unknown>;
   clearAll_: () => void;
+  addSubDraggable_: (draggable: unknown) => void;
+  removeSubDraggable_: (draggable: unknown) => void;
   getBoundingRectangle: () => Blockly.utils.Rect;
   select: () => void;
   unselect: () => void;
@@ -113,6 +115,7 @@ function bindStableGestureBridge(
   let shouldSuppressNextClick = false;
   let shouldSuppressNextContextMenu = false;
   let contextMenuSuppressTimer: ReturnType<typeof setTimeout> | null = null;
+  let selectionSyncTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
 
   const getControls = (): MultiselectControlsInternals | null =>
@@ -142,7 +145,26 @@ function bindStableGestureBridge(
     }
     if (preserveSelection) {
       focusMultiselectDraggable(workspace, controls);
+      scheduleSelectionSync();
     }
+  };
+
+  const syncSelectionAfterBlocklyFocus = (): void => {
+    selectionSyncTimer = null;
+    if (isInMultipleSelectionMode() || !hasMultiselectSelection(workspace)) {
+      return;
+    }
+
+    const controls = getControls();
+    if (!controls) return;
+
+    syncMultiselectSelectionFromIds(workspace, controls);
+    focusMultiselectDraggable(workspace, controls);
+  };
+
+  const scheduleSelectionSync = (): void => {
+    if (selectionSyncTimer) clearTimeout(selectionSyncTimer);
+    selectionSyncTimer = setTimeout(syncSelectionAfterBlocklyFocus, 0);
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
@@ -226,6 +248,7 @@ function bindStableGestureBridge(
     controls.updateDraggables_(block);
     if (selectedBlockIds?.size) {
       focusMultiselectDraggable(workspace, controls);
+      scheduleSelectionSync();
     } else if (hasSelection) {
       focusWorkspace(workspace);
     }
@@ -282,6 +305,17 @@ function bindStableGestureBridge(
     }
   };
 
+  const onWorkspaceChange = (event: Blockly.Events.Abstract): void => {
+    if (
+      event.type !== Blockly.Events.BLOCK_CREATE &&
+      event.type !== Blockly.Events.SELECTED
+    ) {
+      return;
+    }
+
+    scheduleSelectionSync();
+  };
+
   injectionDiv.addEventListener("pointerdown", onPointerDown, true);
   injectionDiv.addEventListener("click", onClick, true);
   injectionDiv.addEventListener("contextmenu", onContextMenu, true);
@@ -290,9 +324,12 @@ function bindStableGestureBridge(
   window.addEventListener("blur", onWindowBlur);
   window.addEventListener("pointerup", onPointerUp, true);
   window.addEventListener("pointercancel", onPointerCancel, true);
+  workspace.addChangeListener(onWorkspaceChange);
 
   return () => {
     if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
+    if (selectionSyncTimer) clearTimeout(selectionSyncTimer);
+    workspace.removeChangeListener(onWorkspaceChange);
     injectionDiv.removeEventListener("pointerdown", onPointerDown, true);
     injectionDiv.removeEventListener("click", onClick, true);
     injectionDiv.removeEventListener("contextmenu", onContextMenu, true);
@@ -502,21 +539,59 @@ function hasMultiselectSelection(workspace: Blockly.WorkspaceSvg): boolean {
   return Boolean(dragSelectionWeakMap.get(workspace)?.size);
 }
 
+function syncMultiselectSelectionFromIds(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals
+): void {
+  const selectedIds = dragSelectionWeakMap.get(workspace);
+  const multiDraggable = controls.multiDraggable;
+  if (!selectedIds?.size || !multiDraggable) return;
+
+  for (const [draggable] of [...multiDraggable.subDraggables]) {
+    const blockId =
+      draggable instanceof Blockly.BlockSvg ? draggable.id : undefined;
+    if (!blockId || selectedIds.has(blockId)) continue;
+
+    setDraggableVisualState(draggable, false);
+    multiDraggable.removeSubDraggable_(draggable);
+  }
+
+  for (const id of selectedIds) {
+    const block = workspace.getBlockById(id);
+    if (!(block instanceof Blockly.BlockSvg)) continue;
+
+    if (!multiDraggable.subDraggables.has(block)) {
+      multiDraggable.addSubDraggable_(block);
+    }
+    block.pathObject.updateSelected(true);
+  }
+
+  for (const block of workspace.getAllBlocks(false)) {
+    if (!selectedIds.has(block.id)) {
+      block.pathObject.updateSelected(false);
+    }
+  }
+}
+
 function setMultiselectVisualState(
   multiDraggable: MultiselectDraggableCompat,
   selected: boolean
 ): void {
   for (const [draggable] of multiDraggable.subDraggables) {
-    if (draggable instanceof Blockly.BlockSvg) {
-      draggable.pathObject.updateSelected(selected);
-      continue;
-    }
-
-    const selectable = draggable as {
-      select?: () => void;
-      unselect?: () => void;
-    };
-    if (selected) selectable.select?.();
-    else selectable.unselect?.();
+    setDraggableVisualState(draggable, selected);
   }
+}
+
+function setDraggableVisualState(draggable: unknown, selected: boolean): void {
+  if (draggable instanceof Blockly.BlockSvg) {
+    draggable.pathObject.updateSelected(selected);
+    return;
+  }
+
+  const selectable = draggable as {
+    select?: () => void;
+    unselect?: () => void;
+  };
+  if (selected) selectable.select?.();
+  else selectable.unselect?.();
 }
