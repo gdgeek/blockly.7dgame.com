@@ -167,6 +167,28 @@ const math: ToolboxCategory = {
       inputs: {
         FROM: {
           shadow: {
+            type: "math_integer_number",
+            fields: {
+              NUM: 1,
+            },
+          },
+        },
+        TO: {
+          shadow: {
+            type: "math_integer_number",
+            fields: {
+              NUM: 100,
+            },
+          },
+        },
+      },
+    },
+    {
+      kind: "block",
+      type: "math_random_float_range",
+      inputs: {
+        FROM: {
+          shadow: {
             type: "math_number",
             fields: {
               NUM: 1,

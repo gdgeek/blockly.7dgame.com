@@ -9,6 +9,7 @@ import { PROCEDURE_NAME } from "../localization/index";
 import { javascriptGenerator, Order as JsOrder } from "blockly/javascript";
 import { ROLES, Access } from "../utils/Access";
 import type { Toolbox, ToolboxCategory } from "../blocks/helper";
+import { registerMathRandomRangeGenerators } from "./math_random_range";
 
 const Variable: ToolboxCategory = {
   kind: "category",
@@ -65,6 +66,8 @@ const createToolbox = (): Toolbox => ({
 //   javascriptGenerator.forBlock["procedures_defreturn"];
 // const originalProceduresDefnoreturn =
 //   javascriptGenerator.forBlock["procedures_defnoreturn"];
+
+registerMathRandomRangeGenerators();
 
 // 带返回值的异步函数生成器
 javascriptGenerator.forBlock["procedures_defreturn"] = function (
