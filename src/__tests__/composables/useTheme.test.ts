@@ -23,7 +23,10 @@ vi.mock("blockly/core", () => ({
 }));
 
 // Track matchMedia listeners so we can simulate system theme changes
-let mqlListeners: Array<() => void> = [];
+let mqlListeners: Array<{
+  raw: EventListenerOrEventListenerObject;
+  trigger: () => void;
+}> = [];
 let mqlMatches = false;
 
 beforeEach(() => {
@@ -38,11 +41,21 @@ beforeEach(() => {
       onchange: null,
       addListener: () => {},
       removeListener: () => {},
-      addEventListener: (_event: string, handler: () => void) => {
-        mqlListeners.push(handler);
+      addEventListener: (_event: string, handler: EventListenerOrEventListenerObject) => {
+        mqlListeners.push({
+          raw: handler,
+          trigger: () => {
+            const event = new Event("change");
+            if (typeof handler === "function") {
+              handler(event);
+            } else {
+              handler.handleEvent(event);
+            }
+          },
+        });
       },
-      removeEventListener: (_event: string, handler: () => void) => {
-        mqlListeners = mqlListeners.filter((h) => h !== handler);
+      removeEventListener: (_event: string, handler: EventListenerOrEventListenerObject) => {
+        mqlListeners = mqlListeners.filter((h) => h.raw !== handler);
       },
       dispatchEvent: () => false,
     }),
@@ -156,7 +169,7 @@ describe("useTheme", () => {
 
       // Simulate system theme change
       for (const listener of mqlListeners) {
-        listener();
+        listener.trigger();
       }
 
       expect(mockSetTheme).toHaveBeenCalled();
@@ -177,7 +190,7 @@ describe("useTheme", () => {
 
       // Simulate system theme change — should be ignored
       for (const listener of mqlListeners) {
-        listener();
+        listener.trigger();
       }
 
       expect(mockSetTheme).not.toHaveBeenCalled();
