@@ -352,6 +352,11 @@ function patchMultiselectDraggableForBlockly12(
     workspace.scrollBoundsIntoView(multiDraggable.getBoundingRectangle());
   };
   multiDraggable.onNodeBlur = () => {
+    if (hasMultiselectSelection(workspace)) {
+      setMultiselectVisualState(multiDraggable, true);
+      return;
+    }
+
     multiDraggable.unselect();
   };
   multiDraggable.showContextMenu = (event: Event) => {
@@ -491,6 +496,10 @@ function focusWorkspace(workspace: Blockly.WorkspaceSvg): void {
       focusNode: (node: unknown) => void;
     }
   )().focusNode(workspace);
+}
+
+function hasMultiselectSelection(workspace: Blockly.WorkspaceSvg): boolean {
+  return Boolean(dragSelectionWeakMap.get(workspace)?.size);
 }
 
 function setMultiselectVisualState(
