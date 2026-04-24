@@ -244,6 +244,9 @@ function bindStableGestureBridge(
   let selectionSyncTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
   let isReplayingShiftPointerDown = false;
+  let lastSelectedBlockId: string | null =
+    getCurrentSelectedBlock(workspace)?.id || null;
+  let shiftAnchorBlockId: string | null = null;
   const selectionApi = Blockly.common as unknown as BlocklySelectionApi;
   const originalSetSelected = selectionApi.setSelected;
 
@@ -255,6 +258,38 @@ function bindStableGestureBridge(
 
   const getSelectedBlockIds = (): Set<string> | null =>
     dragSelectionWeakMap.get(workspace) || null;
+
+  const getShiftAnchorBlock = (): Blockly.BlockSvg | null => {
+    const blockId = shiftAnchorBlockId || lastSelectedBlockId;
+    return blockId ? getSelectableBlockById(workspace, blockId) : null;
+  };
+
+  const restoreShiftAnchorSelection = (
+    controls = getControls()
+  ): boolean => {
+    const block = getShiftAnchorBlock();
+    if (!controls || !block) return false;
+
+    includeBlockInMultiselect(workspace, controls, block);
+    focusMultiselectDraggable(workspace, controls);
+    setDraggableVisualState(block, true);
+    return true;
+  };
+
+  const scheduleShiftAnchorRestore = (): void => {
+    if (!isMultiselectKeyPressed || !shiftAnchorBlockId) return;
+
+    queueMicrotask(() => {
+      if (isMultiselectKeyPressed) {
+        restoreShiftAnchorSelection();
+      }
+    });
+    setTimeout(() => {
+      if (isMultiselectKeyPressed) {
+        restoreShiftAnchorSelection();
+      }
+    }, 0);
+  };
 
   const restoreMultiselectSelection = (
     controls = getControls()
@@ -273,6 +308,22 @@ function bindStableGestureBridge(
   ): void => {
     const controls = getControls();
     const selectedBlockIds = getSelectedBlockIds();
+    if (
+      newSelection instanceof Blockly.BlockSvg &&
+      newSelection.workspace === workspace &&
+      canToggleBlock(newSelection)
+    ) {
+      lastSelectedBlockId = newSelection.id;
+    }
+    if (
+      newSelection === null &&
+      isMultiselectKeyPressed &&
+      shiftAnchorBlockId
+    ) {
+      scheduleShiftAnchorRestore();
+      return;
+    }
+
     const isSelectingMultiselect =
       Boolean(controls?.multiDraggable) &&
       newSelection === controls?.multiDraggable;
@@ -294,15 +345,27 @@ function bindStableGestureBridge(
 
   const enableMultiselect = (includeSelectedBlock = true): void => {
     const controls = getControls();
-    if (!controls || isInMultipleSelectionMode()) return;
+    if (!controls) return;
+    if (isInMultipleSelectionMode()) {
+      if (includeSelectedBlock) {
+        restoreShiftAnchorSelection(controls);
+      }
+      return;
+    }
+
     const selectedBlock = includeSelectedBlock
-      ? getCurrentSelectedBlock(workspace)
+      ? getCurrentSelectedBlock(workspace) || getShiftAnchorBlock()
       : null;
 
+    if (selectedBlock) {
+      shiftAnchorBlockId = selectedBlock.id;
+      lastSelectedBlockId = selectedBlock.id;
+    }
     controls.enableMultiselect();
     if (selectedBlock) {
       includeBlockInMultiselect(workspace, controls, selectedBlock);
       focusMultiselectDraggable(workspace, controls);
+      scheduleShiftAnchorRestore();
     }
   };
 
@@ -357,18 +420,23 @@ function bindStableGestureBridge(
 
     isMultiselectKeyPressed = true;
     if (isEditableTarget(event.target)) return;
+    shiftAnchorBlockId =
+      getCurrentSelectedBlock(workspace)?.id || lastSelectedBlockId;
     enableMultiselect();
+    scheduleShiftAnchorRestore();
   };
 
   const onKeyUp = (event: KeyboardEvent): void => {
     if (!isMultiselectKey(event)) return;
 
     isMultiselectKeyPressed = false;
+    shiftAnchorBlockId = null;
     disableMultiselect();
   };
 
   const onWindowBlur = (): void => {
     isMultiselectKeyPressed = false;
+    shiftAnchorBlockId = null;
     disableMultiselect();
   };
 
@@ -494,6 +562,21 @@ function bindStableGestureBridge(
   };
 
   const onWorkspaceChange = (event: Blockly.Events.Abstract): void => {
+    if (event.type === Blockly.Events.SELECTED) {
+      const selectedEvent = event as {
+        newElementId?: string | null;
+        workspaceId?: string;
+      };
+      const selectedBlock = selectedEvent.newElementId
+        ? getSelectableBlockById(workspace, selectedEvent.newElementId)
+        : null;
+      if (selectedBlock) {
+        lastSelectedBlockId = selectedBlock.id;
+      } else if (isMultiselectKeyPressed && shiftAnchorBlockId) {
+        scheduleShiftAnchorRestore();
+      }
+    }
+
     if (
       event.type !== Blockly.Events.BLOCK_CREATE &&
       event.type !== Blockly.Events.SELECTED
@@ -722,6 +805,17 @@ function getCurrentSelectedBlock(
   if (!canToggleBlock(selected)) return null;
 
   return selected;
+}
+
+function getSelectableBlockById(
+  workspace: Blockly.WorkspaceSvg,
+  blockId: string
+): Blockly.BlockSvg | null {
+  const block = workspace.getBlockById(blockId);
+  if (!(block instanceof Blockly.BlockSvg)) return null;
+  if (!canToggleBlock(block)) return null;
+
+  return block;
 }
 
 function includeBlockInMultiselect(
