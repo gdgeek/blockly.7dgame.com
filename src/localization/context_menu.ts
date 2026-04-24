@@ -54,6 +54,13 @@ export const localizedContextMenu = (): void => {
       "zh-TW": "從剪貼板粘貼",
       "th-TH": "วางจากคลิปบอร์ด",
     },
+    WORKSPACE_SELECT_ALL_BLOCKS: {
+      "zh-CN": "选择所有块",
+      "en-US": "Select All Blocks",
+      "ja-JP": "すべてのブロックを選択",
+      "zh-TW": "選擇所有塊",
+      "th-TH": "เลือกบล็อกทั้งหมด",
+    },
   };
 
   Object.entries(messages).forEach(([key, msg]) => {
