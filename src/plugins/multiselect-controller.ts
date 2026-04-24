@@ -294,9 +294,14 @@ function bindStableGestureBridge(
   const enableMultiselect = (includeSelectedBlock = true): void => {
     const controls = getControls();
     if (!controls || isInMultipleSelectionMode()) return;
+    const selectedBlock = includeSelectedBlock
+      ? getCurrentSelectedBlock(workspace)
+      : null;
+
     controls.enableMultiselect();
-    if (includeSelectedBlock) {
-      includeCurrentSelectedBlock(workspace, controls);
+    if (selectedBlock) {
+      includeBlockInMultiselect(workspace, controls, selectedBlock);
+      focusMultiselectDraggable(workspace, controls);
     }
   };
 
@@ -654,15 +659,32 @@ function includeCurrentSelectedBlock(
   controls: MultiselectControlsInternals,
   exceptBlockId?: string
 ): void {
+  const selected = getCurrentSelectedBlock(workspace);
+  if (!selected || selected.id === exceptBlockId) return;
+
+  includeBlockInMultiselect(workspace, controls, selected);
+}
+
+function getCurrentSelectedBlock(
+  workspace: Blockly.WorkspaceSvg
+): Blockly.BlockSvg | null {
   const selected = Blockly.getSelected();
-  if (!(selected instanceof Blockly.BlockSvg)) return;
-  if (selected.workspace !== workspace || selected.id === exceptBlockId) return;
-  if (!canToggleBlock(selected)) return;
+  if (!(selected instanceof Blockly.BlockSvg)) return null;
+  if (selected.workspace !== workspace) return null;
+  if (!canToggleBlock(selected)) return null;
 
+  return selected;
+}
+
+function includeBlockInMultiselect(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals,
+  block: Blockly.BlockSvg
+): void {
   const selectedBlocks = dragSelectionWeakMap.get(workspace);
-  if (selectedBlocks?.has(selected.id)) return;
+  if (selectedBlocks?.has(block.id)) return;
 
-  controls.updateDraggables_(selected);
+  controls.updateDraggables_(block);
 }
 
 function focusMultiselectDraggable(
