@@ -1,8 +1,8 @@
 import { Backpack } from "@blockly/workspace-backpack";
 import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
 import { registerFieldMultilineInput } from "@blockly/field-multilineinput";
-import { Multiselect } from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
 import * as Blockly from "blockly/core";
+import { createMultiselectController } from "./multiselect-controller";
 
 interface DisposablePlugin {
   dispose: () => void;
@@ -38,39 +38,7 @@ export const strategies: PluginStrategies = {
   },
 
   multiselect: (workspace: Blockly.WorkspaceSvg): DisposablePlugin | null => {
-    try {
-      const plugin = new Multiselect(workspace);
-      plugin.init({
-        useDoubleClick: false,
-        bumpNeighbours: true,
-        multiFieldUpdate: false,
-        workspaceAutoFocus: false,
-        multiSelectKeys: ["Shift"],
-        multiselectCopyPaste: {
-          crossTab: false,
-          menu: true,
-        },
-        multiselectIcon: {
-          hideIcon: true,
-          weight: 3,
-        },
-      });
-      const selectAllItem = Blockly.ContextMenuRegistry.registry.getItem(
-        "workspaceSelectAll"
-      ) as { displayText?: () => string } | null;
-      if (selectAllItem) {
-        selectAllItem.displayText = () =>
-          Blockly.Msg["WORKSPACE_SELECT_ALL_BLOCKS"] || "Select All Blocks";
-      }
-
-      console.log("Plugin: Multiselect loaded");
-      return {
-        dispose: () => plugin.dispose(),
-      };
-    } catch (e) {
-      console.error("Multiselect init error:", e);
-      return null;
-    }
+    return createMultiselectController(workspace);
   },
 
   search: (workspace: Blockly.WorkspaceSvg): void => {
