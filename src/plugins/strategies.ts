@@ -2,12 +2,15 @@ import { Backpack } from "@blockly/workspace-backpack";
 import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
 import { registerFieldMultilineInput } from "@blockly/field-multilineinput";
 import * as Blockly from "blockly/core";
+import { createMultiselectController } from "./multiselect-controller";
 
-// NOTE: Multiselect plugin removed — no Blockly 12 compatible option available yet.
-// Monitor https://github.com/mit-cml/workspace-multiselect for future updates.
+interface DisposablePlugin {
+  dispose: () => void;
+}
 
 interface PluginStrategies {
   backpack: (workspace: Blockly.WorkspaceSvg) => void;
+  multiselect: (workspace: Blockly.WorkspaceSvg) => DisposablePlugin | null;
   search: (workspace: Blockly.WorkspaceSvg) => void;
   multilineinputfield: () => void;
 }
@@ -32,6 +35,10 @@ export const strategies: PluginStrategies = {
     } catch (e) {
       console.error("Backpack init error:", e);
     }
+  },
+
+  multiselect: (workspace: Blockly.WorkspaceSvg): DisposablePlugin | null => {
+    return createMultiselectController(workspace);
   },
 
   search: (workspace: Blockly.WorkspaceSvg): void => {

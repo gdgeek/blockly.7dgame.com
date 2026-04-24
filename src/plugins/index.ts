@@ -5,7 +5,12 @@ import type Blockly from "blockly";
 
 interface PluginOptions {
   minimap?: boolean;
+  multiselect?: boolean;
   [key: string]: unknown;
+}
+
+interface DisposablePlugin {
+  dispose: () => void;
 }
 
 interface MinimapActions {
@@ -25,6 +30,7 @@ interface PluginManager {
 
 export function usePluginManager(): PluginManager {
   const minimapCtrl = new MinimapController();
+  let multiselectPlugin: DisposablePlugin | null = null;
 
   // 对外暴露的 API
   const initPlugins = (
@@ -36,6 +42,9 @@ export function usePluginManager(): PluginManager {
 
     // 1. 初始化普通插件
     strategies.backpack(workspace);
+    if (options.multiselect !== false) {
+      multiselectPlugin = strategies.multiselect(workspace);
+    }
     strategies.search(workspace);
     strategies.multilineinputfield();
 
@@ -45,6 +54,8 @@ export function usePluginManager(): PluginManager {
 
   // 自动清理逻辑
   onBeforeUnmount(() => {
+    multiselectPlugin?.dispose();
+    multiselectPlugin = null;
     minimapCtrl.dispose();
   });
 

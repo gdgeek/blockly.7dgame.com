@@ -1,0 +1,848 @@
+import {
+  Multiselect,
+  dragSelectionWeakMap,
+  inMultipleSelectionModeWeakMap,
+} from "@mit-app-inventor/blockly-plugin-workspace-multiselect";
+import * as Blockly from "blockly/core";
+
+interface DisposablePlugin {
+  dispose: () => void;
+}
+
+interface MultiselectControlsInternals {
+  enableMultiselect: () => void;
+  disableMultiselect: () => void;
+  updateDraggables_: (draggable: unknown) => void;
+  multiDraggable?: MultiselectDraggableCompat;
+}
+
+type MultiselectWithInternals = Multiselect & {
+  controls_?: MultiselectControlsInternals;
+};
+
+interface MultiselectDraggableCompat {
+  id: string;
+  workspace: Blockly.WorkspaceSvg;
+  subDraggables: Map<unknown, unknown>;
+  clearAll_: () => void;
+  addSubDraggable_: (draggable: unknown) => void;
+  removeSubDraggable_: (draggable: unknown) => void;
+  getBoundingRectangle: () => Blockly.utils.Rect;
+  select: () => void;
+  unselect: () => void;
+  getFocusableElement?: () => SVGElement;
+  getFocusableTree?: () => Blockly.WorkspaceSvg;
+  onNodeFocus?: () => void;
+  onNodeBlur?: () => void;
+  canBeFocused?: () => boolean;
+  showContextMenu?: (event: Event) => void;
+}
+
+interface BlocklySelectionApi {
+  setSelected: (newSelection: unknown | null) => void;
+}
+
+type CallbackContainer = {
+  callback?: (this: unknown, ...args: unknown[]) => unknown;
+};
+
+type ClipboardApi = {
+  paste: (this: unknown, ...args: unknown[]) => unknown;
+};
+
+const MULTI_SELECT_KEYS = ["Shift"];
+const NORMALIZED_MULTI_SELECT_KEYS = MULTI_SELECT_KEYS.map((key) =>
+  key.toLocaleLowerCase()
+);
+const WORKSPACE_CLICK_MAX_DISTANCE = 4;
+
+interface PendingWorkspaceClick {
+  pointerId: number;
+  clientX: number;
+  clientY: number;
+}
+
+export function createMultiselectController(
+  workspace: Blockly.WorkspaceSvg
+): DisposablePlugin | null {
+  try {
+    const plugin = new Multiselect(workspace) as MultiselectWithInternals;
+    plugin.init({
+      useDoubleClick: false,
+      bumpNeighbours: true,
+      multiFieldUpdate: false,
+      workspaceAutoFocus: false,
+      multiSelectKeys: MULTI_SELECT_KEYS,
+      multiselectCopyPaste: {
+        crossTab: false,
+        menu: true,
+      },
+      multiselectIcon: {
+        hideIcon: true,
+        weight: 3,
+      },
+    });
+
+    localizeSelectAllMenu();
+    const disposeBlockly12FocusPatch = patchMultiselectDraggableForBlockly12(
+      workspace,
+      plugin
+    );
+    const disposeCopiedSelectionPatch = patchCopiedSelectionRestoration(
+      workspace,
+      plugin
+    );
+    const disposeStableGestureBridge = bindStableGestureBridge(
+      workspace,
+      plugin
+    );
+
+    console.log("Plugin: Multiselect loaded");
+    return {
+      dispose: () => {
+        disposeStableGestureBridge();
+        disposeCopiedSelectionPatch();
+        disposeBlockly12FocusPatch();
+        plugin.dispose();
+      },
+    };
+  } catch (e) {
+    console.error("Multiselect init error:", e);
+    return null;
+  }
+}
+
+function patchCopiedSelectionRestoration(
+  workspace: Blockly.WorkspaceSvg,
+  plugin: MultiselectWithInternals
+): () => void {
+  const restoreCallbacks: Array<() => void> = [];
+  const restoreTimers = new Set<ReturnType<typeof setTimeout>>();
+
+  const wrapCallback = (container: CallbackContainer | null): void => {
+    const originalCallback = container?.callback;
+    if (!container || !originalCallback) return;
+
+    container.callback = function (...args: unknown[]): unknown {
+      return collectPastedDraggablesDuringCallback(
+        workspace,
+        plugin,
+        restoreTimers,
+        originalCallback,
+        this,
+        args
+      );
+    };
+
+    restoreCallbacks.push(() => {
+      if (container.callback) {
+        container.callback = originalCallback;
+      }
+    });
+  };
+
+  for (const id of ["blockDuplicate", "blockPasteFromStorage"]) {
+    wrapCallback(
+      Blockly.ContextMenuRegistry.registry.getItem(
+        id
+      ) as CallbackContainer | null
+    );
+  }
+
+  wrapCallback(
+    Blockly.ShortcutRegistry.registry.getRegistry()[
+      "multiselectPaste"
+    ] as CallbackContainer | null
+  );
+
+  return () => {
+    for (const timer of restoreTimers) clearTimeout(timer);
+    restoreTimers.clear();
+    for (const restoreCallback of restoreCallbacks) restoreCallback();
+  };
+}
+
+function collectPastedDraggablesDuringCallback(
+  workspace: Blockly.WorkspaceSvg,
+  plugin: MultiselectWithInternals,
+  restoreTimers: Set<ReturnType<typeof setTimeout>>,
+  callback: (this: unknown, ...args: unknown[]) => unknown,
+  thisArg: unknown,
+  args: unknown[]
+): unknown {
+  const pastedDraggables: unknown[] = [];
+  const clipboard = Blockly.clipboard as unknown as ClipboardApi;
+  const originalPaste = clipboard.paste;
+
+  clipboard.paste = function (...pasteArgs: unknown[]): unknown {
+    const pasted = originalPaste.apply(this, pasteArgs);
+    if (pasted) {
+      pastedDraggables.push(pasted);
+    }
+    return pasted;
+  };
+
+  try {
+    return callback.apply(thisArg, args);
+  } finally {
+    clipboard.paste = originalPaste;
+    if (pastedDraggables.length) {
+      scheduleCopiedSelectionRestore(
+        workspace,
+        plugin,
+        pastedDraggables,
+        restoreTimers
+      );
+    }
+  }
+}
+
+function scheduleCopiedSelectionRestore(
+  workspace: Blockly.WorkspaceSvg,
+  plugin: MultiselectWithInternals,
+  pastedDraggables: unknown[],
+  restoreTimers: Set<ReturnType<typeof setTimeout>>
+): void {
+  const restore = (): void => {
+    const controls = plugin.controls_;
+    if (!controls) return;
+    replaceMultiselectSelection(workspace, controls, pastedDraggables);
+  };
+
+  restore();
+  queueMicrotask(restore);
+
+  for (const delay of [0, 50]) {
+    const timer = setTimeout(() => {
+      restoreTimers.delete(timer);
+      restore();
+    }, delay);
+    restoreTimers.add(timer);
+  }
+}
+
+function localizeSelectAllMenu(): void {
+  const selectAllItem = Blockly.ContextMenuRegistry.registry.getItem(
+    "workspaceSelectAll"
+  ) as { displayText?: () => string } | null;
+
+  if (selectAllItem) {
+    selectAllItem.displayText = () =>
+      Blockly.Msg["WORKSPACE_SELECT_ALL_BLOCKS"] || "Select All Blocks";
+  }
+}
+
+function bindStableGestureBridge(
+  workspace: Blockly.WorkspaceSvg,
+  plugin: MultiselectWithInternals
+): () => void {
+  const injectionDiv = workspace.getInjectionDiv();
+  let isMultiselectKeyPressed = false;
+  let shouldSuppressNextClick = false;
+  let shouldSuppressNextContextMenu = false;
+  let contextMenuSuppressTimer: ReturnType<typeof setTimeout> | null = null;
+  let selectionSyncTimer: ReturnType<typeof setTimeout> | null = null;
+  let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
+  const selectionApi = Blockly.common as unknown as BlocklySelectionApi;
+  const originalSetSelected = selectionApi.setSelected;
+
+  const getControls = (): MultiselectControlsInternals | null =>
+    plugin.controls_ || null;
+
+  const isInMultipleSelectionMode = (): boolean =>
+    inMultipleSelectionModeWeakMap.get(workspace) === true;
+
+  const getSelectedBlockIds = (): Set<string> | null =>
+    dragSelectionWeakMap.get(workspace) || null;
+
+  const restoreMultiselectSelection = (
+    controls = getControls()
+  ): void => {
+    if (!controls?.multiDraggable || !hasMultiselectSelection(workspace)) {
+      return;
+    }
+
+    syncMultiselectSelectionFromIds(workspace, controls);
+    setMultiselectVisualState(controls.multiDraggable, true);
+    originalSetSelected(controls.multiDraggable);
+  };
+
+  const setSelectedWithMultiselectPreservation = (
+    newSelection: unknown | null
+  ): void => {
+    const controls = getControls();
+    const selectedBlockIds = getSelectedBlockIds();
+    const isSelectingMultiselect =
+      Boolean(controls?.multiDraggable) &&
+      newSelection === controls?.multiDraggable;
+    const shouldRestoreMultiselect =
+      newSelection instanceof Blockly.BlockSvg &&
+      newSelection.workspace === workspace &&
+      !isInMultipleSelectionMode() &&
+      (selectedBlockIds?.size || 0) > 1 &&
+      selectedBlockIds?.has(newSelection.id);
+
+    originalSetSelected(newSelection);
+
+    if (isSelectingMultiselect || shouldRestoreMultiselect) {
+      restoreMultiselectSelection(controls);
+    }
+  };
+
+  selectionApi.setSelected = setSelectedWithMultiselectPreservation;
+
+  const enableMultiselect = (includeSelectedBlock = true): void => {
+    const controls = getControls();
+    if (!controls || isInMultipleSelectionMode()) return;
+    controls.enableMultiselect();
+    if (includeSelectedBlock) {
+      includeCurrentSelectedBlock(workspace, controls);
+    }
+  };
+
+  const disableMultiselect = (preserveSelection = true): void => {
+    const controls = getControls();
+    if (!controls) return;
+
+    if (isInMultipleSelectionMode()) {
+      controls.disableMultiselect();
+    }
+    if (preserveSelection) {
+      focusMultiselectDraggable(workspace, controls);
+      scheduleSelectionSync();
+    }
+  };
+
+  const syncSelectionAfterBlocklyFocus = (): void => {
+    selectionSyncTimer = null;
+    if (isInMultipleSelectionMode() || !hasMultiselectSelection(workspace)) {
+      return;
+    }
+
+    const controls = getControls();
+    if (!controls) return;
+
+    restoreMultiselectSelection(controls);
+  };
+
+  const scheduleSelectionSync = (): void => {
+    if (selectionSyncTimer) clearTimeout(selectionSyncTimer);
+    selectionSyncTimer = setTimeout(syncSelectionAfterBlocklyFocus, 0);
+  };
+
+  const onKeyDown = (event: KeyboardEvent): void => {
+    if (!isMultiselectKey(event) || event.repeat) return;
+
+    isMultiselectKeyPressed = true;
+    if (isEditableTarget(event.target)) return;
+    enableMultiselect();
+  };
+
+  const onKeyUp = (event: KeyboardEvent): void => {
+    if (!isMultiselectKey(event)) return;
+
+    isMultiselectKeyPressed = false;
+    disableMultiselect();
+  };
+
+  const onWindowBlur = (): void => {
+    isMultiselectKeyPressed = false;
+    disableMultiselect();
+  };
+
+  const onPointerDown = (event: PointerEvent): void => {
+    const block = getEventBlock(workspace, event);
+    const selectedBlockIds = getSelectedBlockIds();
+    const hasSelection = Boolean(selectedBlockIds?.size);
+    const isBlockInSelection = Boolean(block && selectedBlockIds?.has(block.id));
+    const isShiftSelection = event.shiftKey || isMultiselectKeyPressed;
+
+    if (event.button === 2 && hasSelection) {
+      const controls = getControls();
+      if (!controls?.multiDraggable) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      shouldSuppressNextContextMenu = true;
+      if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
+      contextMenuSuppressTimer = setTimeout(() => {
+        shouldSuppressNextContextMenu = false;
+        contextMenuSuppressTimer = null;
+      }, 500);
+      pendingWorkspaceClick = null;
+      disableMultiselect(true);
+      focusMultiselectDraggable(workspace, controls);
+      controls.multiDraggable.showContextMenu?.(event);
+      return;
+    }
+
+    if (event.button !== 0) return;
+
+    if (!isShiftSelection) {
+      disableMultiselect(isBlockInSelection);
+      if (!block && hasSelection) {
+        pendingWorkspaceClick = {
+          pointerId: event.pointerId,
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
+      } else if (block && !isBlockInSelection) {
+        clearMultiselectSelection(workspace, getControls());
+      }
+      return;
+    }
+
+    enableMultiselect();
+
+    if (!block) {
+      return;
+    }
+
+    const controls = getControls();
+    if (!controls) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    shouldSuppressNextClick = true;
+
+    includeCurrentSelectedBlock(workspace, controls, block.id);
+    controls.updateDraggables_(block);
+    if (selectedBlockIds?.size) {
+      focusMultiselectDraggable(workspace, controls);
+      scheduleSelectionSync();
+    } else if (hasSelection) {
+      focusWorkspace(workspace);
+    }
+  };
+
+  const onPointerUp = (event: PointerEvent): void => {
+    if (!event.shiftKey && !isMultiselectKeyPressed) {
+      disableMultiselect();
+    }
+
+    if (
+      !pendingWorkspaceClick ||
+      event.pointerId !== pendingWorkspaceClick.pointerId
+    ) {
+      return;
+    }
+
+    const moveDistance = Math.hypot(
+      event.clientX - pendingWorkspaceClick.clientX,
+      event.clientY - pendingWorkspaceClick.clientY
+    );
+    pendingWorkspaceClick = null;
+
+    if (moveDistance <= WORKSPACE_CLICK_MAX_DISTANCE) {
+      clearMultiselectSelection(workspace, getControls());
+    }
+  };
+
+  const onPointerCancel = (event: PointerEvent): void => {
+    if (pendingWorkspaceClick?.pointerId === event.pointerId) {
+      pendingWorkspaceClick = null;
+    }
+  };
+
+  const onClick = (event: MouseEvent): void => {
+    if (!shouldSuppressNextClick) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    shouldSuppressNextClick = false;
+  };
+
+  const onContextMenu = (event: MouseEvent): void => {
+    if (!shouldSuppressNextContextMenu) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    shouldSuppressNextContextMenu = false;
+    if (contextMenuSuppressTimer) {
+      clearTimeout(contextMenuSuppressTimer);
+      contextMenuSuppressTimer = null;
+    }
+  };
+
+  const onWorkspaceChange = (event: Blockly.Events.Abstract): void => {
+    if (
+      event.type !== Blockly.Events.BLOCK_CREATE &&
+      event.type !== Blockly.Events.SELECTED
+    ) {
+      return;
+    }
+
+    scheduleSelectionSync();
+  };
+
+  injectionDiv.addEventListener("pointerdown", onPointerDown, true);
+  injectionDiv.addEventListener("click", onClick, true);
+  injectionDiv.addEventListener("contextmenu", onContextMenu, true);
+  window.addEventListener("keydown", onKeyDown, true);
+  window.addEventListener("keyup", onKeyUp, true);
+  window.addEventListener("blur", onWindowBlur);
+  window.addEventListener("pointerup", onPointerUp, true);
+  window.addEventListener("pointercancel", onPointerCancel, true);
+  workspace.addChangeListener(onWorkspaceChange);
+
+  return () => {
+    if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
+    if (selectionSyncTimer) clearTimeout(selectionSyncTimer);
+    if (selectionApi.setSelected === setSelectedWithMultiselectPreservation) {
+      selectionApi.setSelected = originalSetSelected;
+    }
+    workspace.removeChangeListener(onWorkspaceChange);
+    injectionDiv.removeEventListener("pointerdown", onPointerDown, true);
+    injectionDiv.removeEventListener("click", onClick, true);
+    injectionDiv.removeEventListener("contextmenu", onContextMenu, true);
+    window.removeEventListener("keydown", onKeyDown, true);
+    window.removeEventListener("keyup", onKeyUp, true);
+    window.removeEventListener("blur", onWindowBlur);
+    window.removeEventListener("pointerup", onPointerUp, true);
+    window.removeEventListener("pointercancel", onPointerCancel, true);
+  };
+}
+
+function patchMultiselectDraggableForBlockly12(
+  workspace: Blockly.WorkspaceSvg,
+  plugin: MultiselectWithInternals
+): () => void {
+  const multiDraggable = plugin.controls_?.multiDraggable;
+  if (!multiDraggable) return () => {};
+
+  const focusElement = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "rect"
+  );
+  focusElement.setAttribute("id", `blockly-multiselect-${workspace.id}`);
+  focusElement.setAttribute("width", "1");
+  focusElement.setAttribute("height", "1");
+  focusElement.setAttribute("opacity", "0");
+  focusElement.setAttribute("pointer-events", "none");
+  focusElement.setAttribute("aria-hidden", "true");
+  workspace.getCanvas().appendChild(focusElement);
+
+  const workspaceWithLookup = workspace as unknown as {
+    lookUpFocusableNode: (id: string) => unknown;
+  };
+  const originalLookUpFocusableNode =
+    workspaceWithLookup.lookUpFocusableNode.bind(workspaceWithLookup);
+  const originalSelect = multiDraggable.select.bind(multiDraggable);
+  const originalUnselect = multiDraggable.unselect.bind(multiDraggable);
+  const originalShowContextMenu = multiDraggable.showContextMenu;
+
+  workspaceWithLookup.lookUpFocusableNode = (id: string): unknown => {
+    if (id === focusElement.id) return multiDraggable;
+    return originalLookUpFocusableNode(id);
+  };
+
+  multiDraggable.getFocusableElement = () => focusElement;
+  multiDraggable.getFocusableTree = () => workspace;
+  multiDraggable.canBeFocused = () =>
+    (dragSelectionWeakMap.get(workspace)?.size || 0) > 0;
+  multiDraggable.select = () => {
+    setMultiselectVisualState(multiDraggable, true);
+  };
+  multiDraggable.unselect = () => {
+    setMultiselectVisualState(multiDraggable, false);
+  };
+  multiDraggable.onNodeFocus = () => {
+    multiDraggable.select();
+    workspace.scrollBoundsIntoView(multiDraggable.getBoundingRectangle());
+  };
+  multiDraggable.onNodeBlur = () => {
+    if (hasMultiselectSelection(workspace)) {
+      setMultiselectVisualState(multiDraggable, true);
+      return;
+    }
+
+    multiDraggable.unselect();
+  };
+  multiDraggable.showContextMenu = (event: Event) => {
+    const eventBlock =
+      event instanceof MouseEvent ? getEventBlock(workspace, event) : null;
+    const fallbackBlock = getFirstSelectedBlock(workspace, multiDraggable);
+    (eventBlock || fallbackBlock)?.showContextMenu(event);
+  };
+
+  return () => {
+    workspaceWithLookup.lookUpFocusableNode = originalLookUpFocusableNode;
+    multiDraggable.select = originalSelect;
+    multiDraggable.unselect = originalUnselect;
+    delete multiDraggable.getFocusableElement;
+    delete multiDraggable.getFocusableTree;
+    delete multiDraggable.onNodeFocus;
+    delete multiDraggable.onNodeBlur;
+    delete multiDraggable.canBeFocused;
+    if (originalShowContextMenu) {
+      multiDraggable.showContextMenu = originalShowContextMenu;
+    } else {
+      delete multiDraggable.showContextMenu;
+    }
+    focusElement.remove();
+  };
+}
+
+function isMultiselectKey(event: KeyboardEvent): boolean {
+  return NORMALIZED_MULTI_SELECT_KEYS.includes(event.key.toLocaleLowerCase());
+}
+
+function isEditableTarget(target: EventTarget | null): boolean {
+  if (!(target instanceof HTMLElement)) return false;
+
+  return (
+    target.isContentEditable ||
+    target.tagName === "INPUT" ||
+    target.tagName === "TEXTAREA" ||
+    target.tagName === "SELECT" ||
+    target.classList.contains("blocklyHtmlInput")
+  );
+}
+
+function getEventBlock(
+  workspace: Blockly.WorkspaceSvg,
+  event: MouseEvent
+): Blockly.BlockSvg | null {
+  const target = event.target;
+  if (!(target instanceof Element)) return null;
+
+  const blockGroup = target.closest<SVGGElement>(
+    "g.blocklyDraggable[data-id]"
+  );
+  if (!blockGroup || !workspace.getInjectionDiv().contains(blockGroup)) {
+    return null;
+  }
+
+  const blockId = blockGroup.dataset.id;
+  if (!blockId) return null;
+
+  const block = workspace.getBlockById(blockId);
+  if (!(block instanceof Blockly.BlockSvg)) return null;
+  if (!canToggleBlock(block)) return null;
+
+  return block;
+}
+
+function getFirstSelectedBlock(
+  workspace: Blockly.WorkspaceSvg,
+  multiDraggable: MultiselectDraggableCompat
+): Blockly.BlockSvg | null {
+  for (const [draggable] of multiDraggable.subDraggables) {
+    if (draggable instanceof Blockly.BlockSvg && draggable.workspace === workspace) {
+      return draggable;
+    }
+  }
+
+  return null;
+}
+
+function canToggleBlock(block: Blockly.BlockSvg): boolean {
+  return (
+    !block.isInFlyout &&
+    !block.isInsertionMarker() &&
+    !block.isShadow() &&
+    (block.isMovable() || block.isDeletable())
+  );
+}
+
+function includeCurrentSelectedBlock(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals,
+  exceptBlockId?: string
+): void {
+  const selected = Blockly.getSelected();
+  if (!(selected instanceof Blockly.BlockSvg)) return;
+  if (selected.workspace !== workspace || selected.id === exceptBlockId) return;
+  if (!canToggleBlock(selected)) return;
+
+  const selectedBlocks = dragSelectionWeakMap.get(workspace);
+  if (selectedBlocks?.has(selected.id)) return;
+
+  controls.updateDraggables_(selected);
+}
+
+function focusMultiselectDraggable(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals
+): void {
+  const selectedBlocks = dragSelectionWeakMap.get(workspace);
+  const multiDraggable = controls.multiDraggable;
+  if (!selectedBlocks?.size || !multiDraggable) return;
+
+  setMultiselectVisualState(multiDraggable, true);
+  (Blockly.common.setSelected as unknown as (newSelection: unknown) => void)(
+    multiDraggable
+  );
+}
+
+function clearMultiselectSelection(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals | null
+): void {
+  const multiDraggable = controls?.multiDraggable;
+  if (multiDraggable) {
+    setMultiselectVisualState(multiDraggable, false);
+    multiDraggable.clearAll_();
+  }
+
+  dragSelectionWeakMap.get(workspace)?.clear();
+  focusWorkspace(workspace);
+}
+
+function replaceMultiselectSelection(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals,
+  pastedDraggables: unknown[]
+): void {
+  const selectedIds = dragSelectionWeakMap.get(workspace);
+  const multiDraggable = controls.multiDraggable;
+  if (!selectedIds || !multiDraggable) return;
+
+  multiDraggable.clearAll_();
+  selectedIds.clear();
+
+  for (const draggable of getUniqueSelectableDraggables(
+    workspace,
+    pastedDraggables
+  )) {
+    selectedIds.add(getDraggableId(draggable));
+    multiDraggable.addSubDraggable_(draggable);
+    setDraggableVisualState(draggable, true);
+  }
+
+  for (const block of workspace.getAllBlocks(false)) {
+    if (!selectedIds.has(block.id)) {
+      block.pathObject.updateSelected(false);
+    }
+  }
+
+  if (selectedIds.size) {
+    focusMultiselectDraggable(workspace, controls);
+  } else {
+    focusWorkspace(workspace);
+  }
+}
+
+function focusWorkspace(workspace: Blockly.WorkspaceSvg): void {
+  (
+    Blockly.getFocusManager as unknown as () => {
+      focusNode: (node: unknown) => void;
+    }
+  )().focusNode(workspace);
+}
+
+function hasMultiselectSelection(workspace: Blockly.WorkspaceSvg): boolean {
+  return Boolean(dragSelectionWeakMap.get(workspace)?.size);
+}
+
+function getUniqueSelectableDraggables(
+  workspace: Blockly.WorkspaceSvg,
+  draggables: unknown[]
+): unknown[] {
+  const uniqueDraggables = new Map<string, unknown>();
+
+  for (const draggable of draggables) {
+    if (!isSelectableCopiedDraggable(workspace, draggable)) continue;
+    uniqueDraggables.set(getDraggableId(draggable), draggable);
+  }
+
+  return [...uniqueDraggables.values()];
+}
+
+function isSelectableCopiedDraggable(
+  workspace: Blockly.WorkspaceSvg,
+  draggable: unknown
+): boolean {
+  if (draggable instanceof Blockly.BlockSvg) {
+    return (
+      draggable.workspace === workspace &&
+      draggable.type !== "drag_to_dupe" &&
+      canToggleBlock(draggable)
+    );
+  }
+
+  const maybeDraggable = draggable as {
+    id?: unknown;
+    workspace?: unknown;
+    isMovable?: () => boolean;
+    isDeletable?: () => boolean;
+    getRelativeToSurfaceXY?: () => unknown;
+  };
+
+  return (
+    maybeDraggable.workspace === workspace &&
+    typeof maybeDraggable.id === "string" &&
+    typeof maybeDraggable.getRelativeToSurfaceXY === "function" &&
+    (maybeDraggable.isMovable?.() === true ||
+      maybeDraggable.isDeletable?.() === true)
+  );
+}
+
+function getDraggableId(draggable: unknown): string {
+  if (draggable instanceof Blockly.BlockSvg) {
+    return draggable.id;
+  }
+
+  return (draggable as { id: string }).id;
+}
+
+function syncMultiselectSelectionFromIds(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals
+): void {
+  const selectedIds = dragSelectionWeakMap.get(workspace);
+  const multiDraggable = controls.multiDraggable;
+  if (!selectedIds?.size || !multiDraggable) return;
+
+  for (const [draggable] of [...multiDraggable.subDraggables]) {
+    const blockId =
+      draggable instanceof Blockly.BlockSvg ? draggable.id : undefined;
+    if (!blockId || selectedIds.has(blockId)) continue;
+
+    setDraggableVisualState(draggable, false);
+    multiDraggable.removeSubDraggable_(draggable);
+  }
+
+  for (const id of selectedIds) {
+    const block = workspace.getBlockById(id);
+    if (!(block instanceof Blockly.BlockSvg)) continue;
+
+    if (!multiDraggable.subDraggables.has(block)) {
+      multiDraggable.addSubDraggable_(block);
+    }
+    block.pathObject.updateSelected(true);
+  }
+
+  for (const block of workspace.getAllBlocks(false)) {
+    if (!selectedIds.has(block.id)) {
+      block.pathObject.updateSelected(false);
+    }
+  }
+}
+
+function setMultiselectVisualState(
+  multiDraggable: MultiselectDraggableCompat,
+  selected: boolean
+): void {
+  for (const [draggable] of multiDraggable.subDraggables) {
+    setDraggableVisualState(draggable, selected);
+  }
+}
+
+function setDraggableVisualState(draggable: unknown, selected: boolean): void {
+  if (draggable instanceof Blockly.BlockSvg) {
+    draggable.pathObject.updateSelected(selected);
+    return;
+  }
+
+  const selectable = draggable as {
+    select?: () => void;
+    unselect?: () => void;
+  };
+  if (selected) selectable.select?.();
+  else selectable.unselect?.();
+}

@@ -18,6 +18,7 @@
     "@blockly/plugin-workspace-search": "^10.1.7",
     "@blockly/workspace-backpack": "^7.0.9",
     "@blockly/workspace-minimap": "^0.3.8",
+    "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
     "blockly": "^12.2.0",
     "element-plus": "^2.13.0",
     "vue": "^3.5.26"
