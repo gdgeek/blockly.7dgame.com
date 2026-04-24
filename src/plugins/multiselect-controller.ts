@@ -380,7 +380,6 @@ function bindStableGestureBridge(
     const hasSelection = Boolean(selectedBlockIds?.size);
     const isBlockInSelection = Boolean(block && selectedBlockIds?.has(block.id));
     const isShiftSelection = event.shiftKey || isMultiselectKeyPressed;
-    const wasInMultipleSelectionMode = isInMultipleSelectionMode();
 
     if (event.button === 2 && hasSelection) {
       const controls = getControls();
@@ -421,9 +420,7 @@ function bindStableGestureBridge(
     enableMultiselect();
 
     if (!block) {
-      if (!wasInMultipleSelectionMode) {
-        replayPointerDownForDragSelect(event);
-      }
+      replayPointerDownForDragSelect(event);
       return;
     }
 
