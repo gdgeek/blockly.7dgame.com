@@ -38,6 +38,10 @@ interface MultiselectDraggableCompat {
   showContextMenu?: (event: Event) => void;
 }
 
+interface BlocklySelectionApi {
+  setSelected: (newSelection: unknown | null) => void;
+}
+
 const MULTI_SELECT_KEYS = ["Shift"];
 const NORMALIZED_MULTI_SELECT_KEYS = MULTI_SELECT_KEYS.map((key) =>
   key.toLocaleLowerCase()
@@ -117,6 +121,8 @@ function bindStableGestureBridge(
   let contextMenuSuppressTimer: ReturnType<typeof setTimeout> | null = null;
   let selectionSyncTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
+  const selectionApi = Blockly.common as unknown as BlocklySelectionApi;
+  const originalSetSelected = selectionApi.setSelected;
 
   const getControls = (): MultiselectControlsInternals | null =>
     plugin.controls_ || null;
@@ -126,6 +132,42 @@ function bindStableGestureBridge(
 
   const getSelectedBlockIds = (): Set<string> | null =>
     dragSelectionWeakMap.get(workspace) || null;
+
+  const restoreMultiselectSelection = (
+    controls = getControls()
+  ): void => {
+    if (!controls?.multiDraggable || !hasMultiselectSelection(workspace)) {
+      return;
+    }
+
+    syncMultiselectSelectionFromIds(workspace, controls);
+    setMultiselectVisualState(controls.multiDraggable, true);
+    originalSetSelected(controls.multiDraggable);
+  };
+
+  const setSelectedWithMultiselectPreservation = (
+    newSelection: unknown | null
+  ): void => {
+    const controls = getControls();
+    const selectedBlockIds = getSelectedBlockIds();
+    const isSelectingMultiselect =
+      Boolean(controls?.multiDraggable) &&
+      newSelection === controls?.multiDraggable;
+    const shouldRestoreMultiselect =
+      newSelection instanceof Blockly.BlockSvg &&
+      newSelection.workspace === workspace &&
+      !isInMultipleSelectionMode() &&
+      (selectedBlockIds?.size || 0) > 1 &&
+      selectedBlockIds?.has(newSelection.id);
+
+    originalSetSelected(newSelection);
+
+    if (isSelectingMultiselect || shouldRestoreMultiselect) {
+      restoreMultiselectSelection(controls);
+    }
+  };
+
+  selectionApi.setSelected = setSelectedWithMultiselectPreservation;
 
   const enableMultiselect = (includeSelectedBlock = true): void => {
     const controls = getControls();
@@ -158,8 +200,7 @@ function bindStableGestureBridge(
     const controls = getControls();
     if (!controls) return;
 
-    syncMultiselectSelectionFromIds(workspace, controls);
-    focusMultiselectDraggable(workspace, controls);
+    restoreMultiselectSelection(controls);
   };
 
   const scheduleSelectionSync = (): void => {
@@ -329,6 +370,9 @@ function bindStableGestureBridge(
   return () => {
     if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
     if (selectionSyncTimer) clearTimeout(selectionSyncTimer);
+    if (selectionApi.setSelected === setSelectedWithMultiselectPreservation) {
+      selectionApi.setSelected = originalSetSelected;
+    }
     workspace.removeChangeListener(onWorkspaceChange);
     injectionDiv.removeEventListener("pointerdown", onPointerDown, true);
     injectionDiv.removeEventListener("click", onClick, true);
