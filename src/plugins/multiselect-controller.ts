@@ -243,6 +243,7 @@ function bindStableGestureBridge(
   let contextMenuSuppressTimer: ReturnType<typeof setTimeout> | null = null;
   let selectionSyncTimer: ReturnType<typeof setTimeout> | null = null;
   let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
+  let isReplayingShiftPointerDown = false;
   const selectionApi = Blockly.common as unknown as BlocklySelectionApi;
   const originalSetSelected = selectionApi.setSelected;
 
@@ -335,6 +336,22 @@ function bindStableGestureBridge(
     selectionSyncTimer = setTimeout(syncSelectionAfterBlocklyFocus, 0);
   };
 
+  const replayPointerDownForDragSelect = (event: PointerEvent): void => {
+    const target = event.target;
+    if (!(target instanceof EventTarget)) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+
+    isReplayingShiftPointerDown = true;
+    try {
+      target.dispatchEvent(createReplayedPointerDown(event));
+    } finally {
+      isReplayingShiftPointerDown = false;
+    }
+  };
+
   const onKeyDown = (event: KeyboardEvent): void => {
     if (!isMultiselectKey(event) || event.repeat) return;
 
@@ -356,11 +373,14 @@ function bindStableGestureBridge(
   };
 
   const onPointerDown = (event: PointerEvent): void => {
+    if (isReplayingShiftPointerDown) return;
+
     const block = getEventBlock(workspace, event);
     const selectedBlockIds = getSelectedBlockIds();
     const hasSelection = Boolean(selectedBlockIds?.size);
     const isBlockInSelection = Boolean(block && selectedBlockIds?.has(block.id));
     const isShiftSelection = event.shiftKey || isMultiselectKeyPressed;
+    const wasInMultipleSelectionMode = isInMultipleSelectionMode();
 
     if (event.button === 2 && hasSelection) {
       const controls = getControls();
@@ -401,6 +421,9 @@ function bindStableGestureBridge(
     enableMultiselect();
 
     if (!block) {
+      if (!wasInMultipleSelectionMode) {
+        replayPointerDownForDragSelect(event);
+      }
       return;
     }
 
@@ -606,6 +629,34 @@ function isEditableTarget(target: EventTarget | null): boolean {
     target.tagName === "SELECT" ||
     target.classList.contains("blocklyHtmlInput")
   );
+}
+
+function createReplayedPointerDown(event: PointerEvent): PointerEvent {
+  return new PointerEvent("pointerdown", {
+    bubbles: true,
+    cancelable: true,
+    composed: true,
+    pointerId: event.pointerId,
+    pointerType: event.pointerType,
+    isPrimary: event.isPrimary,
+    button: event.button,
+    buttons: event.buttons,
+    clientX: event.clientX,
+    clientY: event.clientY,
+    screenX: event.screenX,
+    screenY: event.screenY,
+    ctrlKey: event.ctrlKey,
+    shiftKey: event.shiftKey,
+    altKey: event.altKey,
+    metaKey: event.metaKey,
+    width: event.width,
+    height: event.height,
+    pressure: event.pressure,
+    tangentialPressure: event.tangentialPressure,
+    tiltX: event.tiltX,
+    tiltY: event.tiltY,
+    twist: event.twist,
+  });
 }
 
 function getEventBlock(
