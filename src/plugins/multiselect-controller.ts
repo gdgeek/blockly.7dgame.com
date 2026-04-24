@@ -40,6 +40,13 @@ const MULTI_SELECT_KEYS = ["Shift"];
 const NORMALIZED_MULTI_SELECT_KEYS = MULTI_SELECT_KEYS.map((key) =>
   key.toLocaleLowerCase()
 );
+const WORKSPACE_CLICK_MAX_DISTANCE = 4;
+
+interface PendingWorkspaceClick {
+  pointerId: number;
+  clientX: number;
+  clientY: number;
+}
 
 export function createMultiselectController(
   workspace: Blockly.WorkspaceSvg
@@ -104,6 +111,9 @@ function bindStableGestureBridge(
   const injectionDiv = workspace.getInjectionDiv();
   let isMultiselectKeyPressed = false;
   let shouldSuppressNextClick = false;
+  let shouldSuppressNextContextMenu = false;
+  let contextMenuSuppressTimer: ReturnType<typeof setTimeout> | null = null;
+  let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
 
   const getControls = (): MultiselectControlsInternals | null =>
     plugin.controls_ || null;
@@ -156,17 +166,43 @@ function bindStableGestureBridge(
   };
 
   const onPointerDown = (event: PointerEvent): void => {
-    if (event.button !== 0) return;
-
     const block = getEventBlock(workspace, event);
     const selectedBlockIds = getSelectedBlockIds();
     const hasSelection = Boolean(selectedBlockIds?.size);
     const isBlockInSelection = Boolean(block && selectedBlockIds?.has(block.id));
     const isShiftSelection = event.shiftKey || isMultiselectKeyPressed;
 
+    if (event.button === 2 && hasSelection) {
+      const controls = getControls();
+      if (!controls?.multiDraggable) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+      shouldSuppressNextContextMenu = true;
+      if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
+      contextMenuSuppressTimer = setTimeout(() => {
+        shouldSuppressNextContextMenu = false;
+        contextMenuSuppressTimer = null;
+      }, 500);
+      pendingWorkspaceClick = null;
+      disableMultiselect(true);
+      focusMultiselectDraggable(workspace, controls);
+      controls.multiDraggable.showContextMenu?.(event);
+      return;
+    }
+
+    if (event.button !== 0) return;
+
     if (!isShiftSelection) {
       disableMultiselect(isBlockInSelection);
-      if (!block || !isBlockInSelection) {
+      if (!block && hasSelection) {
+        pendingWorkspaceClick = {
+          pointerId: event.pointerId,
+          clientX: event.clientX,
+          clientY: event.clientY,
+        };
+      } else if (block && !isBlockInSelection) {
         clearMultiselectSelection(workspace, getControls());
       }
       return;
@@ -199,6 +235,29 @@ function bindStableGestureBridge(
     if (!event.shiftKey && !isMultiselectKeyPressed) {
       disableMultiselect();
     }
+
+    if (
+      !pendingWorkspaceClick ||
+      event.pointerId !== pendingWorkspaceClick.pointerId
+    ) {
+      return;
+    }
+
+    const moveDistance = Math.hypot(
+      event.clientX - pendingWorkspaceClick.clientX,
+      event.clientY - pendingWorkspaceClick.clientY
+    );
+    pendingWorkspaceClick = null;
+
+    if (moveDistance <= WORKSPACE_CLICK_MAX_DISTANCE) {
+      clearMultiselectSelection(workspace, getControls());
+    }
+  };
+
+  const onPointerCancel = (event: PointerEvent): void => {
+    if (pendingWorkspaceClick?.pointerId === event.pointerId) {
+      pendingWorkspaceClick = null;
+    }
   };
 
   const onClick = (event: MouseEvent): void => {
@@ -210,20 +269,38 @@ function bindStableGestureBridge(
     shouldSuppressNextClick = false;
   };
 
+  const onContextMenu = (event: MouseEvent): void => {
+    if (!shouldSuppressNextContextMenu) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    shouldSuppressNextContextMenu = false;
+    if (contextMenuSuppressTimer) {
+      clearTimeout(contextMenuSuppressTimer);
+      contextMenuSuppressTimer = null;
+    }
+  };
+
   injectionDiv.addEventListener("pointerdown", onPointerDown, true);
   injectionDiv.addEventListener("click", onClick, true);
+  injectionDiv.addEventListener("contextmenu", onContextMenu, true);
   window.addEventListener("keydown", onKeyDown, true);
   window.addEventListener("keyup", onKeyUp, true);
   window.addEventListener("blur", onWindowBlur);
   window.addEventListener("pointerup", onPointerUp, true);
+  window.addEventListener("pointercancel", onPointerCancel, true);
 
   return () => {
+    if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
     injectionDiv.removeEventListener("pointerdown", onPointerDown, true);
     injectionDiv.removeEventListener("click", onClick, true);
+    injectionDiv.removeEventListener("contextmenu", onContextMenu, true);
     window.removeEventListener("keydown", onKeyDown, true);
     window.removeEventListener("keyup", onKeyUp, true);
     window.removeEventListener("blur", onWindowBlur);
     window.removeEventListener("pointerup", onPointerUp, true);
+    window.removeEventListener("pointercancel", onPointerCancel, true);
   };
 }
 
