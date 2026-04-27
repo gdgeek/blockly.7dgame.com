@@ -14,11 +14,19 @@ interface MultiselectControlsInternals {
   disableMultiselect: () => void;
   updateDraggables_: (draggable: unknown) => void;
   multiDraggable?: MultiselectDraggableCompat;
+  dragSelect_?: DragSelectCompat | null;
 }
 
 type MultiselectWithInternals = Multiselect & {
   controls_?: MultiselectControlsInternals;
 };
+
+interface DragSelectCompat {
+  Interaction?: {
+    isInteracting?: boolean;
+    start?: (event: PointerEvent) => void;
+  };
+}
 
 interface MultiselectDraggableCompat {
   id: string;
@@ -79,7 +87,6 @@ export function createMultiselectController(
       },
       multiselectIcon: {
         hideIcon: true,
-        weight: 3,
       },
     });
 
@@ -293,10 +300,19 @@ function bindStableGestureBridge(
 
   const enableMultiselect = (includeSelectedBlock = true): void => {
     const controls = getControls();
-    if (!controls || isInMultipleSelectionMode()) return;
-    controls.enableMultiselect();
-    if (includeSelectedBlock) {
-      includeCurrentSelectedBlock(workspace, controls);
+    if (!controls) return;
+
+    const selectedBlock = includeSelectedBlock
+      ? getCurrentSelectedBlock(workspace)
+      : null;
+
+    if (!isInMultipleSelectionMode()) {
+      controls.enableMultiselect();
+    }
+
+    if (selectedBlock) {
+      includeBlockInMultiselect(workspace, controls, selectedBlock);
+      setDraggableVisualState(selectedBlock, true);
     }
   };
 
@@ -351,9 +367,13 @@ function bindStableGestureBridge(
   };
 
   const onPointerDown = (event: PointerEvent): void => {
+    if (isWorkspaceControlTarget(event.target)) return;
+
     const block = getEventBlock(workspace, event);
     const selectedBlockIds = getSelectedBlockIds();
+    const currentSelectedBlock = getCurrentSelectedBlock(workspace);
     const hasSelection = Boolean(selectedBlockIds?.size);
+    const hasBlockSelection = hasSelection || Boolean(currentSelectedBlock);
     const isBlockInSelection = Boolean(block && selectedBlockIds?.has(block.id));
     const isShiftSelection = event.shiftKey || isMultiselectKeyPressed;
 
@@ -396,6 +416,12 @@ function bindStableGestureBridge(
     enableMultiselect();
 
     if (!block) {
+      if (hasBlockSelection) {
+        shouldSuppressNextClick = beginDragSelectionFromPointerDown(
+          event,
+          getControls()
+        );
+      }
       return;
     }
 
@@ -516,14 +542,12 @@ function patchMultiselectDraggableForBlockly12(
 
   const focusElement = document.createElementNS(
     "http://www.w3.org/2000/svg",
-    "rect"
+    "g"
   );
   focusElement.setAttribute("id", `blockly-multiselect-${workspace.id}`);
-  focusElement.setAttribute("width", "1");
-  focusElement.setAttribute("height", "1");
-  focusElement.setAttribute("opacity", "0");
   focusElement.setAttribute("pointer-events", "none");
   focusElement.setAttribute("aria-hidden", "true");
+  focusElement.style.outline = "none";
   workspace.getCanvas().appendChild(focusElement);
 
   const workspaceWithLookup = workspace as unknown as {
@@ -603,6 +627,40 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+function isWorkspaceControlTarget(target: EventTarget | null): boolean {
+  return (
+    target instanceof Element &&
+    Boolean(
+      target.closest(
+        [
+          ".blocklyBackpack",
+          ".blocklyMultiselect",
+          ".blocklyShiftMultiselectHint",
+          ".blocklyTrash",
+          ".blocklyZoom",
+        ].join(",")
+      )
+    )
+  );
+}
+
+function beginDragSelectionFromPointerDown(
+  event: PointerEvent,
+  controls: MultiselectControlsInternals | null
+): boolean {
+  // When multiselect is enabled during this pointerdown, DragSelect misses it.
+  const interaction = controls?.dragSelect_?.Interaction;
+  if (!interaction?.start || interaction.isInteracting) return false;
+
+  interaction.start(event);
+  if (!interaction.isInteracting) return false;
+
+  event.preventDefault();
+  event.stopPropagation();
+  event.stopImmediatePropagation();
+  return true;
+}
+
 function getEventBlock(
   workspace: Blockly.WorkspaceSvg,
   event: MouseEvent
@@ -654,15 +712,32 @@ function includeCurrentSelectedBlock(
   controls: MultiselectControlsInternals,
   exceptBlockId?: string
 ): void {
+  const selected = getCurrentSelectedBlock(workspace);
+  if (!selected || selected.id === exceptBlockId) return;
+
+  includeBlockInMultiselect(workspace, controls, selected);
+}
+
+function getCurrentSelectedBlock(
+  workspace: Blockly.WorkspaceSvg
+): Blockly.BlockSvg | null {
   const selected = Blockly.getSelected();
-  if (!(selected instanceof Blockly.BlockSvg)) return;
-  if (selected.workspace !== workspace || selected.id === exceptBlockId) return;
-  if (!canToggleBlock(selected)) return;
+  if (!(selected instanceof Blockly.BlockSvg)) return null;
+  if (selected.workspace !== workspace) return null;
+  if (!canToggleBlock(selected)) return null;
 
+  return selected;
+}
+
+function includeBlockInMultiselect(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals,
+  block: Blockly.BlockSvg
+): void {
   const selectedBlocks = dragSelectionWeakMap.get(workspace);
-  if (selectedBlocks?.has(selected.id)) return;
+  if (selectedBlocks?.has(block.id)) return;
 
-  controls.updateDraggables_(selected);
+  controls.updateDraggables_(block);
 }
 
 function focusMultiselectDraggable(

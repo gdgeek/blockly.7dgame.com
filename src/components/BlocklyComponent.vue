@@ -13,7 +13,7 @@
       @mouseenter="minimapActions.show"
       @click="minimapActions.show"
       @mouseleave="minimapActions.hide"
-      title="Minimap"
+      aria-label="Minimap"
     >
       <img src="/media/map.svg" alt="Map" />
     </div>

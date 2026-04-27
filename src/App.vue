@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" :class="{ dark: isDark }">
     <BlocklyComponent
       v-if="options"
       id="blockly"
@@ -58,7 +58,7 @@ window.BlobBuilder =
   window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
 
 const { postMessage, postResponse, onMessage } = useMessageBridge();
-const { setDark } = useTheme();
+const { setDark, isDark } = useTheme();
 
 const buildTime: string = __BUILD_TIME__;
 const { generateAll } = useCodeGenerator();
@@ -210,7 +210,14 @@ defineExpose({
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: #2c3e50;
-  background: #edf2f8;
+  background: #f9fafb;
+  width: 100%;
+  height: 100%;
+  transition: background-color 0.18s ease;
+}
+
+#app.dark {
+  background: #111827;
 }
 
 html,

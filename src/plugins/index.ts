@@ -1,6 +1,7 @@
 import { onBeforeUnmount } from "vue";
 import { strategies } from "./strategies";
 import { MinimapController } from "./minimap-controller";
+import { createWorkspaceControlHints } from "./workspace-control-hints";
 import type Blockly from "blockly";
 
 interface PluginOptions {
@@ -31,6 +32,7 @@ interface PluginManager {
 export function usePluginManager(): PluginManager {
   const minimapCtrl = new MinimapController();
   let multiselectPlugin: DisposablePlugin | null = null;
+  let workspaceControlHints: DisposablePlugin | null = null;
 
   // 对外暴露的 API
   const initPlugins = (
@@ -50,12 +52,16 @@ export function usePluginManager(): PluginManager {
 
     // 2. 初始化 Minimap (需要 DOM 引用)
     minimapCtrl.init(workspace, blocklyDiv, options);
+
+    workspaceControlHints = createWorkspaceControlHints(workspace, blocklyDiv);
   };
 
   // 自动清理逻辑
   onBeforeUnmount(() => {
     multiselectPlugin?.dispose();
     multiselectPlugin = null;
+    workspaceControlHints?.dispose();
+    workspaceControlHints = null;
     minimapCtrl.dispose();
   });
 
