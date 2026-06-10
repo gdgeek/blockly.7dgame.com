@@ -170,48 +170,6 @@ Msg.DATA_TRANSFORM_DATA = {
   "zh-TW": "位置 %1 旋轉 %2 縮放 %3",
   "th-TH": "ตำแหน่ง %1 หมุน %2 ขนาด %3",
 };
-Msg.DATA_TRANSFORM_PART_POSITION = {
-  "zh-CN": "位置",
-  "en-US": "Position",
-  "ja-JP": "位置",
-  "zh-TW": "位置",
-  "th-TH": "ตำแหน่ง",
-};
-Msg.DATA_TRANSFORM_PART_ROTATE = {
-  "zh-CN": "旋转",
-  "en-US": "Rotation",
-  "ja-JP": "回転",
-  "zh-TW": "旋轉",
-  "th-TH": "หมุน",
-};
-Msg.DATA_TRANSFORM_PART_SCALE = {
-  "zh-CN": "缩放",
-  "en-US": "Scale",
-  "ja-JP": "スケール",
-  "zh-TW": "縮放",
-  "th-TH": "ขนาด",
-};
-Msg.DATA_TRANSFORM_MUTATOR_TITLE = {
-  "zh-CN": "调整空间数据",
-  "en-US": "Edit transform data",
-  "ja-JP": "空間データを調整",
-  "zh-TW": "調整空間資料",
-  "th-TH": "แก้ไขข้อมูลตำแหน่ง",
-};
-Msg.DATA_TRANSFORM_MUTATOR_TOOLTIP = {
-  "zh-CN": "拖入需要修改的参数；未加入的参数会保持物体原来的值。",
-  "en-US": "Drag in the properties to change. Properties not included keep the object's current value.",
-  "ja-JP": "変更したい項目を追加します。追加していない項目は元の値を保持します。",
-  "zh-TW": "拖入需要修改的參數；未加入的參數會保持物體原來的值。",
-  "th-TH": "ลากคุณสมบัติที่ต้องการเปลี่ยนเข้ามา ส่วนที่ไม่เพิ่มจะคงค่าเดิมของวัตถุ",
-};
-Msg.DATA_TRANSFORM_PART_TOOLTIP = {
-  "zh-CN": "把这个参数加入空间数据。",
-  "en-US": "Adds this property to the transform data.",
-  "ja-JP": "この項目を空間データに追加します。",
-  "zh-TW": "把這個參數加入空間資料。",
-  "th-TH": "เพิ่มคุณสมบัตินี้ลงในข้อมูลตำแหน่ง",
-};
 
 // 任务
 export const TASK_NAME: LocalizedMessages = {
