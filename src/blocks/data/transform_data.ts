@@ -204,11 +204,21 @@ const block: BlockDefinition = {
           itemBlock = itemBlock.getNextBlock();
         }
 
+        const removedParts = this.transformParts_.filter(
+          (partName) => !parts.includes(partName)
+        );
+        for (const partName of removedParts) {
+          const input = this.getInput(partName);
+          input?.connection?.targetConnection?.disconnect();
+        }
+
         this.transformParts_ = parts;
         this.updateShape_();
 
         for (const [partName, connection] of connections) {
-          connection.reconnect(this, partName);
+          if (this.getInput(partName)) {
+            connection.reconnect(this, partName);
+          }
         }
       },
       saveConnections: function (
