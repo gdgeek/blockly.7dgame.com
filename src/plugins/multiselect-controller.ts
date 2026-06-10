@@ -126,7 +126,7 @@ function patchCopiedSelectionRestoration(
   const restoreCallbacks: Array<() => void> = [];
   const restoreTimers = new Set<ReturnType<typeof setTimeout>>();
 
-  const wrapCallback = (container: CallbackContainer | null): void => {
+  const wrapPasteCallback = (container: CallbackContainer | null): void => {
     const originalCallback = container?.callback;
     if (!container || !originalCallback) return;
 
@@ -148,15 +148,45 @@ function patchCopiedSelectionRestoration(
     });
   };
 
+  const wrapSelectionPreservingCallback = (
+    container: CallbackContainer | null
+  ): void => {
+    const originalCallback = container?.callback;
+    if (!container || !originalCallback) return;
+
+    container.callback = function (...args: unknown[]): unknown {
+      const scopedBlock = getContextMenuScopeBlock(workspace, args[0]);
+      try {
+        return originalCallback.apply(this, args);
+      } finally {
+        if (scopedBlock) {
+          scheduleBlockSelectionRestore(workspace, scopedBlock, restoreTimers);
+        }
+      }
+    };
+
+    restoreCallbacks.push(() => {
+      if (container.callback) {
+        container.callback = originalCallback;
+      }
+    });
+  };
+
   for (const id of ["blockDuplicate", "blockPasteFromStorage"]) {
-    wrapCallback(
+    wrapPasteCallback(
       Blockly.ContextMenuRegistry.registry.getItem(
         id
       ) as CallbackContainer | null
     );
   }
 
-  wrapCallback(
+  wrapSelectionPreservingCallback(
+    Blockly.ContextMenuRegistry.registry.getItem(
+      "blockCopyToStorage"
+    ) as CallbackContainer | null
+  );
+
+  wrapPasteCallback(
     Blockly.ShortcutRegistry.registry.getRegistry()[
       "multiselectPaste"
     ] as CallbackContainer | null
@@ -211,6 +241,21 @@ function scheduleCopiedSelectionRestore(
   restoreTimers: Set<ReturnType<typeof setTimeout>>
 ): void {
   const restore = (): void => {
+    const shouldRestoreMultiselect =
+      (dragSelectionWeakMap.get(workspace)?.size || 0) > 1 ||
+      pastedDraggables.length > 1;
+
+    if (
+      !shouldRestoreMultiselect &&
+      restoreSinglePastedBlockSelection(
+        workspace,
+        plugin.controls_ || null,
+        pastedDraggables
+      )
+    ) {
+      return;
+    }
+
     const controls = plugin.controls_;
     if (!controls) return;
     replaceMultiselectSelection(workspace, controls, pastedDraggables);
@@ -219,13 +264,70 @@ function scheduleCopiedSelectionRestore(
   restore();
   queueMicrotask(restore);
 
-  for (const delay of [0, 50]) {
+  for (const delay of [0, 50, 150]) {
     const timer = setTimeout(() => {
       restoreTimers.delete(timer);
       restore();
     }, delay);
     restoreTimers.add(timer);
   }
+}
+
+function getContextMenuScopeBlock(
+  workspace: Blockly.WorkspaceSvg,
+  scope: unknown
+): Blockly.BlockSvg | null {
+  const block = (scope as { block?: unknown } | null)?.block;
+  if (!(block instanceof Blockly.BlockSvg)) return null;
+  if (block.workspace !== workspace || block.isDisposed()) return null;
+  return block;
+}
+
+function restoreSinglePastedBlockSelection(
+  workspace: Blockly.WorkspaceSvg,
+  controls: MultiselectControlsInternals | null,
+  pastedDraggables: unknown[]
+): boolean {
+  const selectableDraggables = getUniqueSelectableDraggables(
+    workspace,
+    pastedDraggables
+  );
+  if (selectableDraggables.length !== 1) return false;
+
+  const block = selectableDraggables[0];
+  if (!(block instanceof Blockly.BlockSvg)) return false;
+
+  clearMultiselectSelection(workspace, controls);
+  restoreBlockSelection(workspace, block);
+  return true;
+}
+
+function scheduleBlockSelectionRestore(
+  workspace: Blockly.WorkspaceSvg,
+  block: Blockly.BlockSvg,
+  restoreTimers: Set<ReturnType<typeof setTimeout>>
+): void {
+  queueMicrotask(() => restoreBlockSelection(workspace, block));
+
+  for (const delay of [0, 50, 150]) {
+    const timer = setTimeout(() => {
+      restoreTimers.delete(timer);
+      restoreBlockSelection(workspace, block);
+    }, delay);
+    restoreTimers.add(timer);
+  }
+}
+
+function restoreBlockSelection(
+  workspace: Blockly.WorkspaceSvg,
+  block: Blockly.BlockSvg
+): void {
+  if (block.workspace !== workspace || block.isDisposed()) return;
+
+  (Blockly.common.setSelected as unknown as (newSelection: unknown) => void)(
+    block
+  );
+  block.pathObject.updateSelected(true);
 }
 
 function localizeSelectAllMenu(): void {
@@ -249,6 +351,7 @@ function bindStableGestureBridge(
   let shouldSuppressNextContextMenu = false;
   let contextMenuSuppressTimer: ReturnType<typeof setTimeout> | null = null;
   let selectionSyncTimer: ReturnType<typeof setTimeout> | null = null;
+  const singleSelectionRestoreTimers = new Set<ReturnType<typeof setTimeout>>();
   let pendingWorkspaceClick: PendingWorkspaceClick | null = null;
   const selectionApi = Blockly.common as unknown as BlocklySelectionApi;
   const originalSetSelected = selectionApi.setSelected;
@@ -346,6 +449,32 @@ function bindStableGestureBridge(
     selectionSyncTimer = setTimeout(syncSelectionAfterBlocklyFocus, 0);
   };
 
+  const restoreSingleBlockSelection = (block: Blockly.BlockSvg): void => {
+    if (block.workspace !== workspace || block.isDisposed()) return;
+
+    originalSetSelected(block);
+    block.pathObject.updateSelected(true);
+  };
+
+  const scheduleSingleBlockSelectionRestore = (
+    block: Blockly.BlockSvg
+  ): void => {
+    for (const timer of singleSelectionRestoreTimers) {
+      clearTimeout(timer);
+    }
+    singleSelectionRestoreTimers.clear();
+
+    queueMicrotask(() => restoreSingleBlockSelection(block));
+
+    for (const delay of [0, 50, 150]) {
+      const timer = setTimeout(() => {
+        singleSelectionRestoreTimers.delete(timer);
+        restoreSingleBlockSelection(block);
+      }, delay);
+      singleSelectionRestoreTimers.add(timer);
+    }
+  };
+
   const onKeyDown = (event: KeyboardEvent): void => {
     if (!isMultiselectKey(event) || event.repeat) return;
 
@@ -376,6 +505,17 @@ function bindStableGestureBridge(
     const hasBlockSelection = hasSelection || Boolean(currentSelectedBlock);
     const isBlockInSelection = Boolean(block && selectedBlockIds?.has(block.id));
     const isShiftSelection = event.shiftKey || isMultiselectKeyPressed;
+
+    if (
+      event.button === 2 &&
+      block &&
+      currentSelectedBlock &&
+      block.id === currentSelectedBlock.id &&
+      !hasSelection
+    ) {
+      scheduleSingleBlockSelectionRestore(block);
+      return;
+    }
 
     if (event.button === 2 && hasSelection) {
       const controls = getControls();
@@ -518,6 +658,8 @@ function bindStableGestureBridge(
   return () => {
     if (contextMenuSuppressTimer) clearTimeout(contextMenuSuppressTimer);
     if (selectionSyncTimer) clearTimeout(selectionSyncTimer);
+    for (const timer of singleSelectionRestoreTimers) clearTimeout(timer);
+    singleSelectionRestoreTimers.clear();
     if (selectionApi.setSelected === setSelectedWithMultiselectPreservation) {
       selectionApi.setSelected = originalSetSelected;
     }
