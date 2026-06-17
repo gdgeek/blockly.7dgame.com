@@ -55,6 +55,33 @@ const TOOLTIP_THUMBNAIL_CLASS = "blockly-tooltip-thumbnail";
 const TOOLTIP_THUMBNAIL_TEXT_CLASS = "blockly-tooltip-text";
 let tooltipPatchInstalled = false;
 
+const TWEEN_BLOCK_TYPES = new Set(["task-tween-to-data", "task-tween"]);
+
+const TWEEN_EASING_TOOLTIP_KEYS: Record<string, [string, string]> = {
+  LINEAR: ["TASK_TWEEN_EASING_LINEAR", "TASK_TWEEN_EASING_LINEAR_TOOLTIP"],
+  EASE_IN: ["TASK_TWEEN_EASING_EASE_IN", "TASK_TWEEN_EASING_EASE_IN_TOOLTIP"],
+  EASE_OUT: [
+    "TASK_TWEEN_EASING_EASE_OUT",
+    "TASK_TWEEN_EASING_EASE_OUT_TOOLTIP",
+  ],
+  EASE_IN_OUT: [
+    "TASK_TWEEN_EASING_EASE_IN_OUT",
+    "TASK_TWEEN_EASING_EASE_IN_OUT_TOOLTIP",
+  ],
+  BOUNCE_IN: [
+    "TASK_TWEEN_EASING_BOUNCE_IN",
+    "TASK_TWEEN_EASING_BOUNCE_IN_TOOLTIP",
+  ],
+  BOUNCE_OUT: [
+    "TASK_TWEEN_EASING_BOUNCE_OUT",
+    "TASK_TWEEN_EASING_BOUNCE_OUT_TOOLTIP",
+  ],
+  BOUNCE_IN_OUT: [
+    "TASK_TWEEN_EASING_BOUNCE_IN_OUT",
+    "TASK_TWEEN_EASING_BOUNCE_IN_OUT_TOOLTIP",
+  ],
+};
+
 const FRIENDLY_TOOLTIP_BY_BLOCK: Record<string, TooltipLocalization> = {
   "task-tween-to-data": {
     "zh-CN": "把一个节点平滑移动到指定坐标，可设置时长和缓动方式。",
@@ -467,6 +494,43 @@ function getJsonTooltipData(
   };
 }
 
+function getLocalizedBlocklyMessage(
+  messageKey: string,
+  language: SupportedLanguage,
+  fallback = ""
+): string {
+  const message = (Blockly.Msg as unknown as Record<
+    string,
+    Record<string, string> | string
+  >)[messageKey];
+
+  if (typeof message === "string") return message;
+  return message?.[language] || message?.["en-US"] || fallback;
+}
+
+function getTweenTooltipText(
+  title: string,
+  block: Blockly.Block,
+  language: SupportedLanguage
+): string {
+  const base = getFriendlyTooltipText(title, language) || "";
+  const rawEasingValue =
+    typeof block.getFieldValue === "function"
+      ? block.getFieldValue("Easy")
+      : "";
+  const easingValue = typeof rawEasingValue === "string" ? rawEasingValue : "";
+  const keys = TWEEN_EASING_TOOLTIP_KEYS[easingValue];
+  if (!keys) return base;
+
+  const label = getLocalizedBlocklyMessage(keys[0], language, easingValue);
+  const detail = getLocalizedBlocklyMessage(keys[1], language);
+  const easingText = label && detail ? `${label}: ${detail}` : detail;
+  const lines: string[] = [];
+  if (base) lines.push(base);
+  if (easingText) lines.push(easingText);
+  return lines.join("\n");
+}
+
 function ensureNoEmptyTooltipBubble(): void {
   if (tooltipPatchInstalled || typeof window === "undefined" || typeof document === "undefined") {
     return;
@@ -566,6 +630,13 @@ function RegisterData(data: BlockDefinition, parameters: unknown): void {
     rawInit?.call(this);
 
     const language = normalizeLanguage(window.lg);
+    if (TWEEN_BLOCK_TYPES.has(data.title)) {
+      (this.setTooltip as unknown as (tip: () => string) => void)(() =>
+        getTweenTooltipText(data.title, this, language)
+      );
+      return;
+    }
+
     const customTooltip = getFriendlyTooltipText(data.title, language);
     if (customTooltip) {
       this.setTooltip(customTooltip);
