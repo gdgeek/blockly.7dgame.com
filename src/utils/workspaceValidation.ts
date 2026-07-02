@@ -36,6 +36,8 @@ interface InputLike {
 
 type ValidatedBlock = Blockly.Block & {
   id: string;
+  getFieldValue?: (name: string) => unknown;
+  getInputTargetBlock?: (name: string) => Blockly.Block | null;
   getSvgRoot?: () => SVGElement | null;
   isEnabled?: () => boolean;
   isInFlyout?: boolean;
@@ -188,11 +190,42 @@ function hasMissingGenerator(block: ValidatedBlock): WorkspaceValidationIssue | 
   };
 }
 
+function getStaticNumberValue(block: Blockly.Block | null): number | null {
+  if (!block) return null;
+  if (block.type !== "math_number" && block.type !== "math_integer_number") {
+    return null;
+  }
+
+  const value = Number((block as ValidatedBlock).getFieldValue?.("NUM"));
+  return Number.isFinite(value) ? value : null;
+}
+
+function hasInvalidRandomRange(
+  block: ValidatedBlock
+): WorkspaceValidationIssue | null {
+  if (block.type !== "math_random_int" && block.type !== "math_random_float_range") {
+    return null;
+  }
+
+  const from = getStaticNumberValue(block.getInputTargetBlock?.("FROM") ?? null);
+  const to = getStaticNumberValue(block.getInputTargetBlock?.("TO") ?? null);
+
+  if (from === null || to === null || from < to) {
+    return null;
+  }
+
+  return {
+    block,
+    message: `“${block.toString()}”的随机范围不正确，左侧数值必须小于右侧数值，请修改后再保存。`,
+  };
+}
+
 function validateBlockForSave(block: ValidatedBlock): WorkspaceValidationIssue | null {
   return (
     hasMissingGenerator(block) ||
     hasMissingValueInput(block) ||
     hasMissingResourceField(block) ||
+    hasInvalidRandomRange(block) ||
     hasDetachedStatementBlock(block) ||
     hasDetachedValueBlock(block)
   );

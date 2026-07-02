@@ -57,7 +57,8 @@ export function useWorkspace() {
     editorRef: Ref<EditorRef | undefined> | ShallowRef<EditorRef | undefined>,
     data: object,
     onReady: (workspace: Blockly.WorkspaceSvg) => void,
-    onTimeout?: () => void
+    onTimeout?: () => void,
+    onLoadError?: (error: unknown) => void
   ): void => {
     // If the workspace is already available, load immediately.
     if (editorRef.value?.workspace) {
@@ -65,6 +66,8 @@ export function useWorkspace() {
         loadWorkspace(data, editorRef.value.workspace);
       } catch (e) {
         console.error("[useWorkspace] Error loading workspace data:", e);
+        onLoadError?.(e);
+        return;
       }
       onReady(editorRef.value.workspace);
       return;
@@ -102,6 +105,8 @@ export function useWorkspace() {
           loadWorkspace(data, workspace);
         } catch (e) {
           console.error("[useWorkspace] Error loading workspace data:", e);
+          onLoadError?.(e);
+          return;
         }
         onReady(workspace);
       },

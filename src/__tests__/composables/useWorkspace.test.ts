@@ -146,6 +146,34 @@ describe("useWorkspace", () => {
       wrapper.unmount();
       vi.useRealTimers();
     });
+
+    it("does not call onReady when loading workspace data fails", () => {
+      const fakeWorkspace = { id: "ws-load-error" };
+      const editorRef = ref({ workspace: fakeWorkspace });
+      const data = { blocks: [] };
+      const onReady = vi.fn();
+      const onLoadError = vi.fn();
+      const loadError = new Error("invalid workspace data");
+      mockLoad.mockImplementation(() => {
+        throw loadError;
+      });
+
+      const { result, wrapper } = withSetup(() => useWorkspace());
+
+      result.watchWorkspaceReady(
+        editorRef,
+        data,
+        onReady,
+        undefined,
+        onLoadError
+      );
+
+      expect(mockLoad).toHaveBeenCalledWith(data, fakeWorkspace);
+      expect(onReady).not.toHaveBeenCalled();
+      expect(onLoadError).toHaveBeenCalledWith(loadError);
+
+      wrapper.unmount();
+    });
   });
 
   describe("cleanup on unmount", () => {

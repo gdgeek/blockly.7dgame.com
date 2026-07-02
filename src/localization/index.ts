@@ -23,6 +23,35 @@ const lg: string = urlParams.get("language") || "en-US";
 window.lg = lg; // 将 lg 挂载到全局 window 对象上
 console.log("当前语言是: ", window.lg);
 
+const VARIABLES_SET_TOOLTIP_MESSAGES: LocalizedMessages = {
+  "zh-CN":
+    "设置此变量，以使它和输入值相等。如果需要初始化该变量，需要将变量放在初始化任务中。",
+  "en-US":
+    "Set this variable to be equal to the input value. To initialize this variable, place it inside the initialization task.",
+  "ja-JP":
+    "この変数を入力値と等しくなるように設定します。この変数を初期化する必要がある場合は、初期化タスク内に配置してください。",
+  "zh-TW":
+    "設定此變量，使它和輸入值相等。如果需要初始化該變量，需要將變量放在初始化任務中。",
+  "th-TH":
+    "ตั้งค่าตัวแปรนี้ให้เท่ากับค่าที่ป้อน หากต้องการเริ่มต้นตัวแปรนี้ ให้วางตัวแปรไว้ในงานเริ่มต้น",
+};
+
+const getLocalizedMessage = (messages: LocalizedMessages): string => {
+  const locale =
+    (Object.keys(messages) as LanguageCode[]).find((key) =>
+      window.lg.includes(key)
+    ) || "en-US";
+  return messages[locale];
+};
+
+export const applyVariableTooltipMessages = (): void => {
+  Blockly.Msg.VARIABLES_SET_TOOLTIP = getLocalizedMessage(
+    VARIABLES_SET_TOOLTIP_MESSAGES
+  );
+};
+
+applyVariableTooltipMessages();
+
 if (window.lg.includes("zh-CN")) {
   Blockly.Msg.CONTROLS_IF_TOOLTIP_1 = "如果条件成立，就执行里面的语句。";
   Blockly.Msg.CONTROLS_IF_TOOLTIP_2 =
