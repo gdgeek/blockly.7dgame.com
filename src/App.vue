@@ -147,6 +147,14 @@ const doInit = (config: InitConfig): void => {
           event: "error",
           message: "Workspace failed to initialize within 5 seconds",
         });
+      },
+      (error: unknown) => {
+        postMessage("EVENT", {
+          event: "error",
+          message: `脚本数据加载失败，已停止回写空工作区：${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        });
       }
     );
   });
