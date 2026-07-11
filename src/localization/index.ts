@@ -23,6 +23,35 @@ const lg: string = urlParams.get("language") || "en-US";
 window.lg = lg; // 将 lg 挂载到全局 window 对象上
 console.log("当前语言是: ", window.lg);
 
+const VARIABLES_SET_TOOLTIP_MESSAGES: LocalizedMessages = {
+  "zh-CN":
+    "设置此变量，以使它和输入值相等。如果需要初始化该变量，需要将变量放在初始化任务中。",
+  "en-US":
+    "Set this variable to be equal to the input value. To initialize this variable, place it inside the initialization task.",
+  "ja-JP":
+    "この変数を入力値と等しくなるように設定します。この変数を初期化する必要がある場合は、初期化タスク内に配置してください。",
+  "zh-TW":
+    "設定此變量，使它和輸入值相等。如果需要初始化該變量，需要將變量放在初始化任務中。",
+  "th-TH":
+    "ตั้งค่าตัวแปรนี้ให้เท่ากับค่าที่ป้อน หากต้องการเริ่มต้นตัวแปรนี้ ให้วางตัวแปรไว้ในงานเริ่มต้น",
+};
+
+const getLocalizedMessage = (messages: LocalizedMessages): string => {
+  const locale =
+    (Object.keys(messages) as LanguageCode[]).find((key) =>
+      window.lg.includes(key)
+    ) || "en-US";
+  return messages[locale];
+};
+
+export const applyVariableTooltipMessages = (): void => {
+  Blockly.Msg.VARIABLES_SET_TOOLTIP = getLocalizedMessage(
+    VARIABLES_SET_TOOLTIP_MESSAGES
+  );
+};
+
+applyVariableTooltipMessages();
+
 if (window.lg.includes("zh-CN")) {
   Blockly.Msg.CONTROLS_IF_TOOLTIP_1 = "如果条件成立，就执行里面的语句。";
   Blockly.Msg.CONTROLS_IF_TOOLTIP_2 =
@@ -180,18 +209,116 @@ export const TASK_NAME: LocalizedMessages = {
   "th-TH": "งาน",
 };
 Msg.TASK_TWEEN_TO_DATA = {
-  "zh-CN": "节点 %1 移动到坐标 %2 用时 %3 %4 差值方式 %5",
-  "en-US": "Move node %1 to coordinate %2 in %3 %4 easing method %5",
-  "ja-JP": "ノード %1 を座標 %2 まで %3 %4 の方法で移動 %5",
-  "zh-TW": "節點 %1 移動到座標 %2 用時 %3 %4 插值方式 %5",
-  "th-TH": "ย้ายโหนด %1 ไปยังพิกัด %2 ใช้เวลา %3 %4 วิธีการแก้ไข %5",
+  "zh-CN": "节点 %1 移动到坐标 %2 用时 %3 %4 移动方式 %5",
+  "en-US": "Move node %1 to coordinate %2 in %3 %4 movement style %5",
+  "ja-JP": "ノード %1 を座標 %2 まで %3 %4 移動方式 %5 で移動",
+  "zh-TW": "節點 %1 移動到座標 %2 用時 %3 %4 移動方式 %5",
+  "th-TH": "ย้ายโหนด %1 ไปยังพิกัด %2 ใช้เวลา %3 %4 รูปแบบการเคลื่อนที่ %5",
 };
 Msg.TASK_TWEEN_OBJECT = {
-  "zh-CN": "节点 %1 移动到节点 %2 用时 %3 %4 差值方式 %5",
-  "en-US": "Move node %1 to node %2 in %3 %4 easing method %5",
-  "ja-JP": "ノード %1 をノード %2 まで %3 %4 の方法で移動 %5",
-  "zh-TW": "節點 %1 移動到節點 %2 用時 %3 %4 插值方式 %5",
-  "th-TH": "ย้ายโหนด %1 ไปยังโหนด %2 ใช้เวลา %3 %4 วิธีการแก้ไข %5",
+  "zh-CN": "节点 %1 移动到节点 %2 用时 %3 %4 移动方式 %5",
+  "en-US": "Move node %1 to node %2 in %3 %4 movement style %5",
+  "ja-JP": "ノード %1 をノード %2 まで %3 %4 移動方式 %5 で移動",
+  "zh-TW": "節點 %1 移動到節點 %2 用時 %3 %4 移動方式 %5",
+  "th-TH": "ย้ายโหนด %1 ไปยังโหนด %2 ใช้เวลา %3 %4 รูปแบบการเคลื่อนที่ %5",
+};
+Msg.TASK_TWEEN_EASING_LINEAR = {
+  "zh-CN": "匀速移动",
+  "en-US": "Constant speed",
+  "ja-JP": "一定速度",
+  "zh-TW": "勻速移動",
+  "th-TH": "ความเร็วคงที่",
+};
+Msg.TASK_TWEEN_EASING_LINEAR_TOOLTIP = {
+  "zh-CN": "全程保持同样速度，适合机械、规则、没有明显加速减速的移动。",
+  "en-US": "Moves at the same speed throughout. Best for mechanical or regular motion with no acceleration.",
+  "ja-JP": "最初から最後まで同じ速度で動きます。機械的で規則的な移動に適しています。",
+  "zh-TW": "全程保持同樣速度，適合機械、規則、沒有明顯加速減速的移動。",
+  "th-TH": "เคลื่อนที่ด้วยความเร็วเท่ากันตลอด เหมาะกับการเคลื่อนที่แบบกลไกหรือสม่ำเสมอ",
+};
+Msg.TASK_TWEEN_EASING_EASE_IN = {
+  "zh-CN": "先慢后快",
+  "en-US": "Slow then fast",
+  "ja-JP": "ゆっくり開始",
+  "zh-TW": "先慢後快",
+  "th-TH": "ช้าแล้วเร็ว",
+};
+Msg.TASK_TWEEN_EASING_EASE_IN_TOOLTIP = {
+  "zh-CN": "从静止或慢速开始，随后逐渐加速，适合物体起步、弹出、入场等效果。",
+  "en-US": "Starts slowly, then accelerates. Good for objects starting up, popping out, or entering a scene.",
+  "ja-JP": "ゆっくり始まり、徐々に加速します。起動、ポップ表示、入場演出に適しています。",
+  "zh-TW": "從靜止或慢速開始，隨後逐漸加速，適合物體起步、彈出、入場等效果。",
+  "th-TH": "เริ่มช้าแล้วค่อยๆ เร่ง เหมาะกับวัตถุเริ่มเคลื่อนที่ เด้งออก หรือเข้าฉาก",
+};
+Msg.TASK_TWEEN_EASING_EASE_OUT = {
+  "zh-CN": "先快后慢",
+  "en-US": "Fast then slow",
+  "ja-JP": "ゆっくり停止",
+  "zh-TW": "先快後慢",
+  "th-TH": "เร็วแล้วช้า",
+};
+Msg.TASK_TWEEN_EASING_EASE_OUT_TOOLTIP = {
+  "zh-CN": "开始较快，接近终点时逐渐减速，适合落位、停靠、关闭等自然收尾。",
+  "en-US": "Starts fast, then slows near the end. Good for settling, docking, closing, or natural stops.",
+  "ja-JP": "速く始まり、終点に近づくと減速します。停止、着地、閉じる動きに適しています。",
+  "zh-TW": "開始較快，接近終點時逐漸減速，適合落位、停靠、關閉等自然收尾。",
+  "th-TH": "เริ่มเร็วแล้วช้าลงใกล้ปลายทาง เหมาะกับการหยุด เข้าที่ หรือปิดอย่างเป็นธรรมชาติ",
+};
+Msg.TASK_TWEEN_EASING_EASE_IN_OUT = {
+  "zh-CN": "慢-快-慢",
+  "en-US": "Slow-fast-slow",
+  "ja-JP": "ゆっくり開始/停止",
+  "zh-TW": "慢-快-慢",
+  "th-TH": "ช้า-เร็ว-ช้า",
+};
+Msg.TASK_TWEEN_EASING_EASE_IN_OUT_TOOLTIP = {
+  "zh-CN": "起点慢，中间最快，终点再减速，适合大多数平滑移动，整体最柔和自然。",
+  "en-US": "Slow at the start, fastest in the middle, then slows at the end. A soft, natural default for smooth motion.",
+  "ja-JP": "開始は遅く、中間で最も速く、終了時に減速します。自然な滑らか移動に向いています。",
+  "zh-TW": "起點慢，中間最快，終點再減速，適合大多數平滑移動，整體最柔和自然。",
+  "th-TH": "ต้นทางช้า กลางทางเร็วที่สุด แล้วช้าลงตอนจบ เหมาะกับการเคลื่อนที่ที่นุ่มนวล",
+};
+Msg.TASK_TWEEN_EASING_BOUNCE_IN = {
+  "zh-CN": "起点弹跳",
+  "en-US": "Bounce from start",
+  "ja-JP": "開始でバウンド",
+  "zh-TW": "起點彈跳",
+  "th-TH": "เด้งตอนเริ่ม",
+};
+Msg.TASK_TWEEN_EASING_BOUNCE_IN_TOOLTIP = {
+  "zh-CN": "移动开始时带多次小弹跳，然后再向目标移动，适合从起点弹起、跳入运动。",
+  "en-US": "Adds small bounces at the beginning before moving toward the target. Good for jumping away from the start point.",
+  "ja-JP": "移動開始時に小さくバウンドしてから目標へ向かいます。跳ね出す動きに適しています。",
+  "zh-TW": "移動開始時帶多次小彈跳，然後再向目標移動，適合從起點彈起、跳入運動。",
+  "th-TH": "มีจังหวะเด้งเล็กๆ ตอนเริ่มก่อนเคลื่อนไปยังเป้าหมาย เหมาะกับการกระโดดออกจากจุดเริ่ม",
+};
+Msg.TASK_TWEEN_EASING_BOUNCE_OUT = {
+  "zh-CN": "终结弹跳",
+  "en-US": "Bounce before finish",
+  "ja-JP": "終了でバウンド",
+  "zh-TW": "終結彈跳",
+  "th-TH": "เด้งตอนจบ",
+};
+Msg.TASK_TWEEN_EASING_BOUNCE_OUT_TOOLTIP = {
+  "zh-CN": "接近终点时产生多次弹跳再停下，适合落地、碰撞反馈、到达目标的强调效果。",
+  "en-US": "Bounces several times near the target before stopping. Good for landing, impact feedback, or emphasizing arrival.",
+  "ja-JP": "終点付近で数回バウンドしてから止まります。着地、衝突反応、到達の強調に適しています。",
+  "zh-TW": "接近終點時產生多次彈跳再停下，適合落地、碰撞反饋、到達目標的強調效果。",
+  "th-TH": "เด้งหลายครั้งใกล้ปลายทางก่อนหยุด เหมาะกับการลงพื้น การชน หรือเน้นว่าถึงเป้าหมายแล้ว",
+};
+Msg.TASK_TWEEN_EASING_BOUNCE_IN_OUT = {
+  "zh-CN": "两端弹跳",
+  "en-US": "Bounce at both ends",
+  "ja-JP": "両端でバウンド",
+  "zh-TW": "兩端彈跳",
+  "th-TH": "เด้งทั้งต้นและท้าย",
+};
+Msg.TASK_TWEEN_EASING_BOUNCE_IN_OUT_TOOLTIP = {
+  "zh-CN": "起点和终点都带弹跳，中间正常移动，效果更夸张，适合趣味化或强调性的移动。",
+  "en-US": "Bounces at both the start and end, with normal motion in between. A more playful, emphasized movement.",
+  "ja-JP": "開始と終了の両方でバウンドし、中間は通常移動します。遊びのある強調表現に適しています。",
+  "zh-TW": "起點和終點都帶彈跳，中間正常移動，效果更誇張，適合趣味化或強調性的移動。",
+  "th-TH": "เด้งทั้งต้นทางและปลายทาง ช่วงกลางเคลื่อนที่ตามปกติ เหมาะกับการเคลื่อนไหวที่สนุกและเด่นชัด",
 };
 Msg.TASK_ARRAY = {
   "zh-CN": "任务数组 %1 %2",

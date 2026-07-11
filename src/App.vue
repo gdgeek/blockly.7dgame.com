@@ -38,6 +38,13 @@ import { useToolboxSetup } from "./composables/useToolboxSetup";
 import type { BlocklyOptions } from "./composables/useToolboxSetup";
 import { useWorkspace } from "./composables/useWorkspace";
 import { useTheme } from "./composables/useTheme";
+import {
+  clearWorkspaceValidationIssueFeedback,
+  focusWorkspaceValidationIssue,
+  isWorkspaceValidationIssueResolved,
+  validateWorkspaceForSave,
+  type WorkspaceValidationIssue,
+} from "./utils/workspaceValidation";
 
 /** Shape of the INIT config from payload.config. */
 interface InitConfig {
@@ -69,6 +76,7 @@ const userInfo = ref<UserInfo>({});
 const access = computed<Access>(() => new Access(userInfo.value));
 
 let oldValue: Record<string, unknown> | null = null;
+let activeValidationIssue: WorkspaceValidationIssue | null = null;
 const editor = ref<InstanceType<typeof BlocklyComponent> | null>(null);
 const code = ref<CodeState>({
   lua: "",
@@ -78,11 +86,33 @@ const code = ref<CodeState>({
 const options = ref<BlocklyOptions | undefined>();
 
 const save = (): void => {
-  const data = saveWorkspace(editor.value!.workspace!);
+  const workspace = editor.value!.workspace!;
+  const validation = validateWorkspaceForSave(workspace, generateAll);
+  if (!validation.ok) {
+    const message = validation.issue?.message || "当前脚本存在问题，无法保存。";
+    activeValidationIssue = validation.issue ?? null;
+    if (validation.issue && "centerOnBlock" in workspace) {
+      focusWorkspaceValidationIssue(workspace, validation.issue);
+    }
+    postResponse({
+      action: "save-error",
+      error: true,
+      message,
+    });
+    if (validation.issue && "centerOnBlock" in workspace) {
+      window.requestAnimationFrame(() => {
+        focusWorkspaceValidationIssue(workspace, validation.issue!);
+      });
+    }
+    return;
+  }
+
+  activeValidationIssue = null;
+  const data = saveWorkspace(workspace);
   if (JSON.stringify(data) == JSON.stringify(oldValue)) {
     postResponse({ action: "save", noChange: true });
   } else {
-    const generated = generateAll(editor.value!.workspace!);
+    const generated = validation.generated!;
     postResponse({
       action: "save",
       js: generated.js,
@@ -117,6 +147,14 @@ const doInit = (config: InitConfig): void => {
           event: "error",
           message: "Workspace failed to initialize within 5 seconds",
         });
+      },
+      (error: unknown) => {
+        postMessage("EVENT", {
+          event: "error",
+          message: `脚本数据加载失败，已停止回写空工作区：${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        });
       }
     );
   });
@@ -138,6 +176,13 @@ const updateCode = (): void => {
 
 // 处理工作区变化
 const onWorkspaceChange = (): void => {
+  if (
+    activeValidationIssue &&
+    isWorkspaceValidationIssueResolved(activeValidationIssue)
+  ) {
+    clearWorkspaceValidationIssueFeedback(activeValidationIssue);
+    activeValidationIssue = null;
+  }
   updateCode();
 };
 
@@ -218,6 +263,16 @@ defineExpose({
 
 #app.dark {
   background: #111827;
+}
+
+.blocklySelected .blocklyPath {
+  stroke-width: 3px !important;
+}
+
+.blockly-save-validation-error .blocklyPath {
+  stroke: #ef4444 !important;
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.45));
 }
 
 html,
