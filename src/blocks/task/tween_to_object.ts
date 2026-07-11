@@ -5,6 +5,7 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import { getTweenEasingOptions } from "./tween_easing_options";
 
 const data = {
   name: "task-tween",
@@ -42,15 +43,7 @@ const block: BlockDefinition = {
         {
           type: "field_dropdown",
           name: "Easy",
-          options: [
-            ["LINEAR", "LINEAR"],
-            ["EASE_IN", "EASE_IN"],
-            ["EASE_OUT", "EASE_OUT"],
-            ["EASE_IN_OUT", "EASE_IN_OUT"],
-            ["BOUNCE_IN", "BOUNCE_IN"],
-            ["BOUNCE_OUT", "BOUNCE_OUT"],
-            ["BOUNCE_IN_OUT", "BOUNCE_IN_OUT"],
-          ],
+          options: getTweenEasingOptions(),
         },
       ],
       inputsInline: true,

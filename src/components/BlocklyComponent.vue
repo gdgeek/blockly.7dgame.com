@@ -114,6 +114,7 @@ import * as Th from "blockly/msg/th";
 
 import { overrideProcedureMessages } from "../localization/procedure_override";
 import { overrideMathRandomRangeMessages } from "../localization/math_override";
+import { applyVariableTooltipMessages } from "../localization";
 import { localizedContextMenu } from "../localization/context_menu";
 import { usePluginManager } from "../plugins";
 import { useTheme } from "../composables/useTheme";
@@ -386,6 +387,7 @@ onMounted(() => {
   //console.log("BlocklyComponent onMounted");
   // 1. 多语言配置
   setupLocale();
+  applyVariableTooltipMessages();
   overrideMathRandomRangeMessages();
   overrideProcedureMessages();
   localizedContextMenu();
