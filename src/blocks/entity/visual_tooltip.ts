@@ -15,13 +15,27 @@ interface TooltipInfo {
 }
 
 interface ResourceAction {
-  type: string;
+  type?: string;
   parentUuid?: string;
+  parent_uuid?: string;
+  entityUuid?: string;
+  entity_uuid?: string;
+  uuid?: string;
+  name?: string;
+  component?: string;
+}
+
+interface ResourceTarget {
+  uuid: string;
+  hasTooltips?: boolean;
 }
 
 interface BlockParameters {
   resource?: {
     action?: ResourceAction[];
+    entity?: ResourceTarget[];
+    polygen?: ResourceTarget[];
+    voxel?: ResourceTarget[];
   };
 }
 
@@ -39,6 +53,50 @@ interface TooltipBlockInstance {
   } | null;
   updateConnectedBlock: () => void;
 }
+
+const isTooltipAction = (action: ResourceAction) => {
+  const values = [action.type, action.name, action.component]
+    .filter((value): value is string => typeof value === "string")
+    .map((value) => value.toLowerCase());
+
+  return values.some(
+    (value) =>
+      value === "tooltip" ||
+      value === "label" ||
+      value.includes("tooltip") ||
+      value.includes("label")
+  );
+};
+
+const getTooltipParentUuid = (action: ResourceAction) =>
+  action.parentUuid ||
+  action.parent_uuid ||
+  action.entityUuid ||
+  action.entity_uuid ||
+  action.uuid ||
+  "";
+
+const collectTooltipParentUuids = (resource: BlockParameters["resource"]) => {
+  const parentUuids = new Set<string>();
+  if (!resource) return parentUuids;
+
+  resource.action?.filter(isTooltipAction).forEach((action) => {
+    const parentUuid = getTooltipParentUuid(action);
+    if (parentUuid) {
+      parentUuids.add(parentUuid);
+    }
+  });
+
+  [resource.entity, resource.polygen, resource.voxel].forEach((items) => {
+    items?.forEach((item) => {
+      if (item.hasTooltips === true && item.uuid) {
+        parentUuids.add(item.uuid);
+      }
+    });
+  });
+
+  return parentUuids;
+};
 
 const block: BlockDefinition = {
   title: data.name,
@@ -78,31 +136,16 @@ const block: BlockDefinition = {
     const typedParams = parameters as BlockParameters;
     const data = {
       init: function (this: TooltipBlockInstance) {
-        console.error("parameters", parameters);
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
 
         this.tooltipsInfo = [];
 
-        if (
-          typedParams &&
-          typedParams.resource &&
-          typedParams.resource.action
-        ) {
-          const tooltipActions = typedParams.resource.action.filter(
-            (action) => action.type === "Tooltip"
-          );
-
-          if (tooltipActions && tooltipActions.length > 0) {
-            tooltipActions.forEach((tooltipAction) => {
-              if (tooltipAction.parentUuid) {
-                this.tooltipsInfo.push({
-                  parentUuid: tooltipAction.parentUuid,
-                });
-              }
-            });
+        collectTooltipParentUuids(typedParams?.resource).forEach(
+          (parentUuid) => {
+            this.tooltipsInfo.push({ parentUuid });
           }
-        }
+        );
 
         this.setOnChange((event: { type: string }) => {
           if (
@@ -120,8 +163,6 @@ const block: BlockDefinition = {
       },
 
       updateConnectedBlock: function (this: TooltipBlockInstance) {
-        if (!this.tooltipsInfo || this.tooltipsInfo.length === 0) return;
-
         const entityInput = this.getInput("entity");
         if (!entityInput || !entityInput.connection) return;
 
@@ -130,7 +171,7 @@ const block: BlockDefinition = {
 
         if (typeof connectedBlock.updateEntityOptions === "function") {
           connectedBlock.updateEntityOptions({
-            tooltipsInfo: this.tooltipsInfo,
+            tooltipsInfo: this.tooltipsInfo || [],
             sourceBlockId: this.id,
           });
         }

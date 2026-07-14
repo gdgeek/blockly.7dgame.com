@@ -11,6 +11,7 @@ const data = {
 } as const;
 
 interface PolygenResource {
+  name: string;
   uuid: string;
   animations?: string[];
 }
@@ -20,6 +21,25 @@ interface BlockParameters {
     polygen?: PolygenResource[];
   };
 }
+
+interface PlayAnimationTaskBlockInstance extends Record<string, unknown> {
+  id: string;
+  getInputTargetBlock: (
+    name: string
+  ) => {
+    type?: string;
+    getFieldValue: (name: string) => string;
+    updateDropdownOptions?: (
+      options: [string, string][],
+      sourceBlockId?: string
+    ) => void;
+  } | null;
+  updatePolygenOptions: (resource: BlockParameters["resource"]) => void;
+  updateAnimationOptions: (resource: BlockParameters["resource"]) => void;
+}
+
+const hasAnimations = (polygen: PolygenResource) =>
+  Array.isArray(polygen.animations) && polygen.animations.length > 0;
 
 const block: BlockDefinition = {
   title: data.name,
@@ -84,6 +104,16 @@ const block: BlockDefinition = {
         (this as { setOnChange: (fn: () => void) => void }).setOnChange(() => {
           (
             this as {
+              updatePolygenOptions: (
+                resource: BlockParameters["resource"]
+              ) => void;
+              updateAnimationOptions: (
+                resource: BlockParameters["resource"]
+              ) => void;
+            }
+          ).updatePolygenOptions(blockParams.resource);
+          (
+            this as {
               updateAnimationOptions: (
                 resource: BlockParameters["resource"]
               ) => void;
@@ -94,12 +124,45 @@ const block: BlockDefinition = {
         setTimeout(() => {
           (
             this as {
+              updatePolygenOptions: (
+                resource: BlockParameters["resource"]
+              ) => void;
+              updateAnimationOptions: (
+                resource: BlockParameters["resource"]
+              ) => void;
+            }
+          ).updatePolygenOptions(blockParams.resource);
+          (
+            this as {
               updateAnimationOptions: (
                 resource: BlockParameters["resource"]
               ) => void;
             }
           ).updateAnimationOptions(blockParams.resource);
         }, 0);
+      },
+
+      updatePolygenOptions: function (
+        this: PlayAnimationTaskBlockInstance,
+        resource: BlockParameters["resource"]
+      ): void {
+        if (!resource || !resource.polygen) return;
+
+        const polygenBlock = this.getInputTargetBlock("polygen");
+        if (
+          !polygenBlock ||
+          polygenBlock.type !== "polygen_entity" ||
+          typeof polygenBlock.updateDropdownOptions !== "function"
+        ) {
+          return;
+        }
+
+        const options: [string, string][] = [["none", ""]];
+        resource.polygen.filter(hasAnimations).forEach((poly) => {
+          options.push([poly.name, poly.uuid]);
+        });
+
+        polygenBlock.updateDropdownOptions(options, this.id);
       },
 
       updateAnimationOptions: function (

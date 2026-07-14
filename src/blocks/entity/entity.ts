@@ -208,11 +208,7 @@ const block: BlockDefinition = {
         this: EntityBlockInstance,
         tooltipsData: TooltipsData
       ) {
-        if (
-          !tooltipsData ||
-          !tooltipsData.tooltipsInfo ||
-          tooltipsData.tooltipsInfo.length === 0
-        )
+        if (!tooltipsData || !tooltipsData.tooltipsInfo)
           return;
 
         // 保存tooltipsData，包括来源块ID
@@ -226,9 +222,13 @@ const block: BlockDefinition = {
         // 获取当前值
         const currentValue = field.getValue();
 
-        // 检查实体列表中是否有匹配的parentUuid
         const resource = this.blockParameters && this.blockParameters.resource;
-        if (!resource || !resource.entity) return;
+        if (!resource || !resource.entity) {
+          field.menuGenerator_ = [["none", ""]];
+          field.setValue("");
+          field.forceRerender();
+          return;
+        }
 
         // 收集所有匹配的实体
         const matchedEntities: [string, string][] = [];

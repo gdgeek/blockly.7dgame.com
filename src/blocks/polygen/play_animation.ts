@@ -34,14 +34,24 @@ interface AnimationDropdownField {
 
 interface PlayAnimationBlockInstance {
   jsonInit: (json: object) => void;
+  id: string;
   lastPolygenUuid: string | null;
   getField: (name: string) => AnimationDropdownField | null;
   getInputTargetBlock: (name: string) => {
+    type?: string;
     getFieldValue: (name: string) => string;
+    updateDropdownOptions?: (
+      options: [string, string][],
+      sourceBlockId?: string
+    ) => void;
   } | null;
   setOnChange: (callback: () => void) => void;
+  updatePolygenOptions: (resource: BlockParameters["resource"]) => void;
   updateAnimationOptions: (resource: BlockParameters["resource"]) => void;
 }
+
+const hasAnimations = (polygen: ResourcePolygen) =>
+  Array.isArray(polygen.animations) && polygen.animations.length > 0;
 
 const block: BlockDefinition = {
   title: data.name,
@@ -106,12 +116,37 @@ const block: BlockDefinition = {
         this.lastPolygenUuid = null;
 
         this.setOnChange(() => {
+          this.updatePolygenOptions(typedParams.resource);
           this.updateAnimationOptions(typedParams.resource);
         });
 
         setTimeout(() => {
+          this.updatePolygenOptions(typedParams.resource);
           this.updateAnimationOptions(typedParams.resource);
         }, 0);
+      },
+
+      updatePolygenOptions: function (
+        this: PlayAnimationBlockInstance,
+        resource: BlockParameters["resource"]
+      ) {
+        if (!resource || !resource.polygen) return;
+
+        const polygenBlock = this.getInputTargetBlock("polygen");
+        if (
+          !polygenBlock ||
+          polygenBlock.type !== "polygen_entity" ||
+          typeof polygenBlock.updateDropdownOptions !== "function"
+        ) {
+          return;
+        }
+
+        const options: [string, string][] = [["none", ""]];
+        resource.polygen.filter(hasAnimations).forEach((poly) => {
+          options.push([poly.name, poly.uuid]);
+        });
+
+        polygenBlock.updateDropdownOptions(options, this.id);
       },
 
       updateAnimationOptions: function (

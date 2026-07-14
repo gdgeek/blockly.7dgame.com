@@ -39,6 +39,7 @@ interface PolygenEntityBlockInstance {
   blockParameters: BlockParameters;
   originalOptions: [string, string][];
   tooltipsData: TooltipsData | null;
+  filteredByParentBlockId: string | null;
   parentBlockId: string | null;
   selectedPolygenUuid: string | null;
   setOnChange: (callback: (event: { type: string }) => void) => void;
@@ -48,7 +49,10 @@ interface PolygenEntityBlockInstance {
   getOriginalOptions: () => [string, string][];
   checkConnectionState: () => void;
   restoreOriginalOptions: () => void;
-  updateDropdownOptions: (options: [string, string][]) => void;
+  updateDropdownOptions: (
+    options: [string, string][],
+    sourceBlockId?: string
+  ) => void;
   updateEntityOptions: (tooltipsData: TooltipsData) => void;
 }
 
@@ -101,6 +105,7 @@ const block: BlockDefinition = {
         this.originalOptions = this.getOriginalOptions();
         // 保存当前的tooltips信息和连接信息
         this.tooltipsData = null;
+        this.filteredByParentBlockId = null;
         // 保存父块信息，用于检测断开连接
         this.parentBlockId = null;
 
@@ -163,6 +168,15 @@ const block: BlockDefinition = {
           this.parentBlockId = null;
         }
 
+        if (
+          this.filteredByParentBlockId &&
+          (parentBlockId === null ||
+            parentBlockId !== this.filteredByParentBlockId)
+        ) {
+          this.restoreOriginalOptions();
+          this.filteredByParentBlockId = null;
+        }
+
         this.parentBlockId = parentBlockId;
       },
 
@@ -178,11 +192,13 @@ const block: BlockDefinition = {
       // 更新下拉选项的方法，供其他模块使用
       updateDropdownOptions: function (
         this: PolygenEntityBlockInstance,
-        options: [string, string][]
+        options: [string, string][],
+        sourceBlockId?: string
       ) {
         const field = this.getField("Polygen");
         if (!field) return;
 
+        this.filteredByParentBlockId = sourceBlockId || null;
         field.menuGenerator_ = options;
 
         const currentValue = field.getValue();
@@ -196,11 +212,7 @@ const block: BlockDefinition = {
         this: PolygenEntityBlockInstance,
         tooltipsData: TooltipsData
       ) {
-        if (
-          !tooltipsData ||
-          !tooltipsData.tooltipsInfo ||
-          tooltipsData.tooltipsInfo.length === 0
-        )
+        if (!tooltipsData || !tooltipsData.tooltipsInfo)
           return;
 
         this.tooltipsData = tooltipsData;
@@ -212,7 +224,12 @@ const block: BlockDefinition = {
         const currentValue = field.getValue();
 
         const resource = this.blockParameters && this.blockParameters.resource;
-        if (!resource || !resource.polygen) return;
+        if (!resource || !resource.polygen) {
+          field.menuGenerator_ = [["none", ""]];
+          field.setValue("");
+          field.forceRerender();
+          return;
+        }
 
         const matchedPolygens: [string, string][] = [];
         const parentUuids = tooltipsData.tooltipsInfo.map(

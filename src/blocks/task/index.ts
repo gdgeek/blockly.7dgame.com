@@ -23,12 +23,12 @@ const FullCategory = {
     RunTask.toolbox,
     TweenToData.toolbox,
     TweenToObject.toolbox,
-    TaskArray.toolbox,
-    TaskCricle.toolbox,
     SleepTask.toolbox,
     TaskPlaySound.toolbox,
     TaskPlayVideo.toolbox,
     TaskPlayAnimation.toolbox,
+    TaskArray.toolbox,
+    TaskCricle.toolbox,
   ],
 };
 
@@ -38,9 +38,9 @@ const LiteCategory = {
   colour: Type.colour,
   contents: [
     RunTask.toolbox,
+    SleepTask.toolbox,
     TaskArray.toolbox,
     TaskCricle.toolbox,
-    SleepTask.toolbox,
   ],
 };
 
