@@ -91,6 +91,13 @@ const block: BlockDefinition = {
   toolbox: {
     kind: "block",
     type: data.name,
+    inputs: {
+      TaskArray: {
+        block: {
+          type: "lists_create_with",
+        },
+      },
+    },
   },
 };
 export default block;

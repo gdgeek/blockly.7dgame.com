@@ -1,5 +1,5 @@
 import Type from "./type";
-import * as Blockly from "blockly"; // eslint-disable-line no-unused-vars -- 注册积木块需要 Blockly 全局可用
+import "blockly";
 import { RegisterData, SetupIt } from "../helper";
 import type { BlockDefinition } from "../helper";
 
@@ -23,12 +23,12 @@ const FullCategory = {
     RunTask.toolbox,
     TweenToData.toolbox,
     TweenToObject.toolbox,
-    TaskArray.toolbox,
-    TaskCricle.toolbox,
     SleepTask.toolbox,
     TaskPlaySound.toolbox,
     TaskPlayVideo.toolbox,
     TaskPlayAnimation.toolbox,
+    TaskArray.toolbox,
+    TaskCricle.toolbox,
   ],
 };
 
@@ -38,9 +38,9 @@ const LiteCategory = {
   colour: Type.colour,
   contents: [
     RunTask.toolbox,
+    SleepTask.toolbox,
     TaskArray.toolbox,
     TaskCricle.toolbox,
-    SleepTask.toolbox,
   ],
 };
 
