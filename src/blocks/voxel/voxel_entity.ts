@@ -6,20 +6,55 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import {
+  buildNamedResourceOptions,
+  buildTooltipResourceOptions,
+  type NamedResource,
+} from "../resourceFilters";
 
 const data = {
   name: "voxel_entity",
 } as const;
 
-interface VoxelResource {
-  name: string;
-  uuid: string;
-}
-
 interface BlockParameters {
   resource?: {
-    voxel?: VoxelResource[];
+    voxel?: NamedResource[];
   };
+}
+
+interface TooltipsData {
+  tooltipsInfo: { parentUuid: string }[];
+  sourceBlockId: string;
+}
+
+interface DropdownField {
+  getValue: () => string;
+  setValue: (value: string) => void;
+  setOptions: (options: [string, string][]) => void;
+  forceRerender: () => void;
+}
+
+interface VoxelBlockInstance {
+  jsonInit: (json: object) => void;
+  blockParameters: BlockParameters;
+  tooltipsData: TooltipsData | null;
+  getField: (name: string) => DropdownField | null;
+  getParent: () => { id: string } | null;
+  setOnChange: (callback: (event: { type: string }) => void) => void;
+  restoreOriginalOptions: () => void;
+  updateEntityOptions: (tooltipsData: TooltipsData) => void;
+}
+
+function applyDropdownOptions(
+  field: DropdownField,
+  options: [string, string][]
+): void {
+  const currentValue = field.getValue();
+  field.setOptions(options);
+  if (options.some((option) => option[1] === currentValue)) {
+    field.setValue(currentValue);
+  }
+  field.forceRerender();
 }
 
 const block: BlockDefinition = {
@@ -37,16 +72,7 @@ const block: BlockDefinition = {
         {
           type: "field_dropdown",
           name: "Voxel",
-          options: function (): [string, string][] {
-            const opt: [string, string][] = [["none", ""]];
-            if (resource && resource.voxel) {
-              const voxel = resource.voxel;
-              voxel.forEach(({ name, uuid }) => {
-                opt.push([name, uuid]);
-              });
-            }
-            return opt;
-          },
+          options: buildNamedResourceOptions(resource?.voxel),
         },
       ],
       output: "Voxel",
@@ -57,10 +83,55 @@ const block: BlockDefinition = {
     return json;
   },
   getBlock(parameters: unknown): object {
+    const typedParams = parameters as BlockParameters;
     const data = {
-      init: function (this: { jsonInit: (json: object) => void }) {
+      init: function (this: VoxelBlockInstance) {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
+
+        this.blockParameters = typedParams;
+        this.tooltipsData = null;
+
+        this.setOnChange((event) => {
+          if (event.type !== Blockly.Events.BLOCK_MOVE) return;
+
+          const parentBlock = this.getParent();
+          if (
+            this.tooltipsData &&
+            parentBlock?.id !== this.tooltipsData.sourceBlockId
+          ) {
+            this.tooltipsData = null;
+            this.restoreOriginalOptions();
+          }
+        });
+      },
+
+      restoreOriginalOptions: function (this: VoxelBlockInstance) {
+        const field = this.getField("Voxel");
+        if (!field) return;
+        applyDropdownOptions(
+          field,
+          buildNamedResourceOptions(this.blockParameters.resource?.voxel)
+        );
+      },
+
+      updateEntityOptions: function (
+        this: VoxelBlockInstance,
+        tooltipsData: TooltipsData
+      ) {
+        if (!tooltipsData || !tooltipsData.tooltipsInfo) return;
+
+        this.tooltipsData = tooltipsData;
+        const field = this.getField("Voxel");
+        if (!field) return;
+
+        applyDropdownOptions(
+          field,
+          buildTooltipResourceOptions(
+            this.blockParameters.resource?.voxel,
+            tooltipsData.tooltipsInfo.map((info) => info.parentUuid)
+          )
+        );
       },
     };
     return data;
