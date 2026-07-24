@@ -6,19 +6,19 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import {
+  buildNamedResourceOptions,
+  buildTooltipResourceOptions,
+  type NamedResource,
+} from "../resourceFilters";
 
 const data = {
   name: "entity",
 } as const;
 
-interface ResourceEntity {
-  name: string;
-  uuid: string;
-}
-
 interface BlockParameters {
   resource?: {
-    entity?: ResourceEntity[];
+    entity?: NamedResource[];
   };
 }
 
@@ -28,10 +28,22 @@ interface TooltipsData {
 }
 
 interface DropdownField {
-  menuGenerator_: [string, string][];
   getValue: () => string;
   setValue: (_value: string) => void;
+  setOptions: (_options: [string, string][]) => void;
   forceRerender: () => void;
+}
+
+function applyDropdownOptions(
+  field: DropdownField,
+  options: [string, string][]
+): void {
+  const currentValue = field.getValue();
+  field.setOptions(options);
+  if (options.some((option) => option[1] === currentValue)) {
+    field.setValue(currentValue);
+  }
+  field.forceRerender();
 }
 
 interface EntityBlockInstance {
@@ -67,16 +79,7 @@ const block: BlockDefinition = {
         {
           type: "field_dropdown",
           name: "Entity",
-          options: function (): [string, string][] {
-            const opt: [string, string][] = [["none", ""]];
-            if (resource && resource.entity) {
-              const entity = resource.entity;
-              entity.forEach((ent) => {
-                opt.push([ent.name, ent.uuid]);
-              });
-            }
-            return opt;
-          },
+          options: buildNamedResourceOptions(resource?.entity),
         },
       ],
       output: "Entity",
@@ -138,14 +141,8 @@ const block: BlockDefinition = {
       getOriginalOptions: function (
         this: EntityBlockInstance
       ): [string, string][] {
-        const opt: [string, string][] = [["none", ""]];
         const resource = this.blockParameters && this.blockParameters.resource;
-        if (resource && resource.entity) {
-          resource.entity.forEach((ent) => {
-            opt.push([ent.name, ent.uuid]);
-          });
-        }
-        return opt;
+        return buildNamedResourceOptions(resource?.entity);
       },
 
       // 检测连接状态
@@ -175,11 +172,7 @@ const block: BlockDefinition = {
         const field = this.getField("Entity");
         if (!field) return;
 
-        // 恢复原始选项
-        field.menuGenerator_ = this.originalOptions;
-
-        // 强制重新渲染
-        field.forceRerender();
+        applyDropdownOptions(field, this.originalOptions);
       },
 
       // 更新下拉选项的方法，供其他模块使用
@@ -190,17 +183,7 @@ const block: BlockDefinition = {
         const field = this.getField("Entity");
         if (!field) return;
 
-        // 更新选项
-        field.menuGenerator_ = options;
-
-        // 检查当前值是否在新选项中存在
-        const currentValue = field.getValue();
-        if (!options.some((opt) => opt[1] === currentValue)) {
-          field.setValue("");
-        }
-
-        // 强制重新渲染
-        field.forceRerender();
+        applyDropdownOptions(field, options);
       },
 
       // 根据tooltipsData更新实体选项
@@ -208,12 +191,7 @@ const block: BlockDefinition = {
         this: EntityBlockInstance,
         tooltipsData: TooltipsData
       ) {
-        if (
-          !tooltipsData ||
-          !tooltipsData.tooltipsInfo ||
-          tooltipsData.tooltipsInfo.length === 0
-        )
-          return;
+        if (!tooltipsData || !tooltipsData.tooltipsInfo) return;
 
         // 保存tooltipsData，包括来源块ID
         this.tooltipsData = tooltipsData;
@@ -223,46 +201,14 @@ const block: BlockDefinition = {
         const field = this.getField("Entity");
         if (!field) return;
 
-        // 获取当前值
-        const currentValue = field.getValue();
-
-        // 检查实体列表中是否有匹配的parentUuid
         const resource = this.blockParameters && this.blockParameters.resource;
-        if (!resource || !resource.entity) return;
-
-        // 收集所有匹配的实体
-        const matchedEntities: [string, string][] = [];
         const parentUuids = tooltipsData.tooltipsInfo.map(
           (info) => info.parentUuid
         );
-
-        // 查找所有匹配parentUuid的实体
-        resource.entity.forEach((entity) => {
-          if (parentUuids.includes(entity.uuid)) {
-            matchedEntities.push([entity.name, entity.uuid]);
-          }
-        });
-
-        if (matchedEntities.length > 0) {
-          // 显示匹配的实体选项
-          const options: [string, string][] = [
-            ["none", ""],
-            ...matchedEntities,
-          ];
-          field.menuGenerator_ = options;
-
-          // 如果当前值不在匹配列表中，重置为空
-          if (!parentUuids.includes(currentValue) && currentValue !== "") {
-            field.setValue("");
-          }
-        } else {
-          // 如果没有匹配的实体，只显示none选项
-          field.menuGenerator_ = [["none", ""]];
-          field.setValue("");
-        }
-
-        // 强制重新渲染
-        field.forceRerender();
+        applyDropdownOptions(
+          field,
+          buildTooltipResourceOptions(resource?.entity, parentUuids)
+        );
       },
     };
     return data;
