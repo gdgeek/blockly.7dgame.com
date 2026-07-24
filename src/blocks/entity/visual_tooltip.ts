@@ -5,6 +5,10 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import {
+  collectTooltipParentUuids,
+  type ResourceFilterIndex,
+} from "../resourceFilters";
 
 const data = {
   name: "visual_tooltip",
@@ -14,15 +18,8 @@ interface TooltipInfo {
   parentUuid: string;
 }
 
-interface ResourceAction {
-  type: string;
-  parentUuid?: string;
-}
-
 interface BlockParameters {
-  resource?: {
-    action?: ResourceAction[];
-  };
+  resource?: ResourceFilterIndex;
 }
 
 interface TooltipBlockInstance {
@@ -78,31 +75,13 @@ const block: BlockDefinition = {
     const typedParams = parameters as BlockParameters;
     const data = {
       init: function (this: TooltipBlockInstance) {
-        console.error("parameters", parameters);
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
 
-        this.tooltipsInfo = [];
-
-        if (
-          typedParams &&
-          typedParams.resource &&
-          typedParams.resource.action
-        ) {
-          const tooltipActions = typedParams.resource.action.filter(
-            (action) => action.type === "Tooltip"
-          );
-
-          if (tooltipActions && tooltipActions.length > 0) {
-            tooltipActions.forEach((tooltipAction) => {
-              if (tooltipAction.parentUuid) {
-                this.tooltipsInfo.push({
-                  parentUuid: tooltipAction.parentUuid,
-                });
-              }
-            });
-          }
-        }
+        this.tooltipsInfo = Array.from(
+          collectTooltipParentUuids(typedParams?.resource),
+          (parentUuid) => ({ parentUuid })
+        );
 
         this.setOnChange((event: { type: string }) => {
           if (
@@ -120,8 +99,6 @@ const block: BlockDefinition = {
       },
 
       updateConnectedBlock: function (this: TooltipBlockInstance) {
-        if (!this.tooltipsInfo || this.tooltipsInfo.length === 0) return;
-
         const entityInput = this.getInput("entity");
         if (!entityInput || !entityInput.connection) return;
 
@@ -130,7 +107,7 @@ const block: BlockDefinition = {
 
         if (typeof connectedBlock.updateEntityOptions === "function") {
           connectedBlock.updateEntityOptions({
-            tooltipsInfo: this.tooltipsInfo,
+            tooltipsInfo: this.tooltipsInfo || [],
             sourceBlockId: this.id,
           });
         }

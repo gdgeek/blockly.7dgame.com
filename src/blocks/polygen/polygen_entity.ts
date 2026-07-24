@@ -6,20 +6,18 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import {
+  buildPolygenOptions,
+  buildTooltipResourceOptions,
+  type ResourceFilterIndex,
+} from "../resourceFilters";
 
 const data = {
   name: "polygen_entity",
 } as const;
 
-interface ResourcePolygen {
-  name: string;
-  uuid: string;
-}
-
 interface BlockParameters {
-  resource?: {
-    polygen?: ResourcePolygen[];
-  };
+  resource?: ResourceFilterIndex;
 }
 
 interface TooltipsData {
@@ -28,10 +26,22 @@ interface TooltipsData {
 }
 
 interface DropdownField {
-  menuGenerator_: [string, string][];
   getValue: () => string;
   setValue: (value: string) => void;
+  setOptions: (options: [string, string][]) => void;
   forceRerender: () => void;
+}
+
+function applyDropdownOptions(
+  field: DropdownField,
+  options: [string, string][]
+): void {
+  const currentValue = field.getValue();
+  field.setOptions(options);
+  if (options.some((option) => option[1] === currentValue)) {
+    field.setValue(currentValue);
+  }
+  field.forceRerender();
 }
 
 interface PolygenEntityBlockInstance {
@@ -44,10 +54,11 @@ interface PolygenEntityBlockInstance {
   setOnChange: (callback: (event: { type: string }) => void) => void;
   getFieldValue: (name: string) => string;
   getField: (name: string) => DropdownField | null;
-  getParent: () => { id: string } | null;
+  getParent: () => { id: string; type?: string } | null;
   getOriginalOptions: () => [string, string][];
   checkConnectionState: () => void;
   restoreOriginalOptions: () => void;
+  syncContextualOptions: () => void;
   updateDropdownOptions: (options: [string, string][]) => void;
   updateEntityOptions: (tooltipsData: TooltipsData) => void;
 }
@@ -69,16 +80,7 @@ const block: BlockDefinition = {
         {
           type: "field_dropdown",
           name: "Polygen",
-          options: function (): [string, string][] {
-            const opt: [string, string][] = [["none", ""]];
-            if (resource && resource.polygen) {
-              const polygen = resource.polygen;
-              polygen.forEach((poly) => {
-                opt.push([poly.name, poly.uuid]);
-              });
-            }
-            return opt;
-          },
+          options: buildPolygenOptions(resource),
         },
       ],
       output: "Polygen",
@@ -131,21 +133,24 @@ const block: BlockDefinition = {
           ) {
             this.checkConnectionState();
           }
+
+          if (
+            event.type === Blockly.Events.BLOCK_CREATE ||
+            event.type === Blockly.Events.BLOCK_MOVE
+          ) {
+            this.syncContextualOptions();
+          }
         });
+
+        setTimeout(() => this.syncContextualOptions(), 0);
       },
 
       // 获取原始选项
       getOriginalOptions: function (
         this: PolygenEntityBlockInstance
       ): [string, string][] {
-        const opt: [string, string][] = [["none", ""]];
         const resource = this.blockParameters && this.blockParameters.resource;
-        if (resource && resource.polygen) {
-          resource.polygen.forEach((poly) => {
-            opt.push([poly.name, poly.uuid]);
-          });
-        }
-        return opt;
+        return buildPolygenOptions(resource);
       },
 
       // 检测连接状态
@@ -158,7 +163,6 @@ const block: BlockDefinition = {
           (parentBlockId === null ||
             parentBlockId !== this.tooltipsData.sourceBlockId)
         ) {
-          this.restoreOriginalOptions();
           this.tooltipsData = null;
           this.parentBlockId = null;
         }
@@ -168,11 +172,25 @@ const block: BlockDefinition = {
 
       // 恢复原始选项
       restoreOriginalOptions: function (this: PolygenEntityBlockInstance) {
+        this.syncContextualOptions();
+      },
+
+      syncContextualOptions: function (this: PolygenEntityBlockInstance) {
+        const parentBlock = this.getParent();
+        if (
+          parentBlock?.type === "visual_tooltip" &&
+          this.tooltipsData?.sourceBlockId === parentBlock.id
+        ) {
+          return;
+        }
+
         const field = this.getField("Polygen");
         if (!field) return;
 
-        field.menuGenerator_ = this.originalOptions;
-        field.forceRerender();
+        applyDropdownOptions(
+          field,
+          buildPolygenOptions(this.blockParameters?.resource, parentBlock?.type)
+        );
       },
 
       // 更新下拉选项的方法，供其他模块使用
@@ -183,12 +201,7 @@ const block: BlockDefinition = {
         const field = this.getField("Polygen");
         if (!field) return;
 
-        field.menuGenerator_ = options;
-
-        const currentValue = field.getValue();
-        if (!options.some((opt) => opt[1] === currentValue)) {
-          field.setValue("");
-        }
+        applyDropdownOptions(field, options);
       },
 
       // 根据tooltipsData更新实体选项
@@ -196,12 +209,7 @@ const block: BlockDefinition = {
         this: PolygenEntityBlockInstance,
         tooltipsData: TooltipsData
       ) {
-        if (
-          !tooltipsData ||
-          !tooltipsData.tooltipsInfo ||
-          tooltipsData.tooltipsInfo.length === 0
-        )
-          return;
+        if (!tooltipsData || !tooltipsData.tooltipsInfo) return;
 
         this.tooltipsData = tooltipsData;
         this.parentBlockId = tooltipsData.sourceBlockId;
@@ -209,38 +217,14 @@ const block: BlockDefinition = {
         const field = this.getField("Polygen");
         if (!field) return;
 
-        const currentValue = field.getValue();
-
         const resource = this.blockParameters && this.blockParameters.resource;
-        if (!resource || !resource.polygen) return;
-
-        const matchedPolygens: [string, string][] = [];
         const parentUuids = tooltipsData.tooltipsInfo.map(
           (info) => info.parentUuid
         );
-
-        resource.polygen.forEach((polygen) => {
-          if (parentUuids.includes(polygen.uuid)) {
-            matchedPolygens.push([polygen.name, polygen.uuid]);
-          }
-        });
-
-        if (matchedPolygens.length > 0) {
-          const options: [string, string][] = [
-            ["none", ""],
-            ...matchedPolygens,
-          ];
-          field.menuGenerator_ = options;
-
-          if (!parentUuids.includes(currentValue) && currentValue !== "") {
-            field.setValue("");
-          }
-        } else {
-          field.menuGenerator_ = [["none", ""]];
-          field.setValue("");
-        }
-
-        field.forceRerender();
+        applyDropdownOptions(
+          field,
+          buildTooltipResourceOptions(resource?.polygen, parentUuids)
+        );
       },
     };
     return data;
