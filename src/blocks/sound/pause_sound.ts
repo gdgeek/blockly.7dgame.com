@@ -51,7 +51,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
+      const sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) ||
+        "undefined";
       const code = `${sound}.pause();\n`;
       return code;
     };
@@ -64,7 +66,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
+      const sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) || "nil";
       return "_G.sound.pause(" + sound + ")\n";
     };
     return lua;

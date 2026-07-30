@@ -52,12 +52,9 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const input = generator.valueToCode(
-        _block,
-        "Input",
-        generator.ORDER_NONE
-      );
-      return [Helper.StringJS(input), generator.ORDER_NONE];
+      const input =
+        generator.valueToCode(_block, "Input", generator.ORDER_NONE) || '""';
+      return [Helper.StringJS(input), generator.ORDER_FUNCTION_CALL];
     };
   },
   getLua(
@@ -67,11 +64,8 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const input = generator.valueToCode(
-        _block,
-        "Input",
-        generator.ORDER_NONE
-      );
+      const input =
+        generator.valueToCode(_block, "Input", generator.ORDER_NONE) || '""';
       return [Helper.String(input), generator.ORDER_NONE];
     };
   },

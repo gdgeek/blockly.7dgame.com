@@ -45,18 +45,18 @@ const block: BlockDefinition = {
   },
   getJavascript(
     _parameters: unknown
-  ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
+  ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
     return function (
       _block: BlocklyBlock,
       generator: BlocklyGenerator
-    ): string {
-      const array = generator.valueToCode(
-        _block,
-        "ParameterArray",
-        generator.ORDER_ATOMIC
-      );
-      const code = `helper.parameters(${array})\n`;
-      return code;
+    ): [string, unknown] {
+      const array =
+        generator.valueToCode(
+          _block,
+          "ParameterArray",
+          generator.ORDER_ATOMIC
+        ) || "[]";
+      return [`helper.parameters(${array})`, generator.ORDER_FUNCTION_CALL];
     };
   },
   getLua(
@@ -66,13 +66,13 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const array = generator.valueToCode(
-        _block,
-        "ParameterArray",
-        generator.ORDER_ATOMIC
-      );
-      const code = "_G.helper.parameters(" + array + ")\n";
-      return [code, generator.ORDER_NONE];
+      const array =
+        generator.valueToCode(
+          _block,
+          "ParameterArray",
+          generator.ORDER_ATOMIC
+        ) || "{}";
+      return ["_G.helper.parameters(" + array + ")", generator.ORDER_HIGH];
     };
   },
   toolbox: {

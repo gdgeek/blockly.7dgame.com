@@ -1,9 +1,11 @@
 import TriggerType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -120,7 +122,9 @@ const block: BlockDefinition = {
   getBlock(parameters: unknown): object {
     const data = {
       init: function () {
-        const current = this as unknown as { jsonInit: (_json: object) => void };
+        const current = this as unknown as {
+          jsonInit: (_json: object) => void;
+        };
         const json = block.getBlockJson!(parameters);
         current.jsonInit(json);
       },
@@ -136,11 +140,12 @@ const block: BlockDefinition = {
     ): string {
       const dropdown_option = block.getFieldValue("Voice");
       const statements_content = generator.statementToCode(block, "content");
+      const eventKey = quoteJavaScriptString(`@${dropdown_option}`);
       const code = `
-  meta['@${dropdown_option}'] = async function(parameter) {
-    let isPlaying = true
+  meta[${eventKey}] = async function(parameter) {
+    let isPlaying = true;
     ${statements_content}
-    isPlaying = false
+    isPlaying = false;
   };
   `;
       return code;
@@ -156,15 +161,17 @@ const block: BlockDefinition = {
     ): string {
       const dropdown_option = block.getFieldValue("Voice");
       const statements_content = generator.statementToCode(block, "content");
+      const eventKey = quoteLuaString(`@${dropdown_option}`);
+      const command = quoteLuaString(dropdown_option);
 
       const code =
-        "meta['@" +
-        dropdown_option +
-        "'] = function(parameter) \n\
+        "meta[" +
+        eventKey +
+        "] = function(parameter) \n\
   is_playing = true\n\
-  print('" +
-        dropdown_option +
-        "')\n\
+  print(" +
+        command +
+        ")\n\
 " +
         statements_content +
         "\n\

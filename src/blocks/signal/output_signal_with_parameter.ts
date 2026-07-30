@@ -1,9 +1,12 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  parseSignalReference,
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -82,15 +85,14 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const output_event = block.getFieldValue("Output");
-      const data = JSON.parse(output_event);
-      const parameter = generator.valueToCode(
-        block,
-        "Parameter",
-        generator.ORDER_ATOMIC
-      );
+      const data = parseSignalReference(block.getFieldValue("Output"));
+      const parameter =
+        generator.valueToCode(block, "Parameter", generator.ORDER_ATOMIC) ||
+        "undefined";
 
-      const code = `event.signal('${data.index}', '${data.uuid}', ${parameter});\n`;
+      const code = `event.signal(${quoteJavaScriptString(
+        data.index
+      )}, ${quoteJavaScriptString(data.uuid)}, ${parameter});\n`;
       return code;
     };
     return script;
@@ -102,21 +104,13 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const output_event = block.getFieldValue("Output");
-      const data = JSON.parse(output_event);
-      const parameter = generator.valueToCode(
-        block,
-        "Parameter",
-        generator.ORDER_ATOMIC
-      );
-      const code =
-        "_G.event.signal('" +
-        data.index +
-        "', '" +
-        data.uuid +
-        "'," +
-        parameter +
-        ")\n";
+      const data = parseSignalReference(block.getFieldValue("Output"));
+      const parameter =
+        generator.valueToCode(block, "Parameter", generator.ORDER_ATOMIC) ||
+        "nil";
+      const code = `_G.event.signal(${quoteLuaString(
+        data.index
+      )}, ${quoteLuaString(data.uuid)}, ${parameter})\n`;
       return code;
     };
     return lua;

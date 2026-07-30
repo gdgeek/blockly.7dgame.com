@@ -1,9 +1,11 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -133,19 +135,16 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_bool = generator.valueToCode(
-        block,
-        "bool",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+      const value_bool =
+        generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
       const value_color = block.getFieldValue("colorName");
 
-      const code = `polygen.setHighlight(${value_entity}, ${value_bool}, "${value_color}")\n`;
+      const code = `polygen.setHighlight(${value_entity}, ${value_bool}, ${quoteJavaScriptString(
+        value_color
+      )});\n`;
       return code;
     };
     return script;
@@ -157,16 +156,10 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_bool = generator.valueToCode(
-        block,
-        "bool",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
+      const value_bool =
+        generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
       const value_color = block.getFieldValue("colorName");
 
       const code =
@@ -174,9 +167,9 @@ const block: BlockDefinition = {
         value_entity +
         ", " +
         value_bool +
-        ', "' +
-        value_color +
-        '")\n';
+        ", " +
+        quoteLuaString(value_color) +
+        ")\n";
       return code;
     };
     return lua;

@@ -62,16 +62,10 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_from = generator.valueToCode(
-        block,
-        "from",
-        generator.ORDER_ATOMIC
-      );
-      const value_to = generator.valueToCode(
-        block,
-        "to",
-        generator.ORDER_ATOMIC
-      );
+      const value_from =
+        generator.valueToCode(block, "from", generator.ORDER_ATOMIC) || "nil";
+      const value_to =
+        generator.valueToCode(block, "to", generator.ORDER_ATOMIC) || "nil";
       const code =
         "CS.MLua.Helper.Lined(" + value_from + ", " + value_to + ")\n";
       return code;

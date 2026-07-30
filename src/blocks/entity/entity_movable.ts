@@ -111,18 +111,14 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_movable = generator.valueToCode(
-        block,
-        "movable",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+      const value_movable =
+        generator.valueToCode(block, "movable", generator.ORDER_ATOMIC) ||
+        "false";
 
-      const code = `point.setMoveable(${value_entity}, ${value_movable})\n`;
+      const code = `point.setMoveable(${value_entity}, ${value_movable});\n`;
       return code;
     };
     return script;
@@ -134,16 +130,11 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_movable = generator.valueToCode(
-        block,
-        "movable",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
+      const value_movable =
+        generator.valueToCode(block, "movable", generator.ORDER_ATOMIC) ||
+        "false";
       const code =
         "_G.point.set_moveable(" + value_entity + ", " + value_movable + ")\n";
       return code;

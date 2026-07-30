@@ -1,9 +1,11 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -100,11 +102,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_movable = generator.valueToCode(
-        block,
-        "movable",
-        generator.ORDER_ATOMIC
-      );
+      const value_movable =
+        generator.valueToCode(block, "movable", generator.ORDER_ATOMIC) ||
+        "false";
 
       const movableEntities =
         (block as unknown as { movableEntities?: string[] }).movableEntities ||
@@ -113,7 +113,7 @@ const block: BlockDefinition = {
       let code: string;
       if (movableEntities.length > 0) {
         const handlerCalls = movableEntities
-          .map((uuid) => `handlePolygen("${uuid}")`)
+          .map((uuid) => `handlePolygen(${quoteJavaScriptString(uuid)})`)
           .join(",\n    ");
 
         code =
@@ -122,9 +122,9 @@ const block: BlockDefinition = {
           handlerCalls +
           "], " +
           value_movable +
-          ")\n";
+          ");\n";
       } else {
-        code = `polygen.setAllMovable(handlePolygen(""), ${value_movable})\n`;
+        code = `polygen.setAllMovable(handlePolygen(""), ${value_movable});\n`;
       }
 
       return code;
@@ -138,11 +138,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_movable = generator.valueToCode(
-        block,
-        "movable",
-        generator.ORDER_ATOMIC
-      );
+      const value_movable =
+        generator.valueToCode(block, "movable", generator.ORDER_ATOMIC) ||
+        "false";
 
       const movableEntities =
         (block as unknown as { movableEntities?: string[] }).movableEntities ||
@@ -151,7 +149,7 @@ const block: BlockDefinition = {
       let code: string;
       if (movableEntities.length > 0) {
         const handlerCalls = movableEntities
-          .map((uuid) => `_G.helper.handler(index, '${uuid}')`)
+          .map((uuid) => `_G.helper.handler(index, ${quoteLuaString(uuid)})`)
           .join(",\n  ");
 
         code =

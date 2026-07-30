@@ -1,9 +1,11 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 import { getTweenEasingOptions } from "./tween_easing_options";
 
@@ -70,10 +72,15 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
+      const time =
+        generator.valueToCode(block, "Time", generator.ORDER_NONE) || "0";
       const easy = block.getFieldValue("Easy");
-      const from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
-      const to = generator.valueToCode(block, "To", generator.ORDER_ATOMIC);
+      const from =
+        generator.valueToCode(block, "From", generator.ORDER_ATOMIC) ||
+        "undefined";
+      const to =
+        generator.valueToCode(block, "To", generator.ORDER_ATOMIC) ||
+        "undefined";
       const code =
         "tween.to_object(" +
         from +
@@ -81,10 +88,10 @@ const block: BlockDefinition = {
         to +
         ", " +
         time +
-        ', "' +
-        easy +
-        '")';
-      return [code, generator.ORDER_NONE];
+        ", " +
+        quoteJavaScriptString(easy) +
+        ")";
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
     return js;
   },
@@ -95,10 +102,13 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
+      const time =
+        generator.valueToCode(block, "Time", generator.ORDER_NONE) || "0";
       const easy = block.getFieldValue("Easy");
-      const from = generator.valueToCode(block, "From", generator.ORDER_ATOMIC);
-      const to = generator.valueToCode(block, "To", generator.ORDER_ATOMIC);
+      const from =
+        generator.valueToCode(block, "From", generator.ORDER_ATOMIC) || "nil";
+      const to =
+        generator.valueToCode(block, "To", generator.ORDER_ATOMIC) || "nil";
       const code =
         "_G.tween.to_object(" +
         from +
@@ -106,9 +116,9 @@ const block: BlockDefinition = {
         to +
         ", " +
         time +
-        ', "' +
-        easy +
-        '")';
+        ", " +
+        quoteLuaString(easy) +
+        ")";
       return [code, generator.ORDER_NONE];
     };
     return lua;

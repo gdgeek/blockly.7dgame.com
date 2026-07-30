@@ -51,11 +51,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const statements_content = generator.valueToCode(
-        block,
-        "content",
-        generator.ORDER_NONE
-      );
+      const statements_content =
+        generator.valueToCode(block, "content", generator.ORDER_NONE) || "[]";
       const execute = `await task.execute(${statements_content});\n`;
       return execute;
     };
@@ -68,11 +65,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const statements_content = generator.valueToCode(
-        block,
-        "content",
-        generator.ORDER_NONE
-      );
+      const statements_content =
+        generator.valueToCode(block, "content", generator.ORDER_NONE) || "{}";
       const execute = "_G.task.execute(" + statements_content + ")\n";
       return execute;
     };

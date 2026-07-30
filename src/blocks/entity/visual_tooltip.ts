@@ -122,17 +122,12 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_bool = generator.valueToCode(
-        block,
-        "bool",
-        generator.ORDER_ATOMIC
-      );
-      const code = `point.setTooltipVisual(${value_entity}, ${value_bool})\n`;
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+      const value_bool =
+        generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
+      const code = `point.setTooltipVisual(${value_entity}, ${value_bool});\n`;
       return code;
     };
     return script;
@@ -144,16 +139,10 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_bool = generator.valueToCode(
-        block,
-        "bool",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
+      const value_bool =
+        generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
       const code = `_G.point.set_tooltip_visual(${value_entity}, ${value_bool})\n`;
       return code;
     };

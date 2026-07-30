@@ -47,11 +47,12 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
-      const statements_content = generator.valueToCode(
-        block,
-        "content",
-        (generator as unknown as { ORDER_NONE: number }).ORDER_NONE
-      );
+      const statements_content =
+        generator.valueToCode(
+          block,
+          "content",
+          (generator as unknown as { ORDER_NONE: number }).ORDER_NONE
+        ) || "[]";
       const code = `await task.execute(${statements_content});\n`;
       return code;
     };
@@ -60,11 +61,12 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
-      const statements_content = generator.valueToCode(
-        block,
-        "content",
-        (generator as unknown as { ORDER_NONE: number }).ORDER_NONE
-      );
+      const statements_content =
+        generator.valueToCode(
+          block,
+          "content",
+          (generator as unknown as { ORDER_NONE: number }).ORDER_NONE
+        ) || "{}";
       const execute = "_G.task.execute(" + statements_content + ")\n";
       return execute;
     };

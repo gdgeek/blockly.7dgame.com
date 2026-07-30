@@ -77,12 +77,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const type = _block.getFieldValue("PlayerType");
-      const id = generator.valueToCode(
-        _block,
-        "Player",
-        generator.ORDER_ATOMIC
-      );
-      return [Helper.PlayerJS(type, id), generator.ORDER_NONE];
+      const id =
+        generator.valueToCode(_block, "Player", generator.ORDER_ATOMIC) || "0";
+      return [Helper.PlayerJS(type, id), generator.ORDER_FUNCTION_CALL];
     };
   },
   getLua(
@@ -93,11 +90,8 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const type = _block.getFieldValue("PlayerType");
-      const id = generator.valueToCode(
-        _block,
-        "Player",
-        generator.ORDER_ATOMIC
-      );
+      const id =
+        generator.valueToCode(_block, "Player", generator.ORDER_ATOMIC) || "0";
       return [Helper.Player(type, id), generator.ORDER_NONE];
     };
   },

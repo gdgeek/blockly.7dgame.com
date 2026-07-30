@@ -43,9 +43,22 @@ javascriptGenerator.forBlock["stock_buy_simple"] = function (
   const numberId = block.getFieldValue("ID") as string;
   const numberAmount = block.getFieldValue("Amount") as string;
   const numberPrice = block.getFieldValue("Price") as string;
-  const valueNumber = generator.valueToCode(block, "Number", Order.ATOMIC);
+  const valueNumber =
+    generator.valueToCode(block, "Number", Order.ATOMIC) || "0";
   const code = `buy(${numberId},${numberAmount},${numberPrice},${valueNumber});\n`;
   return code;
+};
+
+Lua.luaGenerator.forBlock["stock_buy_simple"] = function (
+  block: Blockly.Block,
+  generator: LuaGenerator
+): string {
+  const numberId = block.getFieldValue("ID") as string;
+  const numberAmount = block.getFieldValue("Amount") as string;
+  const numberPrice = block.getFieldValue("Price") as string;
+  const valueNumber =
+    generator.valueToCode(block, "Number", Lua.Order.ATOMIC) || "0";
+  return `buy(${numberId},${numberAmount},${numberPrice},${valueNumber})\n`;
 };
 
 Blockly.Blocks["stock_buy_prog"] = {
@@ -54,7 +67,7 @@ Blockly.Blocks["stock_buy_prog"] = {
       .setCheck("Number")
       .appendField("Buy Stock ID");
     this.appendValueInput("NAME").setCheck("Number").appendField("For amount");
-    this.appendValueInput("NAME").setCheck("Number").appendField("At Price");
+    this.appendValueInput("Price").setCheck("Number").appendField("At Price");
     this.setPreviousStatement(true, null);
     this.setNextStatement(true, "String");
     this.setColour(230);
@@ -67,9 +80,13 @@ Lua.luaGenerator.forBlock["stock_buy_prog"] = function (
   block: Blockly.Block,
   generator: LuaGenerator
 ): string {
-  const valueNumber = generator.valueToCode(block, "Number", Lua.Order.ATOMIC);
-  const valueName = generator.valueToCode(block, "NAME", Lua.Order.ATOMIC);
-  const code = `buy(${valueNumber},${valueName},${valueName});\n`;
+  const valueNumber =
+    generator.valueToCode(block, "Number", Lua.Order.ATOMIC) || "0";
+  const valueAmount =
+    generator.valueToCode(block, "NAME", Lua.Order.ATOMIC) || "0";
+  const valuePrice =
+    generator.valueToCode(block, "Price", Lua.Order.ATOMIC) || valueAmount;
+  const code = `buy(${valueNumber},${valueAmount},${valuePrice})\n`;
   return code;
 };
 
@@ -77,9 +94,12 @@ javascriptGenerator.forBlock["stock_buy_prog"] = function (
   block: Blockly.Block,
   generator: JavascriptGenerator
 ): string {
-  const valueNumber = generator.valueToCode(block, "Number", Order.ATOMIC);
-  const valueName = generator.valueToCode(block, "NAME", Order.ATOMIC);
-  const code = `buy(${valueNumber},${valueName},${valueName});\n`;
+  const valueNumber =
+    generator.valueToCode(block, "Number", Order.ATOMIC) || "0";
+  const valueAmount = generator.valueToCode(block, "NAME", Order.ATOMIC) || "0";
+  const valuePrice =
+    generator.valueToCode(block, "Price", Order.ATOMIC) || valueAmount;
+  const code = `buy(${valueNumber},${valueAmount},${valuePrice});\n`;
   return code;
 };
 
@@ -104,12 +124,26 @@ javascriptGenerator.forBlock["stock_fetch_price"] = function (
   block: Blockly.Block,
   generator: JavascriptGenerator
 ): string {
-  const valueFetch = generator.valueToCode(block, "Fetch", Order.ATOMIC);
+  const valueFetch = generator.valueToCode(block, "Fetch", Order.ATOMIC) || "0";
   const variableVariable =
     generator.nameDB_?.getName(
       block.getFieldValue("variable") as string,
       Blockly.Names.NameType.VARIABLE
-    ) ?? "";
+    ) || "item";
   const code = `fetch_price(${valueFetch},${variableVariable});\n`;
   return code;
+};
+
+Lua.luaGenerator.forBlock["stock_fetch_price"] = function (
+  block: Blockly.Block,
+  generator: LuaGenerator
+): string {
+  const valueFetch =
+    generator.valueToCode(block, "Fetch", Lua.Order.ATOMIC) || "0";
+  const variableVariable =
+    generator.nameDB_?.getName(
+      block.getFieldValue("variable") as string,
+      Blockly.Names.NameType.VARIABLE
+    ) || "item";
+  return `fetch_price(${valueFetch},${variableVariable})\n`;
 };

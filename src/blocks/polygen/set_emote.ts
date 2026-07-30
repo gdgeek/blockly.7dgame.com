@@ -1,9 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -70,11 +71,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const text_emote = block.getFieldValue("emote");
-      const value_polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
+      const value_polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) ||
+        "undefined";
       const code = `polygen.setEmote(${value_polygen}, ${JSON.stringify(
         text_emote
       )});\n`;
@@ -90,12 +89,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const text_emote = block.getFieldValue("emote");
-      const value_polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
-      const code = `_G.polygen.set_emote(${value_polygen}, ${JSON.stringify(
+      const value_polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) || "nil";
+      const code = `_G.polygen.set_emote(${value_polygen}, ${quoteLuaString(
         text_emote
       )})\n`;
       return code;

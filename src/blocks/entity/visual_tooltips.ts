@@ -1,9 +1,11 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -101,30 +103,16 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_bool = generator.valueToCode(
-        block,
-        "bool",
-        generator.ORDER_ATOMIC
-      );
+      const value_bool =
+        generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
       const tooltipsEntities =
         (block as unknown as { tooltipsEntities?: string[] })
           .tooltipsEntities || [];
-      let code: string;
-      if (tooltipsEntities.length > 0) {
-        const handlerCalls = tooltipsEntities
-          .map((uuid) => `handleEntity("${uuid}")`)
-          .join(",\n    ");
-        code =
-          `point.setTooltipsVisual(` +
-          "{" +
-          handlerCalls +
-          "}, " +
-          value_bool +
-          ")\n";
-      } else {
-        code = `point.setTooltipsVisual(handleEntity(""), ${value_bool})\n`;
-      }
-      return code;
+      const handlerCalls = tooltipsEntities
+        .map((uuid) => `handleEntity(${quoteJavaScriptString(uuid)})`)
+        .join(",\n  ");
+      const entities = handlerCalls ? `[\n  ${handlerCalls}\n]` : "[]";
+      return `point.setTooltipsVisual(${entities}, ${value_bool});\n`;
     };
     return script;
   },
@@ -135,33 +123,16 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_bool = generator.valueToCode(
-        block,
-        "bool",
-        generator.ORDER_ATOMIC
-      );
+      const value_bool =
+        generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
       const tooltipsEntities =
         (block as unknown as { tooltipsEntities?: string[] })
           .tooltipsEntities || [];
-      let code: string;
-      if (tooltipsEntities.length > 0) {
-        const handlerCalls = tooltipsEntities
-          .map((uuid) => `_G.helper.handler(index, '${uuid}')`)
-          .join(",\n  ");
-        code =
-          "_G.point.set_tooltips_visual(" +
-          "{\n  " +
-          handlerCalls +
-          "\n}, " +
-          value_bool +
-          ")\n";
-      } else {
-        code =
-          "_G.point.set_tooltips_visual(_G.helper.handler(index, '')," +
-          value_bool +
-          ")\n";
-      }
-      return code;
+      const handlerCalls = tooltipsEntities
+        .map((uuid) => `_G.helper.handler(index, ${quoteLuaString(uuid)})`)
+        .join(",\n  ");
+      const entities = handlerCalls ? `{\n  ${handlerCalls}\n}` : "{}";
+      return `_G.point.set_tooltips_visual(${entities}, ${value_bool})\n`;
     };
     return lua;
   },
