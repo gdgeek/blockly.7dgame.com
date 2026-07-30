@@ -380,6 +380,16 @@ function bindStableGestureBridge(
   const setSelectedWithMultiselectPreservation = (
     newSelection: unknown | null
   ): void => {
+    // The multiselect plugin still uses the pre-Blockly-12 convention of
+    // passing null to clear the selection. Blockly 12 forwards that value to
+    // FocusManager.focusNode(), which expects an IFocusableNode and crashes.
+    // Focusing the non-selectable workspace root is Blockly 12's supported way
+    // to clear the current selection.
+    if (newSelection === null) {
+      focusWorkspace(workspace);
+      return;
+    }
+
     const controls = getControls();
     const selectedBlockIds = getSelectedBlockIds();
     const isSelectingMultiselect =
