@@ -456,6 +456,11 @@ function bindStableGestureBridge(
     block.pathObject.updateSelected(true);
   };
 
+  const releaseMultiselectKeyState = (): void => {
+    isMultiselectKeyPressed = false;
+    disableMultiselect();
+  };
+
   const scheduleSingleBlockSelectionRestore = (
     block: Blockly.BlockSvg
   ): void => {
@@ -476,6 +481,11 @@ function bindStableGestureBridge(
   };
 
   const onKeyDown = (event: KeyboardEvent): void => {
+    if (isMacScreenshotShortcut(event)) {
+      releaseMultiselectKeyState();
+      return;
+    }
+
     if (!isMultiselectKey(event) || event.repeat) return;
 
     isMultiselectKeyPressed = true;
@@ -491,12 +501,21 @@ function bindStableGestureBridge(
   };
 
   const onWindowBlur = (): void => {
-    isMultiselectKeyPressed = false;
-    disableMultiselect();
+    releaseMultiselectKeyState();
+  };
+
+  const onVisibilityChange = (): void => {
+    if (document.visibilityState !== "visible") {
+      releaseMultiselectKeyState();
+    }
   };
 
   const onPointerDown = (event: PointerEvent): void => {
     if (isWorkspaceControlTarget(event.target)) return;
+    if (!event.shiftKey && isMultiselectKeyPressed) {
+      isMultiselectKeyPressed = false;
+      disableMultiselect();
+    }
 
     const block = getEventBlock(workspace, event);
     const selectedBlockIds = getSelectedBlockIds();
@@ -651,6 +670,7 @@ function bindStableGestureBridge(
   window.addEventListener("keydown", onKeyDown, true);
   window.addEventListener("keyup", onKeyUp, true);
   window.addEventListener("blur", onWindowBlur);
+  document.addEventListener("visibilitychange", onVisibilityChange);
   window.addEventListener("pointerup", onPointerUp, true);
   window.addEventListener("pointercancel", onPointerCancel, true);
   workspace.addChangeListener(onWorkspaceChange);
@@ -670,6 +690,7 @@ function bindStableGestureBridge(
     window.removeEventListener("keydown", onKeyDown, true);
     window.removeEventListener("keyup", onKeyUp, true);
     window.removeEventListener("blur", onWindowBlur);
+    document.removeEventListener("visibilitychange", onVisibilityChange);
     window.removeEventListener("pointerup", onPointerUp, true);
     window.removeEventListener("pointercancel", onPointerCancel, true);
   };
@@ -755,6 +776,13 @@ function patchMultiselectDraggableForBlockly12(
 
 function isMultiselectKey(event: KeyboardEvent): boolean {
   return NORMALIZED_MULTI_SELECT_KEYS.includes(event.key.toLocaleLowerCase());
+}
+
+function isMacScreenshotShortcut(event: KeyboardEvent): boolean {
+  if (!event.metaKey || !event.shiftKey) return false;
+
+  const key = event.key.toLocaleLowerCase();
+  return key === "5" || event.code === "Digit5" || event.code === "Numpad5";
 }
 
 function isEditableTarget(target: EventTarget | null): boolean {
