@@ -51,7 +51,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
+      const sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) ||
+        "undefined";
       const isInActionTrigger =
         (
           block as unknown as {
@@ -77,7 +79,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
+      const sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) || "nil";
       return "_G.sound.play(" + sound + ")\n";
     };
     return lua;

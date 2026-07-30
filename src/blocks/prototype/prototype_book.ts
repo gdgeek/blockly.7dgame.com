@@ -1,9 +1,11 @@
 import PrototypeType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -131,8 +133,9 @@ const block: BlockDefinition = {
       const book_uuid = block.getFieldValue("Book");
       const page_value = block.getFieldValue("Page");
       const statements_content = generator.statementToCode(block, "content");
+      const eventKey = quoteJavaScriptString(`@${book_uuid}${page_value}`);
       const code = `
-meta['@${book_uuid}${page_value}'] = async function(parameter) {
+meta[${eventKey}] = async function(parameter) {
   let isPlaying = true;
   console.log('');
   ${statements_content}
@@ -153,8 +156,9 @@ meta['@${book_uuid}${page_value}'] = async function(parameter) {
       const book_uuid = block.getFieldValue("Book");
       const page_value = block.getFieldValue("Page");
       const statements_content = generator.statementToCode(block, "content");
+      const eventKey = quoteLuaString(`@${book_uuid}${page_value}`);
       const code = `
-meta['@${book_uuid}${page_value}'] = function(parameter)
+meta[${eventKey}] = function(parameter)
   is_playing = true
   print('')
 ${statements_content}

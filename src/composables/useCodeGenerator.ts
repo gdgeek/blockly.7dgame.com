@@ -8,6 +8,19 @@ export interface GeneratedCode {
   lua: string;
 }
 
+export type GeneratedCodeLanguage = "javascript" | "lua";
+
+export interface CodeGenerationWarning {
+  code: "code-generation-failed";
+  language: GeneratedCodeLanguage;
+  message: string;
+}
+
+export interface SafeGeneratedCode {
+  generated: GeneratedCode;
+  warnings: CodeGenerationWarning[];
+}
+
 /**
  * Composable that wraps Blockly code generation for JavaScript and Lua.
  *
@@ -39,9 +52,49 @@ export function useCodeGenerator() {
     };
   };
 
+  /**
+   * Generate JavaScript and Lua independently.
+   *
+   * A broken generator in one language must not prevent users from saving the
+   * Blockly workspace. The last successfully generated code for that language
+   * is retained and the failure is returned as a warning.
+   */
+  const generateAllSafely = (
+    workspace: Blockly.Workspace,
+    fallback: GeneratedCode = { js: "", lua: "" }
+  ): SafeGeneratedCode => {
+    const generated: GeneratedCode = { ...fallback };
+    const warnings: CodeGenerationWarning[] = [];
+
+    try {
+      generated.js = generateJavaScript(workspace);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      warnings.push({
+        code: "code-generation-failed",
+        language: "javascript",
+        message: `JavaScript 代码生成失败，已保留上次成功生成的代码：${detail}`,
+      });
+    }
+
+    try {
+      generated.lua = generateLua(workspace);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      warnings.push({
+        code: "code-generation-failed",
+        language: "lua",
+        message: `Lua 代码生成失败，已保留上次成功生成的代码：${detail}`,
+      });
+    }
+
+    return { generated, warnings };
+  };
+
   return {
     generateJavaScript,
     generateLua,
     generateAll,
+    generateAllSafely,
   };
 }

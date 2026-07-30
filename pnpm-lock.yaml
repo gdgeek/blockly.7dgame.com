@@ -26,12 +26,18 @@ importers:
       '@mit-app-inventor/blockly-plugin-workspace-multiselect':
         specifier: ^1.0.2
         version: 1.0.2(blockly@12.5.1)
+      acorn:
+        specifier: ^8.15.0
+        version: 8.15.0
       blockly:
         specifier: ^12.2.0
         version: 12.5.1
       element-plus:
         specifier: ^2.13.0
         version: 2.13.0(vue@3.5.26(typescript@5.9.3))
+      luaparse:
+        specifier: ^0.3.1
+        version: 0.3.1
       vue:
         specifier: ^3.5.26
         version: 3.5.26(typescript@5.9.3)
@@ -39,6 +45,9 @@ importers:
       '@rushstack/eslint-patch':
         specifier: ^1.15.0
         version: 1.15.0
+      '@types/luaparse':
+        specifier: ^0.2.13
+        version: 0.2.13
       '@typescript-eslint/eslint-plugin':
         specifier: ^8.57.1
         version: 8.57.2(@typescript-eslint/parser@8.57.2(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1)(typescript@5.9.3)
@@ -540,6 +549,9 @@ packages:
 
   '@types/lodash@4.17.21':
     resolution: {integrity: sha512-FOvQ0YPD5NOfPgMzJihoT+Za5pdkDJWcbpuj1DjaKZIr/gxodQjY/uWEFlTNqW2ugXHUiL8lRQgw63dzKHZdeQ==}
+
+  '@types/luaparse@0.2.13':
+    resolution: {integrity: sha512-nWs2m9b/zrMcAA2Rs+wTxdIsBkSYMo0+6ko8mpeqS5dhchU3hQN9kZGcSw96n497Vc7kGpDLtSicjdpaUrRAkw==}
 
   '@types/web-bluetooth@0.0.20':
     resolution: {integrity: sha512-g9gZnnXVq7gM7v3tJCWV/qw7w+KeOlSHAhgF9RytFyifW6AF61hdT2ucrYhPq9hLs5JIryeupHV3qGk95dH9ow==}
@@ -1313,6 +1325,10 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
+
+  luaparse@0.3.1:
+    resolution: {integrity: sha512-b21h2bFEbtGXmVqguHogbyrMAA0wOHyp9u/rx+w6Yc9pW1t9YjhGUsp87lYcp7pFRqSWN/PhFkrdIqKEUzRjjQ==}
+    hasBin: true
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
@@ -2157,6 +2173,8 @@ snapshots:
       '@types/lodash': 4.17.21
 
   '@types/lodash@4.17.21': {}
+
+  '@types/luaparse@0.2.13': {}
 
   '@types/web-bluetooth@0.0.20': {}
 
@@ -3103,6 +3121,8 @@ snapshots:
   loupe@3.2.1: {}
 
   lru-cache@10.4.3: {}
+
+  luaparse@0.3.1: {}
 
   magic-string@0.30.21:
     dependencies:

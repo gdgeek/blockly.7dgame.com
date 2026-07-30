@@ -1,9 +1,11 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -76,20 +78,18 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const statements_content = generator.valueToCode(
-        block,
-        "content",
-        generator.ORDER_NONE
-      );
+      const statements_content =
+        generator.valueToCode(block, "content", generator.ORDER_NONE) || "[]";
 
       const dropdown_option = block.getFieldValue("Action");
+      const eventKey = quoteJavaScriptString(`@${dropdown_option}`);
       const execute = "await task.execute(" + statements_content + ");\n";
       const code =
-        "meta['@" +
-        dropdown_option +
-        "'] = async function(parameter) {\n" +
+        "meta[" +
+        eventKey +
+        "] = async function(parameter) {\n" +
         execute +
-        "}\n";
+        "};\n";
 
       return code;
     };
@@ -102,20 +102,14 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const statements_content = generator.valueToCode(
-        block,
-        "content",
-        generator.ORDER_NONE
-      );
+      const statements_content =
+        generator.valueToCode(block, "content", generator.ORDER_NONE) || "{}";
 
       const dropdown_option = block.getFieldValue("Action");
+      const eventKey = quoteLuaString(`@${dropdown_option}`);
       const execute = "  _G.task.execute(" + statements_content + ")\n";
       const code =
-        "meta['@" +
-        dropdown_option +
-        "'] = function(parameter) \n  " +
-        execute +
-        "end\n";
+        "meta[" + eventKey + "] = function(parameter) \n  " + execute + "end\n";
 
       return code;
     };

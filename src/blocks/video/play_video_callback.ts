@@ -1,8 +1,9 @@
 import DataType from "./type";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -60,12 +61,16 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) ||
+        "undefined";
       const occupy = block.getFieldValue("occupy") === "TRUE";
 
       const parameter = video + ", " + JSON.stringify(occupy);
       const callback = generator.statementToCode(block, "callback");
-      return `handleVideo(${JSON.stringify(parameter)}, ${callback})`;
+      return `handleVideo(${JSON.stringify(
+        parameter
+      )}, async () => {\n${callback}});\n`;
     };
     return script;
   },
@@ -76,11 +81,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_video = generator.valueToCode(
-        block,
-        "video",
-        generator.ORDER_NONE
-      );
+      const value_video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) || "nil";
       const statements_callback = generator.statementToCode(block, "callback");
 
       const checkbox_occupy = block.getFieldValue("occupy") === "TRUE";
@@ -91,7 +93,7 @@ const block: BlockDefinition = {
         ", " +
         JSON.stringify(checkbox_occupy) +
         ", " +
-        JSON.stringify(statements_callback) +
+        quoteLuaString(statements_callback) +
         ")\n";
       return code;
     };

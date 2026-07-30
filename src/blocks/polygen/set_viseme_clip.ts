@@ -58,16 +58,12 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_sound = generator.valueToCode(
-        block,
-        "sound",
-        generator.ORDER_NONE
-      );
-      const value_polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
+      const value_sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) ||
+        "undefined";
+      const value_polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) ||
+        "undefined";
       const code = `polygen.setVisemeClip(${value_polygen}, ${value_sound});\n`;
       return code;
     };
@@ -80,16 +76,10 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_sound = generator.valueToCode(
-        block,
-        "sound",
-        generator.ORDER_NONE
-      );
-      const value_polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
+      const value_sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) || "nil";
+      const value_polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) || "nil";
       const code = `_G.polygen.set_viseme_clip(${value_polygen}, ${value_sound})\n`;
       return code;
     };

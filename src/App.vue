@@ -34,14 +34,23 @@ import { Access } from "./utils/Access";
 import type { UserInfo } from "./utils/Access";
 import { useMessageBridge } from "./composables/useMessageBridge";
 import { useCodeGenerator } from "./composables/useCodeGenerator";
+import type {
+  CodeGenerationWarning,
+  GeneratedCode,
+} from "./composables/useCodeGenerator";
 import { useToolboxSetup } from "./composables/useToolboxSetup";
 import type { BlocklyOptions } from "./composables/useToolboxSetup";
 import { useWorkspace } from "./composables/useWorkspace";
 import { useTheme } from "./composables/useTheme";
 import {
-  clearWorkspaceValidationIssueFeedback,
-  focusWorkspaceValidationIssue,
-  isWorkspaceValidationIssueResolved,
+  hasPersistedChanges,
+  prepareWorkspaceInitData,
+  SaveCoordinator,
+} from "./utils/saveCoordinator";
+import {
+  clearWorkspaceValidationFeedback,
+  serializeWorkspaceWarnings,
+  showWorkspaceValidationWarnings,
   validateWorkspaceForSave,
   type WorkspaceValidationIssue,
 } from "./utils/workspaceValidation";
@@ -52,6 +61,10 @@ interface InitConfig {
   parameters: unknown;
   data: unknown;
   userInfo: UserInfo;
+  code?: {
+    js?: string;
+    lua?: string;
+  };
 }
 
 /** Shape of the generated code object. */
@@ -59,6 +72,19 @@ interface CodeState {
   lua: string;
   javascript: string;
 }
+
+interface WorkspaceChangeEvent {
+  element?: string;
+  isUiEvent?: boolean;
+}
+
+interface PendingPersistedSnapshot {
+  saveId: string;
+  data: Record<string, unknown>;
+  code: GeneratedCode;
+}
+
+const SAVE_ACK_TIMEOUT_MS = 30_000;
 
 window.URL = window.URL || window.webkitURL;
 window.BlobBuilder =
@@ -68,15 +94,19 @@ const { postMessage, postResponse, onMessage } = useMessageBridge();
 const { setDark, isDark } = useTheme();
 
 const buildTime: string = __BUILD_TIME__;
-const { generateAll } = useCodeGenerator();
+const { generateAllSafely } = useCodeGenerator();
 const { buildOptions } = useToolboxSetup();
 const { saveWorkspace, watchWorkspaceReady } = useWorkspace();
 
 const userInfo = ref<UserInfo>({});
 const access = computed<Access>(() => new Access(userInfo.value));
 
-let oldValue: Record<string, unknown> | null = null;
-let activeValidationIssue: WorkspaceValidationIssue | null = null;
+let oldValue: unknown = null;
+let persistedCode: GeneratedCode = { js: "", lua: "" };
+let lastGeneratedCode: GeneratedCode = { js: "", lua: "" };
+const saveCoordinator = new SaveCoordinator<PendingPersistedSnapshot>();
+let pendingSaveTimeout: number | null = null;
+let saveSequence = 0;
 const editor = ref<InstanceType<typeof BlocklyComponent> | null>(null);
 const code = ref<CodeState>({
   lua: "",
@@ -85,42 +115,149 @@ const code = ref<CodeState>({
 
 const options = ref<BlocklyOptions | undefined>();
 
-const save = (): void => {
-  const workspace = editor.value!.workspace!;
-  const validation = validateWorkspaceForSave(workspace, generateAll);
-  if (!validation.ok) {
-    const message = validation.issue?.message || "当前脚本存在问题，无法保存。";
-    activeValidationIssue = validation.issue ?? null;
-    if (validation.issue && "centerOnBlock" in workspace) {
-      focusWorkspaceValidationIssue(workspace, validation.issue);
-    }
+const generationWarningsToValidationWarnings = (
+  warnings: CodeGenerationWarning[]
+): WorkspaceValidationIssue[] =>
+  warnings.map((item) => ({
+    ...item,
+    severity: "warning",
+  }));
+
+const clearPendingSaveTimeout = (): void => {
+  if (pendingSaveTimeout !== null) {
+    window.clearTimeout(pendingSaveTimeout);
+    pendingSaveTimeout = null;
+  }
+};
+
+const currentWorkspaceDiffersFromPersisted = (): boolean => {
+  const workspace = editor.value?.workspace;
+  if (!workspace) return false;
+
+  try {
+    const data = saveWorkspace(workspace);
+    const generation = generateAllSafely(workspace, lastGeneratedCode);
+    lastGeneratedCode = generation.generated;
+    code.value = {
+      javascript: generation.generated.js,
+      lua: generation.generated.lua,
+    };
+    return hasPersistedChanges(
+      data,
+      generation.generated,
+      oldValue,
+      persistedCode
+    );
+  } catch {
+    // Let the queued save produce the normal technical save-error response.
+    return true;
+  }
+};
+
+function save(): void {
+  if (saveCoordinator.queueIfPending()) return;
+
+  const workspace = editor.value?.workspace;
+  if (!workspace) {
     postResponse({
       action: "save-error",
       error: true,
-      message,
+      message: "Blockly 工作区尚未就绪，无法保存。",
     });
-    if (validation.issue && "centerOnBlock" in workspace) {
-      window.requestAnimationFrame(() => {
-        focusWorkspaceValidationIssue(workspace, validation.issue!);
-      });
-    }
     return;
   }
 
-  activeValidationIssue = null;
-  const data = saveWorkspace(workspace);
-  if (JSON.stringify(data) == JSON.stringify(oldValue)) {
-    postResponse({ action: "save", noChange: true });
-  } else {
-    const generated = validation.generated!;
+  let data: Record<string, unknown>;
+  try {
+    data = saveWorkspace(workspace) as Record<string, unknown>;
+  } catch (error) {
+    postResponse({
+      action: "save-error",
+      error: true,
+      message: `工作区序列化失败，无法保存：${
+        error instanceof Error ? error.message : String(error)
+      }`,
+    });
+    return;
+  }
+
+  const generation = generateAllSafely(workspace, lastGeneratedCode);
+  lastGeneratedCode = generation.generated;
+  const validation = validateWorkspaceForSave(
+    workspace,
+    () => generation.generated
+  );
+  const warnings = [
+    ...generationWarningsToValidationWarnings(generation.warnings),
+    ...validation.warnings,
+  ];
+
+  if ("centerOnBlock" in workspace) {
+    try {
+      showWorkspaceValidationWarnings(workspace, warnings);
+    } catch (error) {
+      console.warn("显示工作区保存警告失败，继续保存：", error);
+    }
+  }
+
+  const serializedWarnings = serializeWorkspaceWarnings(warnings);
+  const hasChanges = hasPersistedChanges(
+    data,
+    generation.generated,
+    oldValue,
+    persistedCode
+  );
+
+  if (!hasChanges) {
     postResponse({
       action: "save",
-      js: generated.js,
-      lua: generated.lua,
-      data: data,
+      noChange: true,
+      warnings: serializedWarnings,
     });
+  } else {
+    const saveId = `save-${Date.now()}-${++saveSequence}`;
+    const snapshot: PendingPersistedSnapshot = {
+      saveId,
+      data,
+      code: { ...generation.generated },
+    };
+    if (!saveCoordinator.begin(snapshot)) return;
+    clearPendingSaveTimeout();
+    pendingSaveTimeout = window.setTimeout(() => {
+      const settlement = saveCoordinator.settle(saveId);
+      if (!settlement.matched) return;
 
-    oldValue = data;
+      pendingSaveTimeout = null;
+      console.warn(
+        `保存 ${saveId} 在 ${SAVE_ACK_TIMEOUT_MS}ms 内未收到 ACK/NACK，已释放等待状态。`
+      );
+      if (settlement.hadQueuedSave && currentWorkspaceDiffersFromPersisted()) {
+        save();
+      }
+    }, SAVE_ACK_TIMEOUT_MS);
+    postResponse({
+      action: "save",
+      saveId,
+      js: generation.generated.js,
+      lua: generation.generated.lua,
+      data: data,
+      warnings: serializedWarnings,
+    });
+  }
+}
+
+const settlePendingSave = (saveId: string, persisted: boolean): void => {
+  const settlement = saveCoordinator.settle(saveId);
+  if (!settlement.matched || !settlement.snapshot) return;
+
+  clearPendingSaveTimeout();
+  if (persisted) {
+    oldValue = settlement.snapshot.data;
+    persistedCode = settlement.snapshot.code;
+  }
+
+  if (settlement.hadQueuedSave && currentWorkspaceDiffersFromPersisted()) {
+    save();
   }
 };
 
@@ -128,15 +265,29 @@ const doInit = (config: InitConfig): void => {
   console.log("doInit executed with role:", config.userInfo?.role);
   console.error("init", config);
   userInfo.value = config.userInfo || {};
+  clearPendingSaveTimeout();
+  saveCoordinator.reset();
+  oldValue = null;
+  persistedCode = {
+    js: typeof config.code?.js === "string" ? config.code.js : "",
+    lua: typeof config.code?.lua === "string" ? config.code.lua : "",
+  };
+  lastGeneratedCode = { ...persistedCode };
+  code.value = {
+    javascript: lastGeneratedCode.js,
+    lua: lastGeneratedCode.lua,
+  };
   options.value = buildOptions(config.style, config.parameters, access.value);
   nextTick(() => {
-    oldValue = config.data as Record<string, unknown> | null;
-
-    const upgradedData = upgradeTweenData(config.data);
+    const { baseline, loadData } = prepareWorkspaceInitData(
+      config.data,
+      upgradeTweenData
+    );
+    oldValue = baseline;
 
     watchWorkspaceReady(
       editor as Parameters<typeof watchWorkspaceReady>[0],
-      upgradedData as object,
+      loadData as object,
       (workspace: Blockly.WorkspaceSvg) => {
         // 添加工作区变化的监听器
         workspace.addChangeListener(onWorkspaceChange);
@@ -164,24 +315,30 @@ const doInit = (config: InitConfig): void => {
 const updateCode = (): void => {
   if (editor.value && editor.value.workspace) {
     const blocklyData = saveWorkspace(editor.value.workspace);
-    const generated = generateAll(editor.value.workspace);
+    const generation = generateAllSafely(
+      editor.value.workspace,
+      lastGeneratedCode
+    );
+    lastGeneratedCode = generation.generated;
+    code.value = {
+      javascript: generation.generated.js,
+      lua: generation.generated.lua,
+    };
     postMessage("EVENT", {
       event: "update",
-      lua: generated.lua,
-      js: generated.js,
+      lua: generation.generated.lua,
+      js: generation.generated.js,
       blocklyData: blocklyData,
+      warnings: generation.warnings,
     });
   }
 };
 
 // 处理工作区变化
-const onWorkspaceChange = (): void => {
-  if (
-    activeValidationIssue &&
-    isWorkspaceValidationIssueResolved(activeValidationIssue)
-  ) {
-    clearWorkspaceValidationIssueFeedback(activeValidationIssue);
-    activeValidationIssue = null;
+const onWorkspaceChange = (event?: WorkspaceChangeEvent): void => {
+  if (event?.isUiEvent || event?.element === "warning") return;
+  if (editor.value?.workspace) {
+    clearWorkspaceValidationFeedback(editor.value.workspace);
   }
   updateCode();
 };
@@ -202,6 +359,18 @@ onMessage("REQUEST", (payload: unknown) => {
   }
 });
 
+onMessage("SAVE_ACK", (payload: unknown) => {
+  const saveId = (payload as { saveId?: unknown } | null)?.saveId;
+  if (typeof saveId !== "string") return;
+  settlePendingSave(saveId, true);
+});
+
+onMessage("SAVE_NACK", (payload: unknown) => {
+  const saveId = (payload as { saveId?: unknown } | null)?.saveId;
+  if (typeof saveId !== "string") return;
+  settlePendingSave(saveId, false);
+});
+
 onMessage("THEME_CHANGE", (payload: unknown) => {
   const p = payload as { dark?: boolean };
   if (typeof p?.dark === "boolean") {
@@ -210,6 +379,8 @@ onMessage("THEME_CHANGE", (payload: unknown) => {
 });
 
 onMessage("DESTROY", () => {
+  clearPendingSaveTimeout();
+  saveCoordinator.reset();
   if (editor.value?.workspace) {
     editor.value.workspace.dispose();
   }
@@ -224,7 +395,12 @@ function luaCode(): void {
       console.log("工作区为空，无法生成 Lua 代码");
       code.value.lua = "";
     } else {
-      code.value.lua = generateAll(editor.value.workspace).lua;
+      const generation = generateAllSafely(
+        editor.value.workspace,
+        lastGeneratedCode
+      );
+      lastGeneratedCode = generation.generated;
+      code.value.lua = generation.generated.lua;
       console.log("Lua 代码：", code.value);
     }
   }
@@ -238,7 +414,12 @@ function jsCode(): void {
       console.log("工作区为空，无法生成 JavaScript 代码");
       code.value.javascript = "";
     } else {
-      code.value.javascript = generateAll(editor.value.workspace).js;
+      const generation = generateAllSafely(
+        editor.value.workspace,
+        lastGeneratedCode
+      );
+      lastGeneratedCode = generation.generated;
+      code.value.javascript = generation.generated.js;
       console.log("JavaScript 代码：", code.value);
     }
   }
@@ -269,10 +450,10 @@ defineExpose({
   stroke-width: 3px !important;
 }
 
-.blockly-save-validation-error .blocklyPath {
-  stroke: #ef4444 !important;
+.blockly-save-validation-warning .blocklyPath {
+  stroke: #f59e0b !important;
   stroke-width: 3px !important;
-  filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.45));
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
 }
 
 html,

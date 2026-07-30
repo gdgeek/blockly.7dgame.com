@@ -50,7 +50,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
+      const sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) ||
+        "undefined";
       const parentBlock = (
         block as unknown as {
           getParent: () => {
@@ -67,7 +69,7 @@ const block: BlockDefinition = {
             block === parentBlock.getInputTargetBlock("TO")));
       const methodName = isAssignment ? "createTask" : "playTask";
       const code = `sound.${methodName}(${sound})`;
-      return [code, generator.ORDER_NONE];
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
     return javascript;
   },
@@ -78,8 +80,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const sound = generator.valueToCode(block, "sound", generator.ORDER_NONE);
-      const code = "_G.sound.play_task(" + sound + ")\n";
+      const sound =
+        generator.valueToCode(block, "sound", generator.ORDER_NONE) || "nil";
+      const code = "_G.sound.play_task(" + sound + ")";
       return [code, generator.ORDER_NONE];
     };
     return lua;

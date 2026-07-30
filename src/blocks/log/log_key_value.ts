@@ -1,9 +1,11 @@
 import * as Blockly from "blockly";
 import LogType from "./type";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -14,8 +16,7 @@ const block: BlockDefinition = {
   title: data.name,
   type: LogType.name,
   colour: LogType.colour,
-  getBlockJson(parameters: unknown): object {
-    const { resource } = (parameters ?? {}) as { resource?: unknown };
+  getBlockJson(_parameters: unknown): object {
     return {
       type: LogType.name,
       message0: (
@@ -96,7 +97,9 @@ const block: BlockDefinition = {
       const value =
         generator.valueToCode(block, "VALUE", generator.ORDER_ATOMIC) || "''";
 
-      const code = `log.post("${dataType}", "${key}", String(${value}));\n`;
+      const code = `log.post(${quoteJavaScriptString(
+        dataType
+      )}, ${quoteJavaScriptString(key)}, String(${value}));\n`;
       return code;
     };
   },
@@ -109,7 +112,9 @@ const block: BlockDefinition = {
       const value =
         generator.valueToCode(block, "VALUE", generator.ORDER_ATOMIC) || "''";
 
-      const code = `log.post("${dataType}", "${key}", tostring(${value}))\n`;
+      const code = `log.post(${quoteLuaString(dataType)}, ${quoteLuaString(
+        key
+      )}, tostring(${value}))\n`;
       return code;
     };
   },

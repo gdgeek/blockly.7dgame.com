@@ -82,20 +82,15 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_ATOMIC
-      );
+      const entity =
+        generator.valueToCode(block, "entity", generator.ORDER_ATOMIC) || "nil";
       const time = block.getFieldValue("time");
-      const transform = generator.valueToCode(
-        block,
-        "transform",
-        generator.ORDER_ATOMIC
-      );
+      const transform =
+        generator.valueToCode(block, "transform", generator.ORDER_ATOMIC) ||
+        "nil";
 
       const sync = block.getFieldValue("sync") === "TRUE";
-      const occupy = block.getFieldValue("sync") === "TRUE";
+      const occupy = block.getFieldValue("occupy") === "TRUE";
 
       const parameter =
         entity + ", " + time + ", " + transform + ", " + JSON.stringify(occupy);

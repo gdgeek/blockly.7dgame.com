@@ -62,11 +62,8 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const number_distance = block.getFieldValue("distance");
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
 
       const code =
         "CS.MLua.Point.Explode(" +

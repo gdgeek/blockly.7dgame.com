@@ -1,9 +1,11 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -83,11 +85,13 @@ const block: BlockDefinition = {
     ): string {
       const dropdown_option = block.getFieldValue("Event");
       const statements_content = generator.statementToCode(block, "content");
+      const eventKey = quoteJavaScriptString(`#${dropdown_option}`);
+      const eventName = quoteJavaScriptString(dropdown_option);
 
       const code = `
-meta['#${dropdown_option}'] = async function(parameter) {
+meta[${eventKey}] = async function(parameter) {
   let isPlaying = true;
-  console.log('${dropdown_option}');
+  console.log(${eventName});
   ${statements_content}
   isPlaying = false;
 };
@@ -105,15 +109,17 @@ meta['#${dropdown_option}'] = async function(parameter) {
     ): string {
       const dropdown_option = block.getFieldValue("Event");
       const statements_content = generator.statementToCode(block, "content");
+      const eventKey = quoteLuaString(`#${dropdown_option}`);
+      const eventName = quoteLuaString(dropdown_option);
 
       const code =
-        "meta['#" +
-        dropdown_option +
-        "'] = function(parameter) \n\
+        "meta[" +
+        eventKey +
+        "] = function(parameter) \n\
   is_playing = true\n\
-  print('" +
-        dropdown_option +
-        "')\n" +
+  print(" +
+        eventName +
+        ")\n" +
         statements_content +
         "  is_playing = false\n\
 end\n";

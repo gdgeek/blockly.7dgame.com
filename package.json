@@ -19,12 +19,15 @@
     "@blockly/workspace-backpack": "^7.0.9",
     "@blockly/workspace-minimap": "^0.3.8",
     "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
+    "acorn": "^8.15.0",
     "blockly": "^12.2.0",
     "element-plus": "^2.13.0",
+    "luaparse": "^0.3.1",
     "vue": "^3.5.26"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.15.0",
+    "@types/luaparse": "^0.2.13",
     "@typescript-eslint/eslint-plugin": "^8.57.1",
     "@typescript-eslint/parser": "^8.57.1",
     "@vitejs/plugin-vue": "^5.1.0",

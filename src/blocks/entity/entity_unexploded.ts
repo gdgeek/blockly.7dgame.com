@@ -56,11 +56,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
       const code = "CS.MLua.Point.Unexploded(" + value_entity + ")\n";
       return code;
     };

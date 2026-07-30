@@ -1,9 +1,11 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  parseSignalReference,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -76,7 +78,7 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const data = JSON.parse(block.getFieldValue("Output"));
+      const data = parseSignalReference(block.getFieldValue("Output"));
       return [JSON.stringify(data), generator.ORDER_ATOMIC];
     };
     return script;
@@ -89,8 +91,11 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const data = JSON.parse(block.getFieldValue("Output"));
-      return [`{'${data.index}', '${data.uuid}' }`, generator.ORDER_ATOMIC];
+      const data = parseSignalReference(block.getFieldValue("Output"));
+      return [
+        `{${quoteLuaString(data.index)}, ${quoteLuaString(data.uuid)}}`,
+        generator.ORDER_ATOMIC,
+      ];
     };
     return lua;
   },

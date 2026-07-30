@@ -1,9 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -57,7 +58,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const value = block.getFieldValue("value");
-      const text = generator.valueToCode(block, "text", generator.ORDER_NONE);
+      const text =
+        generator.valueToCode(block, "text", generator.ORDER_NONE) ||
+        "undefined";
       const code = `text.setText(${text}, ${JSON.stringify(value)});\n`;
       return code;
     };
@@ -71,9 +74,10 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const value = block.getFieldValue("value");
-      const text = generator.valueToCode(block, "text", generator.ORDER_NONE);
+      const text =
+        generator.valueToCode(block, "text", generator.ORDER_NONE) || "nil";
       const code =
-        "_G.text.set_text(" + text + "," + JSON.stringify(value) + ")\n";
+        "_G.text.set_text(" + text + "," + quoteLuaString(value) + ")\n";
       return code;
     };
     return lua;

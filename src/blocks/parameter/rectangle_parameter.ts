@@ -60,14 +60,12 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const value_anchor = generator.valueToCode(
-        _block,
-        "Anchor",
-        generator.ORDER_ATOMIC
-      );
+      const value_anchor =
+        generator.valueToCode(_block, "Anchor", generator.ORDER_ATOMIC) ||
+        "undefined";
       const number_radius = _block.getFieldValue("Radius");
       const code = Helper.RangeJS(value_anchor, number_radius);
-      return [code, generator.ORDER_NONE];
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
   },
   getLua(
@@ -77,11 +75,9 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const value_anchor = generator.valueToCode(
-        _block,
-        "Anchor",
-        generator.ORDER_ATOMIC
-      );
+      const value_anchor =
+        generator.valueToCode(_block, "Anchor", generator.ORDER_ATOMIC) ||
+        "nil";
       const number_radius = _block.getFieldValue("Radius");
       const code = Helper.Range(value_anchor, number_radius);
       return [code, generator.ORDER_NONE];

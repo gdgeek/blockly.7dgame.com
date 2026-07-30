@@ -16,7 +16,9 @@ const block: BlockDefinition = {
   getBlock(_parameters: unknown): object {
     const block = {
       init: function () {
-        const current = this as unknown as { jsonInit: (_json: object) => void };
+        const current = this as unknown as {
+          jsonInit: (_json: object) => void;
+        };
         current.jsonInit({
           type: data.name,
           message0: (
@@ -56,23 +58,17 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const value_position = generator.valueToCode(
-        block,
-        "position",
-        generator.ORDER_ATOMIC
-      );
-      const value_scale = generator.valueToCode(
-        block,
-        "scale",
-        generator.ORDER_ATOMIC
-      );
-      const value_rotate = generator.valueToCode(
-        block,
-        "rotate",
-        generator.ORDER_ATOMIC
-      );
+      const value_position =
+        generator.valueToCode(block, "position", generator.ORDER_ATOMIC) ||
+        "undefined";
+      const value_scale =
+        generator.valueToCode(block, "scale", generator.ORDER_ATOMIC) ||
+        "undefined";
+      const value_rotate =
+        generator.valueToCode(block, "rotate", generator.ORDER_ATOMIC) ||
+        "undefined";
       const code = `transform(${value_position}, ${value_rotate}, ${value_scale})`;
-      return [code, generator.ORDER_NONE];
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
     return script;
   },
@@ -83,21 +79,13 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const value_position = generator.valueToCode(
-        block,
-        "position",
-        generator.ORDER_ATOMIC
-      );
-      const value_scale = generator.valueToCode(
-        block,
-        "scale",
-        generator.ORDER_ATOMIC
-      );
-      const value_rotate = generator.valueToCode(
-        block,
-        "rotate",
-        generator.ORDER_ATOMIC
-      );
+      const value_position =
+        generator.valueToCode(block, "position", generator.ORDER_ATOMIC) ||
+        "nil";
+      const value_scale =
+        generator.valueToCode(block, "scale", generator.ORDER_ATOMIC) || "nil";
+      const value_rotate =
+        generator.valueToCode(block, "rotate", generator.ORDER_ATOMIC) || "nil";
       const code =
         "CS.MLua.Transform(" +
         value_position +

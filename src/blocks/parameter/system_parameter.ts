@@ -51,12 +51,10 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const input = generator.valueToCode(
-        _block,
-        "Input",
-        generator.ORDER_NONE
-      );
-      return [`system.parameter(${input})`, generator.ORDER_NONE];
+      const input =
+        generator.valueToCode(_block, "Input", generator.ORDER_NONE) ||
+        "undefined";
+      return [`system.parameter(${input})`, generator.ORDER_FUNCTION_CALL];
     };
   },
   getLua(
@@ -66,11 +64,8 @@ const block: BlockDefinition = {
       _block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const input = generator.valueToCode(
-        _block,
-        "Input",
-        generator.ORDER_NONE
-      );
+      const input =
+        generator.valueToCode(_block, "Input", generator.ORDER_NONE) || "nil";
       const code = "_G.system.parameter(" + input + ")";
       return [code, generator.ORDER_NONE];
     };

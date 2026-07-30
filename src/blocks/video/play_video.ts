@@ -58,15 +58,17 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) ||
+        "undefined";
       const sync = block.getFieldValue("sync") === "TRUE";
       const occupy = block.getFieldValue("occupy") === "TRUE";
 
       const parameter = video + ", " + JSON.stringify(occupy);
       if (sync) {
-        return `handleVideo(${JSON.stringify(parameter)})`;
+        return `handleVideo(${JSON.stringify(parameter)});\n`;
       } else {
-        return `handleVideo(${JSON.stringify(parameter)})`;
+        return `handleVideo(${JSON.stringify(parameter)});\n`;
       }
     };
     return script;
@@ -78,7 +80,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) || "nil";
       const sync = block.getFieldValue("sync") === "TRUE";
       const occupy = block.getFieldValue("occupy") === "TRUE";
 

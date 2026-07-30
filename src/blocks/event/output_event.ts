@@ -1,9 +1,11 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -77,7 +79,9 @@ const block: BlockDefinition = {
       _generator: BlocklyGenerator
     ): string {
       const output_event = block.getFieldValue("Output");
-      const code = `event.trigger(index, '${output_event}', parameter);`;
+      const code = `event.trigger(index, ${quoteJavaScriptString(
+        output_event
+      )}, parameter);\n`;
       return code;
     };
     return script;
@@ -90,8 +94,9 @@ const block: BlockDefinition = {
       _generator: BlocklyGenerator
     ): string {
       const output_event = block.getFieldValue("Output");
-      const code =
-        "_G.event.trigger(index,'" + output_event + "', parameter)\n";
+      const code = `_G.event.trigger(index, ${quoteLuaString(
+        output_event
+      )}, parameter)\n`;
       return code;
     };
     return lua;

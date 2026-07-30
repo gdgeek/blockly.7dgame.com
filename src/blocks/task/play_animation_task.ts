@@ -1,9 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -25,8 +26,7 @@ const block: BlockDefinition = {
   title: data.name,
   type: DataType.name,
   colour: DataType.colour,
-  getBlockJson(parameters: unknown): object {
-    const { resource } = parameters as BlockParameters;
+  getBlockJson(_parameters: unknown): object {
     const json = {
       type: data.name,
       message0: (
@@ -56,7 +56,9 @@ const block: BlockDefinition = {
     const data = {
       init: function (this: Record<string, unknown>) {
         const json = block.getBlockJson!(parameters);
-        (this as unknown as { jsonInit: (json: object) => void }).jsonInit(json);
+        (this as unknown as { jsonInit: (json: object) => void }).jsonInit(
+          json
+        );
 
         const animationField = (
           this as { getField: (name: string) => Record<string, unknown> | null }
@@ -175,11 +177,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const animation = block.getFieldValue("animation");
-      const polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
+      const polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) ||
+        "undefined";
       const parentBlock = (
         block as unknown as {
           getParent: () => {
@@ -198,7 +198,7 @@ const block: BlockDefinition = {
       const code = `animation.${methodName}(${polygen}, ${JSON.stringify(
         animation
       )})`;
-      return [code, generator.ORDER_NONE];
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
     return javascript;
   },
@@ -210,16 +210,13 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const animation = block.getFieldValue("animation");
-      const polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
+      const polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) || "nil";
       const code =
         "_G.polygen.play_animation_task(" +
         polygen +
         ", " +
-        JSON.stringify(animation) +
+        quoteLuaString(animation) +
         ")";
       return [code, generator.ORDER_NONE];
     };

@@ -111,18 +111,14 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_rotatable = generator.valueToCode(
-        block,
-        "rotatable",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+      const value_rotatable =
+        generator.valueToCode(block, "rotatable", generator.ORDER_ATOMIC) ||
+        "false";
 
-      return `point.setRotatable(${value_entity}, ${value_rotatable})\n`;
+      return `point.setRotatable(${value_entity}, ${value_rotatable});\n`;
     };
   },
 
@@ -130,16 +126,11 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
-      const value_entity = generator.valueToCode(
-        block,
-        "entity",
-        generator.ORDER_NONE
-      );
-      const value_rotatable = generator.valueToCode(
-        block,
-        "rotatable",
-        generator.ORDER_ATOMIC
-      );
+      const value_entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
+      const value_rotatable =
+        generator.valueToCode(block, "rotatable", generator.ORDER_ATOMIC) ||
+        "false";
 
       return `_G.point.set_rotatable(${value_entity}, ${value_rotatable})\n`;
     };

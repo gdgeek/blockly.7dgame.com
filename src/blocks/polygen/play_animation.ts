@@ -1,9 +1,10 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -173,11 +174,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const text_animation = block.getFieldValue("animation");
-      const value_polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
+      const value_polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) ||
+        "undefined";
       const code = `polygen.playAnimation(${value_polygen}, ${JSON.stringify(
         text_animation
       )});\n`;
@@ -193,12 +192,9 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): string {
       const text_animation = block.getFieldValue("animation");
-      const value_polygen = generator.valueToCode(
-        block,
-        "polygen",
-        generator.ORDER_NONE
-      );
-      const code = `_G.polygen.play_animation(${value_polygen}, ${JSON.stringify(
+      const value_polygen =
+        generator.valueToCode(block, "polygen", generator.ORDER_NONE) || "nil";
+      const code = `_G.polygen.play_animation(${value_polygen}, ${quoteLuaString(
         text_animation
       )})\n`;
       return code;

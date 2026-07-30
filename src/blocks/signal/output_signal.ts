@@ -1,9 +1,12 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  parseSignalReference,
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -79,9 +82,10 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       _generator: BlocklyGenerator
     ): string {
-      const output_event = block.getFieldValue("Output");
-      const data = JSON.parse(output_event);
-      const code = `event.signal('${data.index}', '${data.uuid}');\n`;
+      const data = parseSignalReference(block.getFieldValue("Output"));
+      const code = `event.signal(${quoteJavaScriptString(
+        data.index
+      )}, ${quoteJavaScriptString(data.uuid)});\n`;
       return code;
     };
     return script;
@@ -93,10 +97,10 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       _generator: BlocklyGenerator
     ): string {
-      const output_event = block.getFieldValue("Output");
-      const data = JSON.parse(output_event);
-      const code =
-        "_G.event.signal('" + data.index + "', '" + data.uuid + "')\n";
+      const data = parseSignalReference(block.getFieldValue("Output"));
+      const code = `_G.event.signal(${quoteLuaString(
+        data.index
+      )}, ${quoteLuaString(data.uuid)})\n`;
       return code;
     };
     return lua;
