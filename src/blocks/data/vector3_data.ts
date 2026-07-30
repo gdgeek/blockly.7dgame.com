@@ -16,7 +16,9 @@ const block: BlockDefinition = {
   getBlock(_parameters: unknown): object {
     const block = {
       init: function () {
-        const current = this as unknown as { jsonInit: (_json: object) => void };
+        const current = this as unknown as {
+          jsonInit: (_json: object) => void;
+        };
         current.jsonInit({
           type: data.name,
           message0: "X %1 Y %2 Z %3",
@@ -54,11 +56,14 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const value_x = generator.valueToCode(block, "X", generator.ORDER_ATOMIC);
-      const value_y = generator.valueToCode(block, "Y", generator.ORDER_ATOMIC);
-      const value_z = generator.valueToCode(block, "Z", generator.ORDER_ATOMIC);
+      const value_x =
+        generator.valueToCode(block, "X", generator.ORDER_ATOMIC) || "0";
+      const value_y =
+        generator.valueToCode(block, "Y", generator.ORDER_ATOMIC) || "0";
+      const value_z =
+        generator.valueToCode(block, "Z", generator.ORDER_ATOMIC) || "0";
       const code = `new Vector3(${value_x}, ${value_y}, ${value_z})`;
-      return [code, generator.ORDER_NONE];
+      return [code, generator.ORDER_NEW];
     };
     return javascript;
   },
@@ -69,9 +74,12 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const value_x = generator.valueToCode(block, "X", generator.ORDER_ATOMIC);
-      const value_y = generator.valueToCode(block, "Y", generator.ORDER_ATOMIC);
-      const value_z = generator.valueToCode(block, "Z", generator.ORDER_ATOMIC);
+      const value_x =
+        generator.valueToCode(block, "X", generator.ORDER_ATOMIC) || "0";
+      const value_y =
+        generator.valueToCode(block, "Y", generator.ORDER_ATOMIC) || "0";
+      const value_z =
+        generator.valueToCode(block, "Z", generator.ORDER_ATOMIC) || "0";
       const code =
         "CS.UnityEngine.Vector3(" + [value_x, value_y, value_z] + ")";
       return [code, generator.ORDER_NONE];

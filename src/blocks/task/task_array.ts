@@ -1,9 +1,11 @@
 import EventType from "./type";
 import * as Blockly from "blockly";
-import type {
-  BlockDefinition,
-  BlocklyBlock,
-  BlocklyGenerator,
+import {
+  quoteJavaScriptString,
+  quoteLuaString,
+  type BlockDefinition,
+  type BlocklyBlock,
+  type BlocklyGenerator,
 } from "../helper";
 
 const data = {
@@ -60,13 +62,11 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const type = block.getFieldValue("ArrayType");
-      const array = generator.valueToCode(
-        block,
-        "TaskArray",
-        generator.ORDER_ATOMIC
-      );
-      const code = `task.array("${type}", ${array})\n`;
-      return [code, generator.ORDER_NONE];
+      const array =
+        generator.valueToCode(block, "TaskArray", generator.ORDER_ATOMIC) ||
+        "[]";
+      const code = `task.array(${quoteJavaScriptString(type)}, ${array})`;
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
     return javascript;
   },
@@ -78,12 +78,10 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const type = block.getFieldValue("ArrayType");
-      const array = generator.valueToCode(
-        block,
-        "TaskArray",
-        generator.ORDER_ATOMIC
-      );
-      const code = `_G.task.array("${type}", ${array})\n`;
+      const array =
+        generator.valueToCode(block, "TaskArray", generator.ORDER_ATOMIC) ||
+        "{}";
+      const code = `_G.task.array(${quoteLuaString(type)}, ${array})`;
       return [code, generator.ORDER_NONE];
     };
     return lua;

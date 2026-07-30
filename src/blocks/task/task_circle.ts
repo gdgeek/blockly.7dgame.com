@@ -60,13 +60,11 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const number_times = block.getFieldValue("Times");
-      const array = generator.valueToCode(
-        block,
-        "TaskArray",
-        generator.ORDER_ATOMIC
-      );
-      const code = `task.circle(${number_times}, ${array})\n`;
-      return [code, generator.ORDER_NONE];
+      const array =
+        generator.valueToCode(block, "TaskArray", generator.ORDER_ATOMIC) ||
+        "[]";
+      const code = `task.circle(${number_times}, ${array})`;
+      return [code, generator.ORDER_FUNCTION_CALL];
     };
     return js;
   },
@@ -78,12 +76,10 @@ const block: BlockDefinition = {
       generator: BlocklyGenerator
     ): [string, unknown] {
       const number_times = block.getFieldValue("Times");
-      const array = generator.valueToCode(
-        block,
-        "TaskArray",
-        generator.ORDER_ATOMIC
-      );
-      const code = "_G.task.circle(" + number_times + "," + array + ")\n";
+      const array =
+        generator.valueToCode(block, "TaskArray", generator.ORDER_ATOMIC) ||
+        "{}";
+      const code = "_G.task.circle(" + number_times + "," + array + ")";
       return [code, generator.ORDER_NONE];
     };
     return lua;

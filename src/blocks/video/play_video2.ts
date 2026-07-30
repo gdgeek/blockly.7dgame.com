@@ -51,7 +51,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) ||
+        "undefined";
       const isInActionTrigger =
         (
           block as unknown as {
@@ -77,7 +79,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) || "nil";
       return "_G.video.play(" + video + ")\n";
     };
     return lua;

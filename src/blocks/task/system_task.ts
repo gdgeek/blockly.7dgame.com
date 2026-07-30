@@ -57,7 +57,9 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
+      const input =
+        generator.valueToCode(block, "Input", generator.ORDER_NONE) ||
+        "undefined";
       const parameter = generator.valueToCode(
         block,
         "Parameter",
@@ -80,7 +82,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const input = generator.valueToCode(block, "Input", generator.ORDER_NONE);
+      const input =
+        generator.valueToCode(block, "Input", generator.ORDER_NONE) || "nil";
       const parameter = generator.valueToCode(
         block,
         "Parameter",

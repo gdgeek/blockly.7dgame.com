@@ -115,14 +115,20 @@ describe("helper", () => {
 
   describe("Handler", () => {
     it("returns correct format with uuid", () => {
-      expect(Handler("abc-123")).toBe("_G.helper.handler(index, 'abc-123')");
+      expect(Handler("abc-123")).toBe('_G.helper.handler(index, "abc-123")');
+    });
+
+    it("escapes uuid characters that would otherwise break Lua", () => {
+      expect(Handler('line"\\\n')).toBe(
+        '_G.helper.handler(index, "line\\"\\\\\\n")'
+      );
     });
   });
 
   describe("InputEvent", () => {
     it("returns correct format with uuid", () => {
       expect(InputEvent("evt-456")).toBe(
-        "_G.helper.input_event(index, 'evt-456')"
+        '_G.helper.input_event(index, "evt-456")'
       );
     });
   });
@@ -130,7 +136,7 @@ describe("helper", () => {
   describe("OutputEvent", () => {
     it("returns correct format with uuid", () => {
       expect(OutputEvent("out-789")).toBe(
-        "_G.helper.output_event(index, 'out-789')"
+        '_G.helper.output_event(index, "out-789")'
       );
     });
   });
@@ -192,7 +198,7 @@ describe("helper", () => {
 
   describe("Anchor", () => {
     it("returns correct format with key", () => {
-      expect(Anchor("spawn_point")).toBe("_G.argument.anchor('spawn_point')");
+      expect(Anchor("spawn_point")).toBe('_G.argument.anchor("spawn_point")');
     });
   });
 

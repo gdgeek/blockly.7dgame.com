@@ -47,7 +47,9 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) ||
+        "undefined";
       return `await video.stop(${video});\n`;
     };
   },
@@ -55,7 +57,8 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     return function (block: BlocklyBlock, generator: BlocklyGenerator): string {
-      const video = generator.valueToCode(block, "video", generator.ORDER_NONE);
+      const video =
+        generator.valueToCode(block, "video", generator.ORDER_NONE) || "nil";
       return `_G.video.stop(${video})\n`;
     };
   },

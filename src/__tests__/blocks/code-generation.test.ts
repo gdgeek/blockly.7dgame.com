@@ -22,7 +22,8 @@ describe("useCodeGenerator", () => {
   const fakeWorkspace = { id: "test-workspace" } as any;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.mocked(javascriptGenerator.workspaceToCode).mockReset();
+    vi.mocked(luaGenerator.workspaceToCode).mockReset();
   });
 
   describe("generateJavaScript", () => {
@@ -80,6 +81,102 @@ describe("useCodeGenerator", () => {
         fakeWorkspace
       );
       expect(luaGenerator.workspaceToCode).toHaveBeenCalledWith(fakeWorkspace);
+    });
+  });
+
+  describe("generateAllSafely", () => {
+    it("returns both newly generated languages when neither generator fails", () => {
+      vi.mocked(javascriptGenerator.workspaceToCode).mockReturnValue(
+        "const ready = true;"
+      );
+      vi.mocked(luaGenerator.workspaceToCode).mockReturnValue("ready = true");
+      const { generateAllSafely } = useCodeGenerator();
+
+      const result = generateAllSafely(fakeWorkspace, {
+        js: "previous js",
+        lua: "previous lua",
+      });
+
+      expect(result).toEqual({
+        generated: {
+          js: "const ready = true;",
+          lua: "ready = true",
+        },
+        warnings: [],
+      });
+    });
+
+    it("keeps the JavaScript fallback while still updating Lua", () => {
+      vi.mocked(javascriptGenerator.workspaceToCode).mockImplementation(() => {
+        throw new Error("broken JavaScript block");
+      });
+      vi.mocked(luaGenerator.workspaceToCode).mockReturnValue("fresh_lua()");
+      const fallback = { js: "last valid js", lua: "last valid lua" };
+      const { generateAllSafely } = useCodeGenerator();
+
+      const result = generateAllSafely(fakeWorkspace, fallback);
+
+      expect(result.generated).toEqual({
+        js: "last valid js",
+        lua: "fresh_lua()",
+      });
+      expect(result.warnings).toEqual([
+        {
+          code: "code-generation-failed",
+          language: "javascript",
+          message: expect.stringContaining("broken JavaScript block"),
+        },
+      ]);
+      expect(luaGenerator.workspaceToCode).toHaveBeenCalledWith(fakeWorkspace);
+      expect(fallback).toEqual({ js: "last valid js", lua: "last valid lua" });
+    });
+
+    it("keeps the Lua fallback while still updating JavaScript", () => {
+      vi.mocked(javascriptGenerator.workspaceToCode).mockReturnValue(
+        "freshJavaScript();"
+      );
+      vi.mocked(luaGenerator.workspaceToCode).mockImplementation(() => {
+        throw "broken Lua block";
+      });
+      const { generateAllSafely } = useCodeGenerator();
+
+      const result = generateAllSafely(fakeWorkspace, {
+        js: "last valid js",
+        lua: "last valid lua",
+      });
+
+      expect(result.generated).toEqual({
+        js: "freshJavaScript();",
+        lua: "last valid lua",
+      });
+      expect(result.warnings).toEqual([
+        {
+          code: "code-generation-failed",
+          language: "lua",
+          message: expect.stringContaining("broken Lua block"),
+        },
+      ]);
+      expect(javascriptGenerator.workspaceToCode).toHaveBeenCalledWith(
+        fakeWorkspace
+      );
+    });
+
+    it("uses empty fallbacks and reports both failures when both generators fail", () => {
+      vi.mocked(javascriptGenerator.workspaceToCode).mockImplementation(() => {
+        throw new Error("js failed");
+      });
+      vi.mocked(luaGenerator.workspaceToCode).mockImplementation(() => {
+        throw new Error("lua failed");
+      });
+      const { generateAllSafely } = useCodeGenerator();
+
+      const result = generateAllSafely(fakeWorkspace);
+
+      expect(result.generated).toEqual({ js: "", lua: "" });
+      expect(result.warnings).toEqual([
+        expect.objectContaining({ language: "javascript" }),
+        expect.objectContaining({ language: "lua" }),
+      ]);
     });
   });
 });

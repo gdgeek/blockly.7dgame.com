@@ -51,7 +51,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
+      const time =
+        generator.valueToCode(block, "Time", generator.ORDER_NONE) || "0";
       const code = `task.sleep(${time})`;
       return [code, generator.ORDER_NONE];
     };
@@ -64,7 +65,8 @@ const block: BlockDefinition = {
       block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      const time = generator.valueToCode(block, "Time", generator.ORDER_NONE);
+      const time =
+        generator.valueToCode(block, "Time", generator.ORDER_NONE) || "0";
       const code = "_G.task.sleep(" + time + ")";
       return [code, generator.ORDER_NONE];
     };
