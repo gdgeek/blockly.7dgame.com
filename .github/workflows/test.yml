@@ -13,7 +13,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 9.15.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -22,7 +22,13 @@ jobs:
           cache: 'pnpm'
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify multiselect package export
+        run: node -e "const plugin = require('@gdgeek/blockly-plugin-workspace-multiselect'); if (typeof plugin.Multiselect !== 'function') process.exit(1)"
+
+      - name: Run type check
+        run: pnpm type-check
 
       - name: Run lint
         run: pnpm lint

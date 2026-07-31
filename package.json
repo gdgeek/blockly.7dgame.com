@@ -1,6 +1,7 @@
 {
   "name": "blockly-vue3",
   "version": "0.0.0",
+  "packageManager": "pnpm@9.15.0",
   "type": "module",
   "scripts": {
     "start": "vite",
@@ -18,7 +19,7 @@
     "@blockly/plugin-workspace-search": "^10.1.7",
     "@blockly/workspace-backpack": "^7.0.9",
     "@blockly/workspace-minimap": "^0.3.8",
-    "@mit-app-inventor/blockly-plugin-workspace-multiselect": "^1.0.2",
+    "@gdgeek/blockly-plugin-workspace-multiselect": "git+https://github.com/gdgeek/blockly-plugin-workspace-multiselect.git#9dc02e602d7101b13f158d209e0d3f236dd70e55",
     "acorn": "^8.15.0",
     "blockly": "^12.2.0",
     "element-plus": "^2.13.0",
