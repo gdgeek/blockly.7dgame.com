@@ -3,6 +3,8 @@ export interface NamedResource {
   uuid: string;
   animations?: unknown;
   hasTooltips?: boolean;
+  moved?: boolean;
+  rotate?: boolean;
 }
 
 export interface ResourceAction {
@@ -39,16 +41,49 @@ export function buildPolygenOptions(
   parentType?: string
 ): [string, string][] {
   const polygens = resource?.polygen;
-  if (!ANIMATION_PARENT_TYPES.has(parentType || "")) {
-    return buildNamedResourceOptions(polygens);
+  if (ANIMATION_PARENT_TYPES.has(parentType || "")) {
+    return buildNamedResourceOptions(
+      polygens?.filter(
+        (polygen) =>
+          Array.isArray(polygen.animations) && polygen.animations.length > 0
+      )
+    );
   }
 
-  return buildNamedResourceOptions(
-    polygens?.filter(
-      (polygen) =>
-        Array.isArray(polygen.animations) && polygen.animations.length > 0
-    )
-  );
+  if (parentType === "polygen_movable") {
+    return buildNamedResourceOptions(
+      polygens?.filter((polygen) => polygen.moved === true)
+    );
+  }
+
+  if (parentType === "polygen_rotatable") {
+    return buildNamedResourceOptions(
+      polygens?.filter((polygen) => polygen.rotate === true)
+    );
+  }
+
+  return buildNamedResourceOptions(polygens);
+}
+
+export function buildEntityOptions(
+  resource: ResourceFilterIndex | undefined,
+  parentType?: string
+): [string, string][] {
+  const entities = resource?.entity;
+
+  if (parentType === "entity_movable") {
+    return buildNamedResourceOptions(
+      entities?.filter((entity) => entity.moved === true)
+    );
+  }
+
+  if (parentType === "entity_rotatable") {
+    return buildNamedResourceOptions(
+      entities?.filter((entity) => entity.rotate === true)
+    );
+  }
+
+  return buildNamedResourceOptions(entities);
 }
 
 export function collectTooltipParentUuids(

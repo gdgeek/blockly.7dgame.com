@@ -11,6 +11,13 @@ import {
   buildTooltipResourceOptions,
   type NamedResource,
 } from "../resourceFilters";
+import {
+  applyResourceDropdownOptions,
+  isCreateOrMoveEventForBlocks,
+  rememberResourceDropdownOptions,
+  type BlockEventLike,
+  type ResourceDropdownField,
+} from "../resourceDropdownOptions";
 
 const data = {
   name: "voxel_entity",
@@ -27,34 +34,16 @@ interface TooltipsData {
   sourceBlockId: string;
 }
 
-interface DropdownField {
-  getValue: () => string;
-  setValue: (value: string) => void;
-  setOptions: (options: [string, string][]) => void;
-  forceRerender: () => void;
-}
-
 interface VoxelBlockInstance {
+  id: string;
   jsonInit: (json: object) => void;
   blockParameters: BlockParameters;
   tooltipsData: TooltipsData | null;
-  getField: (name: string) => DropdownField | null;
+  getField: (name: string) => ResourceDropdownField | null;
   getParent: () => { id: string } | null;
-  setOnChange: (callback: (event: { type: string }) => void) => void;
+  setOnChange: (callback: (event: BlockEventLike) => void) => void;
   restoreOriginalOptions: () => void;
   updateEntityOptions: (tooltipsData: TooltipsData) => void;
-}
-
-function applyDropdownOptions(
-  field: DropdownField,
-  options: [string, string][]
-): void {
-  const currentValue = field.getValue();
-  field.setOptions(options);
-  if (options.some((option) => option[1] === currentValue)) {
-    field.setValue(currentValue);
-  }
-  field.forceRerender();
 }
 
 const block: BlockDefinition = {
@@ -92,8 +81,16 @@ const block: BlockDefinition = {
         this.blockParameters = typedParams;
         this.tooltipsData = null;
 
+        const voxelField = this.getField("Voxel");
+        if (voxelField) {
+          rememberResourceDropdownOptions(
+            voxelField,
+            buildNamedResourceOptions(this.blockParameters.resource?.voxel)
+          );
+        }
+
         this.setOnChange((event) => {
-          if (event.type !== Blockly.Events.BLOCK_MOVE) return;
+          if (!isCreateOrMoveEventForBlocks(event, [this.id])) return;
 
           const parentBlock = this.getParent();
           if (
@@ -109,7 +106,7 @@ const block: BlockDefinition = {
       restoreOriginalOptions: function (this: VoxelBlockInstance) {
         const field = this.getField("Voxel");
         if (!field) return;
-        applyDropdownOptions(
+        applyResourceDropdownOptions(
           field,
           buildNamedResourceOptions(this.blockParameters.resource?.voxel)
         );
@@ -125,7 +122,7 @@ const block: BlockDefinition = {
         const field = this.getField("Voxel");
         if (!field) return;
 
-        applyDropdownOptions(
+        applyResourceDropdownOptions(
           field,
           buildTooltipResourceOptions(
             this.blockParameters.resource?.voxel,

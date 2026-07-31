@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  buildEntityOptions,
   buildPolygenOptions,
   buildTooltipResourceOptions,
   collectTooltipParentUuids,
@@ -9,17 +10,37 @@ import TaskCircle from "@/blocks/task/task_circle";
 
 const resource: ResourceFilterIndex = {
   polygen: [
-    { name: "Static", uuid: "static", animations: [] },
+    {
+      name: "Static",
+      uuid: "static",
+      animations: [],
+      moved: true,
+      rotate: false,
+    },
     {
       name: "Animated",
       uuid: "animated",
       animations: ["Idle"],
       hasTooltips: true,
+      moved: false,
+      rotate: true,
     },
   ],
   entity: [
-    { name: "From flag", uuid: "flagged", hasTooltips: true },
-    { name: "Plain", uuid: "plain", hasTooltips: false },
+    {
+      name: "From flag",
+      uuid: "flagged",
+      hasTooltips: true,
+      moved: true,
+      rotate: false,
+    },
+    {
+      name: "Plain",
+      uuid: "plain",
+      hasTooltips: false,
+      moved: false,
+      rotate: true,
+    },
   ],
   action: [
     { type: "Tooltip", parentUuid: "from-action" },
@@ -39,6 +60,25 @@ describe("resource filters", () => {
       ["Animated", "animated"],
     ]);
     expect(buildPolygenOptions(resource, "polygen_highlight")).toHaveLength(3);
+  });
+
+  it("filters movable and rotatable selectors from the current parent type", () => {
+    expect(buildPolygenOptions(resource, "polygen_movable")).toEqual([
+      ["none", ""],
+      ["Static", "static"],
+    ]);
+    expect(buildPolygenOptions(resource, "polygen_rotatable")).toEqual([
+      ["none", ""],
+      ["Animated", "animated"],
+    ]);
+    expect(buildEntityOptions(resource, "entity_movable")).toEqual([
+      ["none", ""],
+      ["From flag", "flagged"],
+    ]);
+    expect(buildEntityOptions(resource, "entity_rotatable")).toEqual([
+      ["none", ""],
+      ["Plain", "plain"],
+    ]);
   });
 
   it("uses only canonical tooltip fields and explicit hasTooltips flags", () => {

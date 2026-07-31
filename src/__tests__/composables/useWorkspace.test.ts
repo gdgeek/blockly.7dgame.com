@@ -147,6 +147,43 @@ describe("useWorkspace", () => {
       vi.useRealTimers();
     });
 
+    it("cancels an earlier readiness wait when a later INIT starts", async () => {
+      vi.useFakeTimers();
+      const firstEditorRef = ref(undefined) as any;
+      const secondEditorRef = ref(undefined) as any;
+      const firstReady = vi.fn();
+      const firstTimeout = vi.fn();
+      const secondReady = vi.fn();
+      const secondTimeout = vi.fn();
+      const { result, wrapper } = withSetup(() => useWorkspace());
+
+      result.watchWorkspaceReady(
+        firstEditorRef,
+        { blocks: ["first"] },
+        firstReady,
+        firstTimeout
+      );
+      result.watchWorkspaceReady(
+        secondEditorRef,
+        { blocks: ["second"] },
+        secondReady,
+        secondTimeout
+      );
+
+      firstEditorRef.value = { workspace: { id: "stale" } };
+      await nextTick();
+      expect(firstReady).not.toHaveBeenCalled();
+      expect(mockLoad).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(5000);
+      expect(firstTimeout).not.toHaveBeenCalled();
+      expect(secondTimeout).toHaveBeenCalledOnce();
+      expect(secondReady).not.toHaveBeenCalled();
+
+      wrapper.unmount();
+      vi.useRealTimers();
+    });
+
     it("does not call onReady when loading workspace data fails", () => {
       const fakeWorkspace = { id: "ws-load-error" };
       const editorRef = ref({ workspace: fakeWorkspace });
