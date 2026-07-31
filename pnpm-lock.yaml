@@ -24,8 +24,8 @@ importers:
         specifier: 13.2.0
         version: 13.2.0(blockly@13.2.0(jsdom@29.1.1))
       '@gdgeek/blockly-plugin-workspace-multiselect':
-        specifier: github:gdgeek/blockly-plugin-workspace-multiselect#64a3bc1ed74c6e8e1ed5159317181a84ba90da29
-        version: https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/64a3bc1ed74c6e8e1ed5159317181a84ba90da29(blockly@13.2.0(jsdom@29.1.1))
+        specifier: github:gdgeek/blockly-plugin-workspace-multiselect#bec95548e38d0f33a50681c4a70dd61dcf2e3571
+        version: https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/bec95548e38d0f33a50681c4a70dd61dcf2e3571(blockly@13.2.0(jsdom@29.1.1))
       acorn:
         specifier: 8.18.0
         version: 8.18.0
@@ -283,8 +283,8 @@ packages:
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
 
-  '@gdgeek/blockly-plugin-workspace-multiselect@https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/64a3bc1ed74c6e8e1ed5159317181a84ba90da29':
-    resolution: {gitHosted: true, integrity: sha512-7EReXcmlw3whIU3Ldct/5cb2ym0NS9g1buArgALQEN4sTRtv4e1K8r9++pZ9/Igb2ylR+tBMU86uHcUl9pgkHA==, tarball: https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/64a3bc1ed74c6e8e1ed5159317181a84ba90da29}
+  '@gdgeek/blockly-plugin-workspace-multiselect@https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/bec95548e38d0f33a50681c4a70dd61dcf2e3571':
+    resolution: {gitHosted: true, integrity: sha512-P9r7AQvx/X007w8WE7en+vzf7KO6QA7kbBz/UmMy83ORZK9nUBveXoDmwplgTnUdJ69IOwi+EZwW22VFt4z65g==, tarball: https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/bec95548e38d0f33a50681c4a70dd61dcf2e3571}
     version: 2.0.0
     engines: {node: '>=18'}
     peerDependencies:
@@ -1772,7 +1772,7 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@gdgeek/blockly-plugin-workspace-multiselect@https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/64a3bc1ed74c6e8e1ed5159317181a84ba90da29(blockly@13.2.0(jsdom@29.1.1))':
+  '@gdgeek/blockly-plugin-workspace-multiselect@https://codeload.github.com/gdgeek/blockly-plugin-workspace-multiselect/tar.gz/bec95548e38d0f33a50681c4a70dd61dcf2e3571(blockly@13.2.0(jsdom@29.1.1))':
     dependencies:
       blockly: 13.2.0(jsdom@29.1.1)
       dragselect: 2.7.4

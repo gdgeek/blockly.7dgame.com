@@ -22,7 +22,7 @@
     "@blockly/plugin-workspace-search": "13.2.0",
     "@blockly/workspace-backpack": "13.2.0",
     "@blockly/workspace-minimap": "13.2.0",
-    "@gdgeek/blockly-plugin-workspace-multiselect": "github:gdgeek/blockly-plugin-workspace-multiselect#64a3bc1ed74c6e8e1ed5159317181a84ba90da29",
+    "@gdgeek/blockly-plugin-workspace-multiselect": "github:gdgeek/blockly-plugin-workspace-multiselect#bec95548e38d0f33a50681c4a70dd61dcf2e3571",
     "acorn": "8.18.0",
     "blockly": "13.2.0",
     "element-plus": "2.14.3",
