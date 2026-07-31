@@ -9,8 +9,16 @@ import type {
 import {
   buildPolygenOptions,
   buildTooltipResourceOptions,
+  collectTooltipParentUuids,
   type ResourceFilterIndex,
 } from "../resourceFilters";
+import {
+  applyResourceDropdownOptions,
+  isCreateOrMoveEventForBlocks,
+  rememberResourceDropdownOptions,
+  type BlockEventLike,
+  type ResourceDropdownField,
+} from "../resourceDropdownOptions";
 
 const data = {
   name: "polygen_entity",
@@ -25,35 +33,15 @@ interface TooltipsData {
   sourceBlockId: string;
 }
 
-interface DropdownField {
-  getValue: () => string;
-  setValue: (value: string) => void;
-  setOptions: (options: [string, string][]) => void;
-  forceRerender: () => void;
-}
-
-function applyDropdownOptions(
-  field: DropdownField,
-  options: [string, string][]
-): void {
-  const currentValue = field.getValue();
-  field.setOptions(options);
-  if (options.some((option) => option[1] === currentValue)) {
-    field.setValue(currentValue);
-  }
-  field.forceRerender();
-}
-
 interface PolygenEntityBlockInstance {
+  id: string;
   jsonInit: (json: object) => void;
   blockParameters: BlockParameters;
   originalOptions: [string, string][];
   tooltipsData: TooltipsData | null;
   parentBlockId: string | null;
-  selectedPolygenUuid: string | null;
-  setOnChange: (callback: (event: { type: string }) => void) => void;
-  getFieldValue: (name: string) => string;
-  getField: (name: string) => DropdownField | null;
+  setOnChange: (callback: (event: BlockEventLike) => void) => void;
+  getField: (name: string) => ResourceDropdownField | null;
   getParent: () => { id: string; type?: string } | null;
   getOriginalOptions: () => [string, string][];
   checkConnectionState: () => void;
@@ -106,40 +94,18 @@ const block: BlockDefinition = {
         // 保存父块信息，用于检测断开连接
         this.parentBlockId = null;
 
+        const polygenField = this.getField("Polygen");
+        if (polygenField) {
+          rememberResourceDropdownOptions(polygenField, this.originalOptions);
+        }
+
         // 监听模型切换
-        this.setOnChange((event: { type: string }) => {
-          const selectedUuid = this.getFieldValue("Polygen");
-
-          // 只有在 Polygen 的 UUID 改变时，才触发更新事件
-          if (this.selectedPolygenUuid !== selectedUuid) {
-            this.selectedPolygenUuid = selectedUuid;
-
-            // 触发更新事件
-            Blockly.Events.fire(
-              new Blockly.Events.BlockChange(
-                this as unknown as Blockly.Block,
-                "field",
-                "Polygen",
-                "",
-                selectedUuid
-              )
-            );
-          }
+        this.setOnChange((event: BlockEventLike) => {
+          if (!isCreateOrMoveEventForBlocks(event, [this.id])) return;
 
           // 检测是否断开了与visual_tooltip的连接
-          if (
-            event.type === Blockly.Events.BLOCK_CHANGE ||
-            event.type === Blockly.Events.BLOCK_MOVE
-          ) {
-            this.checkConnectionState();
-          }
-
-          if (
-            event.type === Blockly.Events.BLOCK_CREATE ||
-            event.type === Blockly.Events.BLOCK_MOVE
-          ) {
-            this.syncContextualOptions();
-          }
+          this.checkConnectionState();
+          this.syncContextualOptions();
         });
 
         setTimeout(() => this.syncContextualOptions(), 0);
@@ -177,19 +143,25 @@ const block: BlockDefinition = {
 
       syncContextualOptions: function (this: PolygenEntityBlockInstance) {
         const parentBlock = this.getParent();
-        if (
-          parentBlock?.type === "visual_tooltip" &&
-          this.tooltipsData?.sourceBlockId === parentBlock.id
-        ) {
-          return;
-        }
-
         const field = this.getField("Polygen");
         if (!field) return;
 
-        applyDropdownOptions(
+        const resource = this.blockParameters?.resource;
+        if (parentBlock?.type === "visual_tooltip") {
+          const parentUuids =
+            this.tooltipsData?.sourceBlockId === parentBlock.id
+              ? this.tooltipsData.tooltipsInfo.map((info) => info.parentUuid)
+              : collectTooltipParentUuids(resource);
+          applyResourceDropdownOptions(
+            field,
+            buildTooltipResourceOptions(resource?.polygen, parentUuids)
+          );
+          return;
+        }
+
+        applyResourceDropdownOptions(
           field,
-          buildPolygenOptions(this.blockParameters?.resource, parentBlock?.type)
+          buildPolygenOptions(resource, parentBlock?.type)
         );
       },
 
@@ -201,7 +173,7 @@ const block: BlockDefinition = {
         const field = this.getField("Polygen");
         if (!field) return;
 
-        applyDropdownOptions(field, options);
+        applyResourceDropdownOptions(field, options);
       },
 
       // 根据tooltipsData更新实体选项
@@ -213,18 +185,7 @@ const block: BlockDefinition = {
 
         this.tooltipsData = tooltipsData;
         this.parentBlockId = tooltipsData.sourceBlockId;
-
-        const field = this.getField("Polygen");
-        if (!field) return;
-
-        const resource = this.blockParameters && this.blockParameters.resource;
-        const parentUuids = tooltipsData.tooltipsInfo.map(
-          (info) => info.parentUuid
-        );
-        applyDropdownOptions(
-          field,
-          buildTooltipResourceOptions(resource?.polygen, parentUuids)
-        );
+        this.syncContextualOptions();
       },
     };
     return data;

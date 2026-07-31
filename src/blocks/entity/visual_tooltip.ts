@@ -9,6 +9,10 @@ import {
   collectTooltipParentUuids,
   type ResourceFilterIndex,
 } from "../resourceFilters";
+import {
+  isCreateOrMoveEventForBlocks,
+  type BlockEventLike,
+} from "../resourceDropdownOptions";
 
 const data = {
   name: "visual_tooltip",
@@ -26,9 +30,10 @@ interface TooltipBlockInstance {
   jsonInit: (json: object) => void;
   tooltipsInfo: TooltipInfo[];
   id: string;
-  setOnChange: (callback: (event: { type: string }) => void) => void;
+  setOnChange: (callback: (event: BlockEventLike) => void) => void;
   getInput: (name: string) => { connection: unknown } | null;
   getInputTargetBlock: (name: string) => {
+    id: string;
     updateEntityOptions?: (data: {
       tooltipsInfo: TooltipInfo[];
       sourceBlockId: string;
@@ -83,14 +88,15 @@ const block: BlockDefinition = {
           (parentUuid) => ({ parentUuid })
         );
 
-        this.setOnChange((event: { type: string }) => {
+        this.setOnChange((event: BlockEventLike) => {
+          const connectedBlock = this.getInputTargetBlock("entity");
           if (
-            event.type === Blockly.Events.BLOCK_CHANGE ||
-            event.type === Blockly.Events.BLOCK_MOVE ||
-            event.type === Blockly.Events.BLOCK_CREATE
+            !isCreateOrMoveEventForBlocks(event, [this.id, connectedBlock?.id])
           ) {
-            this.updateConnectedBlock();
+            return;
           }
+
+          this.updateConnectedBlock();
         });
 
         setTimeout(() => {

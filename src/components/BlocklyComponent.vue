@@ -143,7 +143,7 @@ let resizeObserver: ResizeObserver | null = null;
 let unpatchFlyoutHide: (() => void) | null = null;
 let unpatchToolboxSelection: (() => void) | null = null;
 let toolboxEventListener: ((event: Blockly.Events.Abstract) => void) | null = null;
-let positionSyncFrame = 0;
+let positionSyncFrame: number | null = null;
 
 defineExpose({ workspace });
 
@@ -158,6 +158,18 @@ const findCategoryById = (toolbox: unknown, id: string): unknown => {
       return typeof getId === "function" && getId.call(item) === id;
     }) ?? null
   );
+};
+
+const getSelectedCategoryId = (toolbox: unknown): string | null => {
+  const getSelectedItem = (
+    toolbox as { getSelectedItem?: () => unknown }
+  ).getSelectedItem;
+  const selected =
+    typeof getSelectedItem === "function"
+      ? getSelectedItem.call(toolbox)
+      : null;
+  const getId = (selected as { getId?: () => string } | null)?.getId;
+  return typeof getId === "function" ? getId.call(selected) : null;
 };
 
 const getWorkspaceFlyout = (): {
@@ -225,14 +237,6 @@ const refreshLockButtonPosition = (): void => {
       : Math.max(8, insideLeft);
 };
 
-const syncLockButtonPosition = (): void => {
-  if (flyoutLockState.locked) {
-    keepFlyoutOpenWhenLocked();
-  }
-  refreshLockButtonPosition();
-  positionSyncFrame = window.requestAnimationFrame(syncLockButtonPosition);
-};
-
 const keepFlyoutOpenWhenLocked = (): void => {
   if (!flyoutLockState.locked || !lastSelectedCategoryId.value || !workspace.value)
     return;
@@ -258,16 +262,24 @@ const keepFlyoutOpenWhenLocked = (): void => {
   }
 };
 
+const scheduleLockButtonSync = (): void => {
+  if (positionSyncFrame !== null) return;
+
+  positionSyncFrame = window.requestAnimationFrame(() => {
+    positionSyncFrame = null;
+    if (flyoutLockState.locked) {
+      keepFlyoutOpenWhenLocked();
+    }
+    refreshLockButtonPosition();
+  });
+};
+
 const toggleFlyoutLock = (): void => {
   flyoutLockState.locked = !flyoutLockState.locked;
   if (flyoutLockState.locked) {
     keepFlyoutOpenWhenLocked();
-    setTimeout(() => {
-      keepFlyoutOpenWhenLocked();
-      refreshLockButtonPosition();
-    }, 0);
   }
-  refreshLockButtonPosition();
+  scheduleLockButtonSync();
 };
 
 const setupFlyoutLockBridge = (): void => {
@@ -275,10 +287,7 @@ const setupFlyoutLockBridge = (): void => {
 
   const toolbox = workspace.value.getToolbox?.();
   if (!toolbox) return;
-  const selected = (toolbox as { getSelectedItem?: () => unknown }).getSelectedItem?.();
-  if (selected && typeof (selected as { getId?: () => string }).getId === "function") {
-    lastSelectedCategoryId.value = (selected as { getId: () => string }).getId();
-  }
+  lastSelectedCategoryId.value = getSelectedCategoryId(toolbox);
 
   const flyout = (toolbox as { getFlyout?: () => unknown }).getFlyout?.();
   if (flyout && !unpatchFlyoutHide) {
@@ -337,11 +346,14 @@ const setupFlyoutLockBridge = (): void => {
     const e = event as { type?: string; newItem?: string | null };
     if (e.type === Blockly.Events.TOOLBOX_ITEM_SELECT) {
       if (e.newItem) {
-        lastSelectedCategoryId.value = e.newItem;
+        const selectedCategoryId = getSelectedCategoryId(toolbox);
+        if (selectedCategoryId) {
+          lastSelectedCategoryId.value = selectedCategoryId;
+        }
       } else if (flyoutLockState.locked) {
         keepFlyoutOpenWhenLocked();
       }
-      setTimeout(refreshLockButtonPosition, 0);
+      scheduleLockButtonSync();
     }
   };
   workspace.value.addChangeListener(toolboxEventListener);
@@ -349,8 +361,7 @@ const setupFlyoutLockBridge = (): void => {
   const flyoutEl = blocklyDiv.value.querySelector(".blocklyFlyout");
   if (flyoutEl instanceof SVGElement) {
     flyoutObserver = new MutationObserver(() => {
-      refreshLockButtonPosition();
-      if (flyoutLockState.locked) keepFlyoutOpenWhenLocked();
+      scheduleLockButtonSync();
     });
     flyoutObserver.observe(flyoutEl, {
       attributes: true,
@@ -358,13 +369,11 @@ const setupFlyoutLockBridge = (): void => {
     });
   }
 
-  resizeObserver = new ResizeObserver(() => refreshLockButtonPosition());
+  resizeObserver = new ResizeObserver(() => scheduleLockButtonSync());
   resizeObserver.observe(blocklyDiv.value);
-  window.addEventListener("resize", refreshLockButtonPosition);
-  if (!positionSyncFrame) {
-    positionSyncFrame = window.requestAnimationFrame(syncLockButtonPosition);
-  }
-  setTimeout(refreshLockButtonPosition, 0);
+  if (flyoutEl) resizeObserver.observe(flyoutEl);
+  window.addEventListener("resize", scheduleLockButtonSync);
+  scheduleLockButtonSync();
 };
 
 // 简单的语言设置工具函数
@@ -445,12 +454,12 @@ onBeforeUnmount(() => {
     unpatchToolboxSelection = null;
   }
 
-  if (positionSyncFrame) {
+  if (positionSyncFrame !== null) {
     window.cancelAnimationFrame(positionSyncFrame);
-    positionSyncFrame = 0;
+    positionSyncFrame = null;
   }
 
-  window.removeEventListener("resize", refreshLockButtonPosition);
+  window.removeEventListener("resize", scheduleLockButtonSync);
 });
 </script>
 

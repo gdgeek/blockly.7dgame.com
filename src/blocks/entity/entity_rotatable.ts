@@ -5,31 +5,25 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import {
+  isCreateOrMoveEventForBlocks,
+  type BlockEventLike,
+} from "../resourceDropdownOptions";
 
 const data = {
   name: "entity_rotatable",
 } as const;
 
-interface ResourceEntity {
-  name: string;
-  uuid: string;
-  rotate?: boolean;
-}
-
-interface BlockParameters {
-  resource?: {
-    entity?: ResourceEntity[];
-  };
-}
-
 interface RotatableBlockInstance {
+  id: string;
   jsonInit: (json: object) => void;
-  setOnChange: (callback: (event: { type: string }) => void) => void;
+  setOnChange: (callback: (event: BlockEventLike) => void) => void;
   getInputTargetBlock: (name: string) => {
+    id: string;
     type: string;
-    updateDropdownOptions?: (options: [string, string][]) => void;
+    syncContextualOptions?: () => void;
   } | null;
-  updateEntityOptions: (resource: BlockParameters["resource"]) => void;
+  updateEntityOptions: () => void;
 }
 
 const block: BlockDefinition = {
@@ -65,41 +59,29 @@ const block: BlockDefinition = {
   },
 
   getBlock(parameters: unknown): object {
-    const typedParams = parameters as BlockParameters;
     const data = {
       init: function (this: RotatableBlockInstance) {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
 
-        this.setOnChange((event: { type: string }) => {
+        this.setOnChange((event: BlockEventLike) => {
+          const entityBlock = this.getInputTargetBlock("entity");
           if (
-            event.type === Blockly.Events.BLOCK_CHANGE ||
-            event.type === Blockly.Events.BLOCK_CREATE ||
-            event.type === Blockly.Events.BLOCK_MOVE
+            !isCreateOrMoveEventForBlocks(event, [this.id, entityBlock?.id])
           ) {
-            this.updateEntityOptions(typedParams.resource);
+            return;
           }
+
+          this.updateEntityOptions();
         });
       },
 
-      updateEntityOptions: function (
-        this: RotatableBlockInstance,
-        resource: BlockParameters["resource"]
-      ) {
-        if (!resource || !resource.entity) return;
-
+      updateEntityOptions: function (this: RotatableBlockInstance) {
         const entityBlock = this.getInputTargetBlock("entity");
         if (!entityBlock || entityBlock.type !== "entity") return;
 
-        const filteredOptions: [string, string][] = [["none", ""]];
-        resource.entity.forEach((entity) => {
-          if (entity.rotate === true) {
-            filteredOptions.push([entity.name, entity.uuid]);
-          }
-        });
-
-        if (typeof entityBlock.updateDropdownOptions === "function") {
-          entityBlock.updateDropdownOptions(filteredOptions);
+        if (typeof entityBlock.syncContextualOptions === "function") {
+          entityBlock.syncContextualOptions();
         }
       },
     };

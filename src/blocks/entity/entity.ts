@@ -7,19 +7,25 @@ import type {
   BlocklyGenerator,
 } from "../helper";
 import {
-  buildNamedResourceOptions,
+  buildEntityOptions,
   buildTooltipResourceOptions,
-  type NamedResource,
+  collectTooltipParentUuids,
+  type ResourceFilterIndex,
 } from "../resourceFilters";
+import {
+  applyResourceDropdownOptions,
+  isCreateOrMoveEventForBlocks,
+  rememberResourceDropdownOptions,
+  type BlockEventLike,
+  type ResourceDropdownField,
+} from "../resourceDropdownOptions";
 
 const data = {
   name: "entity",
 } as const;
 
 interface BlockParameters {
-  resource?: {
-    entity?: NamedResource[];
-  };
+  resource?: ResourceFilterIndex;
 }
 
 interface TooltipsData {
@@ -27,39 +33,20 @@ interface TooltipsData {
   sourceBlockId: string;
 }
 
-interface DropdownField {
-  getValue: () => string;
-  setValue: (_value: string) => void;
-  setOptions: (_options: [string, string][]) => void;
-  forceRerender: () => void;
-}
-
-function applyDropdownOptions(
-  field: DropdownField,
-  options: [string, string][]
-): void {
-  const currentValue = field.getValue();
-  field.setOptions(options);
-  if (options.some((option) => option[1] === currentValue)) {
-    field.setValue(currentValue);
-  }
-  field.forceRerender();
-}
-
 interface EntityBlockInstance {
+  id: string;
   jsonInit: (_json: object) => void;
   blockParameters: BlockParameters;
   originalOptions: [string, string][];
   tooltipsData: TooltipsData | null;
   parentBlockId: string | null;
-  selectedEntityUuid: string | null;
-  setOnChange: (_callback: (_event: { type: string }) => void) => void;
-  getFieldValue: (_name: string) => string;
-  getField: (_name: string) => DropdownField | null;
-  getParent: () => { id: string } | null;
+  setOnChange: (_callback: (_event: BlockEventLike) => void) => void;
+  getField: (_name: string) => ResourceDropdownField | null;
+  getParent: () => { id: string; type?: string } | null;
   getOriginalOptions: () => [string, string][];
   checkConnectionState: () => void;
   restoreOriginalOptions: () => void;
+  syncContextualOptions: () => void;
   updateDropdownOptions: (_options: [string, string][]) => void;
   updateEntityOptions: (_tooltipsData: TooltipsData) => void;
 }
@@ -79,7 +66,7 @@ const block: BlockDefinition = {
         {
           type: "field_dropdown",
           name: "Entity",
-          options: buildNamedResourceOptions(resource?.entity),
+          options: buildEntityOptions(resource),
         },
       ],
       output: "Entity",
@@ -104,37 +91,24 @@ const block: BlockDefinition = {
         this.tooltipsData = null;
         // 保存父块信息，用于检测断开连接
         this.parentBlockId = null;
-        // 保存当前选中的实体UUID
-        this.selectedEntityUuid = null;
+        const entityField = this.getField("Entity");
+        if (entityField) {
+          rememberResourceDropdownOptions(entityField, this.originalOptions);
+        }
 
         // 监听块的变化事件
-        this.setOnChange((event: { type: string }) => {
-          const selectedUuid = this.getFieldValue("Entity");
+        this.setOnChange((event: BlockEventLike) => {
+          if (!isCreateOrMoveEventForBlocks(event, [this.id])) return;
 
-          // 只有在 Entity 的 UUID 改变时，才触发更新事件
-          if (this.selectedEntityUuid !== selectedUuid) {
-            this.selectedEntityUuid = selectedUuid;
-
-            // 触发更新事件
-            Blockly.Events.fire(
-              new Blockly.Events.BlockChange(
-                this as unknown as Blockly.Block,
-                "field",
-                "Entity",
-                "",
-                selectedUuid
-              )
-            );
-          }
-
-          if (
-            event.type === Blockly.Events.BLOCK_CHANGE ||
-            event.type === Blockly.Events.BLOCK_MOVE
-          ) {
-            // 检测是否断开了与visual_tooltip的连接
-            this.checkConnectionState();
-          }
+          // 检测是否断开了与visual_tooltip的连接
+          this.checkConnectionState();
+          this.syncContextualOptions();
         });
+
+        setTimeout(() => {
+          this.checkConnectionState();
+          this.syncContextualOptions();
+        }, 0);
       },
 
       // 获取原始选项
@@ -142,7 +116,7 @@ const block: BlockDefinition = {
         this: EntityBlockInstance
       ): [string, string][] {
         const resource = this.blockParameters && this.blockParameters.resource;
-        return buildNamedResourceOptions(resource?.entity);
+        return buildEntityOptions(resource);
       },
 
       // 检测连接状态
@@ -157,8 +131,6 @@ const block: BlockDefinition = {
           (parentBlockId === null ||
             parentBlockId !== this.tooltipsData.sourceBlockId)
         ) {
-          // 恢复原始选项
-          this.restoreOriginalOptions();
           this.tooltipsData = null;
           this.parentBlockId = null;
         }
@@ -169,10 +141,32 @@ const block: BlockDefinition = {
 
       // 恢复原始选项
       restoreOriginalOptions: function (this: EntityBlockInstance) {
+        this.syncContextualOptions();
+      },
+
+      syncContextualOptions: function (this: EntityBlockInstance) {
         const field = this.getField("Entity");
         if (!field) return;
 
-        applyDropdownOptions(field, this.originalOptions);
+        const resource = this.blockParameters?.resource;
+        const parentBlock = this.getParent();
+
+        if (parentBlock?.type === "visual_tooltip") {
+          const parentUuids =
+            this.tooltipsData?.sourceBlockId === parentBlock.id
+              ? this.tooltipsData.tooltipsInfo.map((info) => info.parentUuid)
+              : collectTooltipParentUuids(resource);
+          applyResourceDropdownOptions(
+            field,
+            buildTooltipResourceOptions(resource?.entity, parentUuids)
+          );
+          return;
+        }
+
+        applyResourceDropdownOptions(
+          field,
+          buildEntityOptions(resource, parentBlock?.type)
+        );
       },
 
       // 更新下拉选项的方法，供其他模块使用
@@ -183,7 +177,7 @@ const block: BlockDefinition = {
         const field = this.getField("Entity");
         if (!field) return;
 
-        applyDropdownOptions(field, options);
+        applyResourceDropdownOptions(field, options);
       },
 
       // 根据tooltipsData更新实体选项
@@ -196,19 +190,7 @@ const block: BlockDefinition = {
         // 保存tooltipsData，包括来源块ID
         this.tooltipsData = tooltipsData;
         this.parentBlockId = tooltipsData.sourceBlockId;
-
-        // 获取字段
-        const field = this.getField("Entity");
-        if (!field) return;
-
-        const resource = this.blockParameters && this.blockParameters.resource;
-        const parentUuids = tooltipsData.tooltipsInfo.map(
-          (info) => info.parentUuid
-        );
-        applyDropdownOptions(
-          field,
-          buildTooltipResourceOptions(resource?.entity, parentUuids)
-        );
+        this.syncContextualOptions();
       },
     };
     return data;
