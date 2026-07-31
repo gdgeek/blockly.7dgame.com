@@ -22,14 +22,25 @@ interface BlockParameters {
   };
 }
 
+interface RotatableBlockEvent {
+  type: string;
+  blockId?: string;
+  ids?: string[];
+  oldParentId?: string;
+  newParentId?: string;
+}
+
 interface RotatableBlockInstance {
+  id: string;
   jsonInit: (json: object) => void;
-  setOnChange: (callback: (event: { type: string }) => void) => void;
+  setOnChange: (callback: (event: RotatableBlockEvent) => void) => void;
   getInputTargetBlock: (name: string) => {
+    id: string;
     type: string;
     updateDropdownOptions?: (options: [string, string][]) => void;
   } | null;
   updateEntityOptions: (resource: BlockParameters["resource"]) => void;
+  shouldUpdateEntityOptions: (event: RotatableBlockEvent) => boolean;
 }
 
 const block: BlockDefinition = {
@@ -71,15 +82,41 @@ const block: BlockDefinition = {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
 
-        this.setOnChange((event: { type: string }) => {
-          if (
-            event.type === Blockly.Events.BLOCK_CHANGE ||
-            event.type === Blockly.Events.BLOCK_CREATE ||
-            event.type === Blockly.Events.BLOCK_MOVE
-          ) {
+        this.setOnChange((event: RotatableBlockEvent) => {
+          if (this.shouldUpdateEntityOptions(event)) {
             this.updateEntityOptions(typedParams.resource);
           }
         });
+      },
+
+      shouldUpdateEntityOptions: function (
+        this: RotatableBlockInstance,
+        event: RotatableBlockEvent
+      ) {
+        const entityBlock = this.getInputTargetBlock("entity");
+        const entityBlockId = entityBlock?.id;
+
+        if (event.type === Blockly.Events.BLOCK_CREATE) {
+          return (
+            event.blockId === this.id ||
+            event.ids?.includes(this.id) === true ||
+            (entityBlockId !== undefined &&
+              event.ids?.includes(entityBlockId) === true)
+          );
+        }
+
+        if (event.type === Blockly.Events.BLOCK_MOVE) {
+          return (
+            event.blockId === entityBlockId ||
+            event.oldParentId === this.id ||
+            event.newParentId === this.id
+          );
+        }
+
+        return (
+          event.type === Blockly.Events.BLOCK_CHANGE &&
+          event.blockId === entityBlockId
+        );
       },
 
       updateEntityOptions: function (

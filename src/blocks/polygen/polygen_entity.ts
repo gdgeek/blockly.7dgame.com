@@ -28,11 +28,22 @@ interface TooltipsData {
 }
 
 interface DropdownField {
-  menuGenerator_: [string, string][];
+  menuGenerator_: [string, string][] | (() => [string, string][]);
   getValue: () => string;
   setValue: (value: string) => void;
   forceRerender: () => void;
 }
+
+const dropdownOptionsEqual = (
+  current: [string, string][] | (() => [string, string][]),
+  next: [string, string][]
+): boolean =>
+  Array.isArray(current) &&
+  current.length === next.length &&
+  current.every(
+    (option, index) =>
+      option[0] === next[index][0] && option[1] === next[index][1]
+  );
 
 interface PolygenEntityBlockInstance {
   jsonInit: (json: object) => void;
@@ -199,11 +210,22 @@ const block: BlockDefinition = {
         if (!field) return;
 
         this.filteredByParentBlockId = sourceBlockId || null;
-        field.menuGenerator_ = options;
+        const optionsChanged = !dropdownOptionsEqual(
+          field.menuGenerator_,
+          options
+        );
+
+        if (optionsChanged) {
+          field.menuGenerator_ = options;
+        }
 
         const currentValue = field.getValue();
         if (!options.some((opt) => opt[1] === currentValue)) {
           field.setValue("");
+        }
+
+        if (optionsChanged) {
+          field.forceRerender();
         }
       },
 

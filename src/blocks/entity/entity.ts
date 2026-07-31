@@ -28,11 +28,22 @@ interface TooltipsData {
 }
 
 interface DropdownField {
-  menuGenerator_: [string, string][];
+  menuGenerator_: [string, string][] | (() => [string, string][]);
   getValue: () => string;
   setValue: (_value: string) => void;
   forceRerender: () => void;
 }
+
+const dropdownOptionsEqual = (
+  current: [string, string][] | (() => [string, string][]),
+  next: [string, string][]
+): boolean =>
+  Array.isArray(current) &&
+  current.length === next.length &&
+  current.every(
+    (option, index) =>
+      option[0] === next[index][0] && option[1] === next[index][1]
+  );
 
 interface EntityBlockInstance {
   jsonInit: (_json: object) => void;
@@ -190,8 +201,14 @@ const block: BlockDefinition = {
         const field = this.getField("Entity");
         if (!field) return;
 
-        // 更新选项
-        field.menuGenerator_ = options;
+        const optionsChanged = !dropdownOptionsEqual(
+          field.menuGenerator_,
+          options
+        );
+
+        if (optionsChanged) {
+          field.menuGenerator_ = options;
+        }
 
         // 检查当前值是否在新选项中存在
         const currentValue = field.getValue();
@@ -199,8 +216,9 @@ const block: BlockDefinition = {
           field.setValue("");
         }
 
-        // 强制重新渲染
-        field.forceRerender();
+        if (optionsChanged) {
+          field.forceRerender();
+        }
       },
 
       // 根据tooltipsData更新实体选项
