@@ -3,7 +3,9 @@ import * as Blockly from "blockly/core";
 import type { GeneratedCode } from "@/composables/useCodeGenerator";
 import { registerMathRandomRangeGenerators } from "@/custom/math_random_range";
 import {
+  clearTrackedWorkspaceValidationFeedback,
   serializeWorkspaceWarnings,
+  showWorkspaceValidationWarnings,
   validateWorkspaceForSave,
 } from "@/utils/workspaceValidation";
 
@@ -354,6 +356,48 @@ describe("workspace save validation", () => {
     expect(roundTripped.map(({ code }) => code)).toEqual(
       serialized.map(({ code }) => code)
     );
+  });
+
+  it("clears displayed warnings on the next edit without scanning all blocks", () => {
+    const classList = {
+      add: vi.fn(),
+      remove: vi.fn(),
+    };
+    const block = createTestBlock({
+      getSvgRoot: vi.fn().mockReturnValue({ classList }),
+    });
+    const workspace = {
+      getAllBlocks: vi.fn(),
+      centerOnBlock: vi.fn(),
+    } as unknown as Blockly.WorkspaceSvg;
+
+    showWorkspaceValidationWarnings(workspace, [
+      {
+        block,
+        code: "test-warning",
+        severity: "warning",
+        message: "warning text",
+      },
+    ]);
+    clearTrackedWorkspaceValidationFeedback(workspace);
+
+    expect(block.setWarningText).toHaveBeenNthCalledWith(
+      1,
+      "warning text",
+      "save-validation"
+    );
+    expect(block.setWarningText).toHaveBeenNthCalledWith(
+      2,
+      null,
+      "save-validation"
+    );
+    expect(classList.add).toHaveBeenCalledWith(
+      "blockly-save-validation-warning"
+    );
+    expect(classList.remove).toHaveBeenCalledWith(
+      "blockly-save-validation-warning"
+    );
+    expect(workspace.getAllBlocks).not.toHaveBeenCalled();
   });
 
   it("reserves ok:false for a technical generator failure", () => {

@@ -5,31 +5,25 @@ import type {
   BlocklyBlock,
   BlocklyGenerator,
 } from "../helper";
+import {
+  isCreateOrMoveEventForBlocks,
+  type BlockEventLike,
+} from "../resourceDropdownOptions";
 
 const data = {
   name: "polygen_movable",
 } as const;
 
-interface ResourcePolygen {
-  name: string;
-  uuid: string;
-  moved?: boolean;
-}
-
-interface BlockParameters {
-  resource?: {
-    polygen?: ResourcePolygen[];
-  };
-}
-
 interface MovableBlockInstance {
+  id: string;
   jsonInit: (json: object) => void;
   getInputTargetBlock: (name: string) => {
+    id: string;
     type: string;
-    updateDropdownOptions?: (options: [string, string][]) => void;
+    syncContextualOptions?: () => void;
   } | null;
-  setOnChange: (callback: (event: { type: string }) => void) => void;
-  updateEntityOptions: (resource: BlockParameters["resource"]) => void;
+  setOnChange: (callback: (event: BlockEventLike) => void) => void;
+  updateEntityOptions: () => void;
 }
 
 const block: BlockDefinition = {
@@ -66,41 +60,29 @@ const block: BlockDefinition = {
     return json;
   },
   getBlock(parameters: unknown): object {
-    const typedParams = parameters as BlockParameters;
     const data = {
       init: function (this: MovableBlockInstance) {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
 
-        this.setOnChange((event: { type: string }) => {
+        this.setOnChange((event: BlockEventLike) => {
+          const entityBlock = this.getInputTargetBlock("entity");
           if (
-            event.type === Blockly.Events.BLOCK_CHANGE ||
-            event.type === Blockly.Events.BLOCK_CREATE ||
-            event.type === Blockly.Events.BLOCK_MOVE
+            !isCreateOrMoveEventForBlocks(event, [this.id, entityBlock?.id])
           ) {
-            this.updateEntityOptions(typedParams.resource);
+            return;
           }
+
+          this.updateEntityOptions();
         });
       },
 
-      updateEntityOptions: function (
-        this: MovableBlockInstance,
-        resource: BlockParameters["resource"]
-      ) {
-        if (!resource || !resource.polygen) return;
-
+      updateEntityOptions: function (this: MovableBlockInstance) {
         const entityBlock = this.getInputTargetBlock("entity");
         if (!entityBlock || entityBlock.type !== "polygen_entity") return;
 
-        const filteredOptions: [string, string][] = [["none", ""]];
-        resource.polygen.forEach((poly) => {
-          if (poly.moved === true) {
-            filteredOptions.push([poly.name, poly.uuid]);
-          }
-        });
-
-        if (typeof entityBlock.updateDropdownOptions === "function") {
-          entityBlock.updateDropdownOptions(filteredOptions);
+        if (typeof entityBlock.syncContextualOptions === "function") {
+          entityBlock.syncContextualOptions();
         }
       },
     };

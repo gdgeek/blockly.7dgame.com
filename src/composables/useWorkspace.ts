@@ -19,6 +19,17 @@ export function useWorkspace() {
   /** Stop handle returned by `watch` so we can clean up on unmount. */
   let stopWatcher: (() => void) | null = null;
 
+  const cancelWorkspaceReadyWatch = (): void => {
+    if (stopWatcher) {
+      stopWatcher();
+      stopWatcher = null;
+    }
+    if (timeoutId !== null) {
+      clearTimeout(timeoutId);
+      timeoutId = null;
+    }
+  };
+
   // ── Serialization ───────────────────────────────────────
 
   /**
@@ -60,6 +71,9 @@ export function useWorkspace() {
     onTimeout?: () => void,
     onLoadError?: (error: unknown) => void
   ): void => {
+    // A later INIT supersedes any previous readiness wait.
+    cancelWorkspaceReadyWatch();
+
     // If the workspace is already available, load immediately.
     if (editorRef.value?.workspace) {
       try {
@@ -75,10 +89,9 @@ export function useWorkspace() {
 
     // Set up a timeout guard.
     timeoutId = setTimeout(() => {
-      if (stopWatcher) {
-        stopWatcher();
-        stopWatcher = null;
-      }
+      timeoutId = null;
+      if (stopWatcher) stopWatcher();
+      stopWatcher = null;
       console.error(
         "[useWorkspace] Workspace did not become ready within 5 seconds."
       );
@@ -117,19 +130,13 @@ export function useWorkspace() {
   // ── Lifecycle cleanup ───────────────────────────────────
 
   onBeforeUnmount(() => {
-    if (stopWatcher) {
-      stopWatcher();
-      stopWatcher = null;
-    }
-    if (timeoutId !== null) {
-      clearTimeout(timeoutId);
-      timeoutId = null;
-    }
+    cancelWorkspaceReadyWatch();
   });
 
   return {
     saveWorkspace,
     loadWorkspace,
     watchWorkspaceReady,
+    cancelWorkspaceReadyWatch,
   };
 }

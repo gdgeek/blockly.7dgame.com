@@ -25,7 +25,7 @@
  * @author dcoodien@google.com (Dylan Coodien)
  */
 
-import { ref, nextTick, computed } from "vue";
+import { ref, nextTick, computed, onBeforeUnmount } from "vue";
 import type * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
@@ -37,6 +37,7 @@ import { useCodeGenerator } from "./composables/useCodeGenerator";
 import type {
   CodeGenerationWarning,
   GeneratedCode,
+  SafeGeneratedCode,
 } from "./composables/useCodeGenerator";
 import { useToolboxSetup } from "./composables/useToolboxSetup";
 import type { BlocklyOptions } from "./composables/useToolboxSetup";
@@ -48,12 +49,19 @@ import {
   SaveCoordinator,
 } from "./utils/saveCoordinator";
 import {
-  clearWorkspaceValidationFeedback,
+  clearTrackedWorkspaceValidationFeedback,
   serializeWorkspaceWarnings,
   showWorkspaceValidationWarnings,
   validateWorkspaceForSave,
   type WorkspaceValidationIssue,
 } from "./utils/workspaceValidation";
+import { createFrameCoalescer } from "./utils/frameCoalescer";
+import { createWorkspaceChangeListenerBinding } from "./utils/workspaceChangeListenerBinding";
+import {
+  resolveActiveWorkspace,
+  shouldQueueWorkspaceUpdate,
+  type WorkspaceRuntimeEvent,
+} from "./utils/workspaceRuntimePolicy";
 
 /** Shape of the INIT config from payload.config. */
 interface InitConfig {
@@ -73,15 +81,16 @@ interface CodeState {
   javascript: string;
 }
 
-interface WorkspaceChangeEvent {
-  element?: string;
-  isUiEvent?: boolean;
-}
-
 interface PendingPersistedSnapshot {
   saveId: string;
   data: Record<string, unknown>;
   code: GeneratedCode;
+}
+
+interface WorkspaceSnapshot {
+  workspace: Blockly.Workspace;
+  data: Record<string, unknown>;
+  generation: SafeGeneratedCode;
 }
 
 const SAVE_ACK_TIMEOUT_MS = 30_000;
@@ -96,7 +105,8 @@ const { setDark, isDark } = useTheme();
 const buildTime: string = __BUILD_TIME__;
 const { generateAllSafely } = useCodeGenerator();
 const { buildOptions } = useToolboxSetup();
-const { saveWorkspace, watchWorkspaceReady } = useWorkspace();
+const { saveWorkspace, watchWorkspaceReady, cancelWorkspaceReadyWatch } =
+  useWorkspace();
 
 const userInfo = ref<UserInfo>({});
 const access = computed<Access>(() => new Access(userInfo.value));
@@ -107,6 +117,10 @@ let lastGeneratedCode: GeneratedCode = { js: "", lua: "" };
 const saveCoordinator = new SaveCoordinator<PendingPersistedSnapshot>();
 let pendingSaveTimeout: number | null = null;
 let saveSequence = 0;
+let workspaceInitSequence = 0;
+let activeWorkspace: Blockly.WorkspaceSvg | null = null;
+let lastWorkspaceSnapshot: WorkspaceSnapshot | null = null;
+const disposedWorkspaces = new WeakSet<Blockly.Workspace>();
 const editor = ref<InstanceType<typeof BlocklyComponent> | null>(null);
 const code = ref<CodeState>({
   lua: "",
@@ -130,34 +144,89 @@ const clearPendingSaveTimeout = (): void => {
   }
 };
 
-const currentWorkspaceDiffersFromPersisted = (): boolean => {
-  const workspace = editor.value?.workspace;
-  if (!workspace) return false;
+const captureWorkspaceSnapshot = (
+  workspace: Blockly.Workspace
+): WorkspaceSnapshot => {
+  const data = saveWorkspace(workspace);
+  const generation = generateAllSafely(workspace, lastGeneratedCode);
+  lastGeneratedCode = generation.generated;
+  code.value = {
+    javascript: generation.generated.js,
+    lua: generation.generated.lua,
+  };
 
-  try {
-    const data = saveWorkspace(workspace);
-    const generation = generateAllSafely(workspace, lastGeneratedCode);
-    lastGeneratedCode = generation.generated;
-    code.value = {
-      javascript: generation.generated.js,
-      lua: generation.generated.lua,
-    };
-    return hasPersistedChanges(
-      data,
-      generation.generated,
-      oldValue,
-      persistedCode
-    );
-  } catch {
-    // Let the queued save produce the normal technical save-error response.
-    return true;
-  }
+  const snapshot = { workspace, data, generation };
+  lastWorkspaceSnapshot = snapshot;
+  return snapshot;
 };
 
-function save(): void {
-  if (saveCoordinator.queueIfPending()) return;
+// Generate and publish the complete state for a single settled workspace turn.
+const updateCode = (
+  workspace: Blockly.WorkspaceSvg | null = activeWorkspace
+): WorkspaceSnapshot | undefined => {
+  if (!workspace || editor.value?.workspace !== workspace) return;
 
-  const workspace = editor.value?.workspace;
+  const snapshot = captureWorkspaceSnapshot(workspace);
+  postMessage("EVENT", {
+    event: "update",
+    lua: snapshot.generation.generated.lua,
+    js: snapshot.generation.generated.js,
+    blocklyData: snapshot.data,
+    warnings: snapshot.generation.warnings,
+  });
+  return snapshot;
+};
+
+const workspaceUpdateQueue = createFrameCoalescer(() => {
+  try {
+    updateCode();
+  } catch (error) {
+    console.error("工作区更新生成失败：", error);
+  }
+});
+
+const onWorkspaceChange = (rawEvent: Blockly.Events.Abstract): void => {
+  const event = rawEvent as WorkspaceRuntimeEvent;
+  if (!shouldQueueWorkspaceUpdate(event)) return;
+
+  const workspace = activeWorkspace;
+  if (!workspace || editor.value?.workspace !== workspace) return;
+
+  clearTrackedWorkspaceValidationFeedback(workspace);
+  lastWorkspaceSnapshot = null;
+  workspaceUpdateQueue.schedule();
+};
+
+const workspaceChangeListener =
+  createWorkspaceChangeListenerBinding(onWorkspaceChange);
+
+const resetWorkspaceRuntime = (): void => {
+  workspaceUpdateQueue.cancel();
+  cancelWorkspaceReadyWatch();
+  lastWorkspaceSnapshot = null;
+
+  if (activeWorkspace) {
+    clearTrackedWorkspaceValidationFeedback(activeWorkspace);
+  }
+  workspaceChangeListener.detach();
+  activeWorkspace = null;
+};
+
+const captureFreshWorkspaceSnapshot = (
+  workspace: Blockly.Workspace
+): WorkspaceSnapshot => {
+  const flushedQueuedUpdate = workspaceUpdateQueue.flush();
+  if (flushedQueuedUpdate && lastWorkspaceSnapshot?.workspace === workspace) {
+    return lastWorkspaceSnapshot;
+  }
+  return captureWorkspaceSnapshot(workspace);
+};
+
+function save(precomputedSnapshot?: WorkspaceSnapshot): void {
+  const workspace = resolveActiveWorkspace(
+    editor.value?.workspace,
+    activeWorkspace
+  );
   if (!workspace) {
     postResponse({
       action: "save-error",
@@ -167,9 +236,14 @@ function save(): void {
     return;
   }
 
-  let data: Record<string, unknown>;
+  if (saveCoordinator.queueIfPending()) return;
+
+  let workspaceSnapshot: WorkspaceSnapshot;
   try {
-    data = saveWorkspace(workspace) as Record<string, unknown>;
+    workspaceSnapshot =
+      precomputedSnapshot?.workspace === workspace
+        ? precomputedSnapshot
+        : captureFreshWorkspaceSnapshot(workspace);
   } catch (error) {
     postResponse({
       action: "save-error",
@@ -181,8 +255,7 @@ function save(): void {
     return;
   }
 
-  const generation = generateAllSafely(workspace, lastGeneratedCode);
-  lastGeneratedCode = generation.generated;
+  const { data, generation } = workspaceSnapshot;
   const validation = validateWorkspaceForSave(
     workspace,
     () => generation.generated
@@ -231,9 +304,7 @@ function save(): void {
       console.warn(
         `保存 ${saveId} 在 ${SAVE_ACK_TIMEOUT_MS}ms 内未收到 ACK/NACK，已释放等待状态。`
       );
-      if (settlement.hadQueuedSave && currentWorkspaceDiffersFromPersisted()) {
-        save();
-      }
+      if (settlement.hadQueuedSave) saveQueuedWorkspaceIfChanged();
     }, SAVE_ACK_TIMEOUT_MS);
     postResponse({
       action: "save",
@@ -246,6 +317,31 @@ function save(): void {
   }
 }
 
+const saveQueuedWorkspaceIfChanged = (): void => {
+  const workspace = resolveActiveWorkspace(
+    editor.value?.workspace,
+    activeWorkspace
+  );
+  if (!workspace) return;
+
+  try {
+    const snapshot = captureFreshWorkspaceSnapshot(workspace);
+    if (
+      hasPersistedChanges(
+        snapshot.data,
+        snapshot.generation.generated,
+        oldValue,
+        persistedCode
+      )
+    ) {
+      save(snapshot);
+    }
+  } catch {
+    // Let save produce the existing technical save-error response.
+    save();
+  }
+};
+
 const settlePendingSave = (saveId: string, persisted: boolean): void => {
   const settlement = saveCoordinator.settle(saveId);
   if (!settlement.matched || !settlement.snapshot) return;
@@ -256,14 +352,13 @@ const settlePendingSave = (saveId: string, persisted: boolean): void => {
     persistedCode = settlement.snapshot.code;
   }
 
-  if (settlement.hadQueuedSave && currentWorkspaceDiffersFromPersisted()) {
-    save();
-  }
+  if (settlement.hadQueuedSave) saveQueuedWorkspaceIfChanged();
 };
 
 const doInit = (config: InitConfig): void => {
+  const initSequence = ++workspaceInitSequence;
+  resetWorkspaceRuntime();
   console.log("doInit executed with role:", config.userInfo?.role);
-  console.error("init", config);
   userInfo.value = config.userInfo || {};
   clearPendingSaveTimeout();
   saveCoordinator.reset();
@@ -279,6 +374,8 @@ const doInit = (config: InitConfig): void => {
   };
   options.value = buildOptions(config.style, config.parameters, access.value);
   nextTick(() => {
+    if (initSequence !== workspaceInitSequence) return;
+
     const { baseline, loadData } = prepareWorkspaceInitData(
       config.data,
       upgradeTweenData
@@ -289,17 +386,21 @@ const doInit = (config: InitConfig): void => {
       editor as Parameters<typeof watchWorkspaceReady>[0],
       loadData as object,
       (workspace: Blockly.WorkspaceSvg) => {
-        // 添加工作区变化的监听器
-        workspace.addChangeListener(onWorkspaceChange);
-        updateCode();
+        if (initSequence !== workspaceInitSequence) return;
+
+        activeWorkspace = workspace;
+        workspaceChangeListener.attach(workspace);
+        updateCode(workspace);
       },
       () => {
+        if (initSequence !== workspaceInitSequence) return;
         postMessage("EVENT", {
           event: "error",
           message: "Workspace failed to initialize within 5 seconds",
         });
       },
       (error: unknown) => {
+        if (initSequence !== workspaceInitSequence) return;
         postMessage("EVENT", {
           event: "error",
           message: `脚本数据加载失败，已停止回写空工作区：${
@@ -309,38 +410,6 @@ const doInit = (config: InitConfig): void => {
       }
     );
   });
-};
-
-// 更新 Lua 代码并发送到主页面
-const updateCode = (): void => {
-  if (editor.value && editor.value.workspace) {
-    const blocklyData = saveWorkspace(editor.value.workspace);
-    const generation = generateAllSafely(
-      editor.value.workspace,
-      lastGeneratedCode
-    );
-    lastGeneratedCode = generation.generated;
-    code.value = {
-      javascript: generation.generated.js,
-      lua: generation.generated.lua,
-    };
-    postMessage("EVENT", {
-      event: "update",
-      lua: generation.generated.lua,
-      js: generation.generated.js,
-      blocklyData: blocklyData,
-      warnings: generation.warnings,
-    });
-  }
-};
-
-// 处理工作区变化
-const onWorkspaceChange = (event?: WorkspaceChangeEvent): void => {
-  if (event?.isUiEvent || event?.element === "warning") return;
-  if (editor.value?.workspace) {
-    clearWorkspaceValidationFeedback(editor.value.workspace);
-  }
-  updateCode();
 };
 
 // Register message handlers
@@ -379,11 +448,22 @@ onMessage("THEME_CHANGE", (payload: unknown) => {
 });
 
 onMessage("DESTROY", () => {
+  workspaceInitSequence += 1;
+  const workspace = editor.value?.workspace;
+  resetWorkspaceRuntime();
   clearPendingSaveTimeout();
   saveCoordinator.reset();
-  if (editor.value?.workspace) {
-    editor.value.workspace.dispose();
+  if (workspace && !disposedWorkspaces.has(workspace)) {
+    disposedWorkspaces.add(workspace);
+    workspace.dispose();
   }
+});
+
+onBeforeUnmount(() => {
+  workspaceInitSequence += 1;
+  resetWorkspaceRuntime();
+  clearPendingSaveTimeout();
+  saveCoordinator.reset();
 });
 
 // eslint-disable-next-line no-unused-vars -- 保留用于调试和后续功能

@@ -63,6 +63,11 @@ type ValidatedBlock = Blockly.Block & {
   setWarningText?: (text: string | null, id?: string) => void;
 };
 
+const validationFeedbackBlocks = new WeakMap<
+  Blockly.Workspace,
+  Set<ValidatedBlock>
+>();
+
 export interface WorkspaceValidationIssue {
   block?: ValidatedBlock;
   code: string;
@@ -121,6 +126,23 @@ export function clearWorkspaceValidationFeedback(
   workspace: Blockly.Workspace
 ): void {
   getAllWorkspaceBlocks(workspace).forEach(clearBlockFeedback);
+  validationFeedbackBlocks.delete(workspace);
+}
+
+/**
+ * Clears only validation feedback that this module previously displayed.
+ * This is suitable for the workspace change hot path because it avoids a
+ * full `getAllBlocks` scan while preserving the previous "next edit clears
+ * save warnings" behaviour.
+ */
+export function clearTrackedWorkspaceValidationFeedback(
+  workspace: Blockly.Workspace
+): void {
+  const trackedBlocks = validationFeedbackBlocks.get(workspace);
+  if (!trackedBlocks) return;
+
+  trackedBlocks.forEach(clearBlockFeedback);
+  validationFeedbackBlocks.delete(workspace);
 }
 
 export function focusWorkspaceValidationIssue(
@@ -145,9 +167,15 @@ export function showWorkspaceValidationWarnings(
     warningsByBlock.set(issue.block, messages);
   }
 
+  const trackedBlocks =
+    validationFeedbackBlocks.get(workspace) ?? new Set<ValidatedBlock>();
   for (const [block, messages] of warningsByBlock) {
     block.setWarningText?.(messages.join("\n"), VALIDATION_WARNING_ID);
     block.getSvgRoot?.()?.classList.add(VALIDATION_WARNING_CLASS);
+    trackedBlocks.add(block);
+  }
+  if (trackedBlocks.size > 0) {
+    validationFeedbackBlocks.set(workspace, trackedBlocks);
   }
 
   const firstBlockIssue = issues.find((issue) => issue.block);
