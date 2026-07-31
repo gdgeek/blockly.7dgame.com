@@ -48,12 +48,22 @@ const block: BlockDefinition = {
     return data;
   },
   getJavascript(
-    parameters: unknown
+    _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return this.getLua(parameters) as (
+    const javascript = function (
       block: BlocklyBlock,
       generator: BlocklyGenerator
-    ) => string;
+    ): string {
+      const from =
+        generator.valueToCode(block, "from", generator.ORDER_ATOMIC) ||
+        "undefined";
+      const to =
+        generator.valueToCode(block, "to", generator.ORDER_ATOMIC) ||
+        "undefined";
+
+      return `point.line(${from}, ${to});\n`;
+    };
+    return javascript;
   },
   getLua(
     _parameters: unknown

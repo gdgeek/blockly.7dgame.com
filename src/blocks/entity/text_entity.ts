@@ -1,5 +1,5 @@
 import DataType from "./type";
-import { Handler } from "../helper";
+import { Handler, quoteJavaScriptString } from "../helper";
 import type {
   BlockDefinition,
   BlocklyBlock,
@@ -58,12 +58,19 @@ const block: BlockDefinition = {
     return data;
   },
   getJavascript(
-    parameters: unknown
+    _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
-    return this.getLua(parameters) as (
+    const javascript = function (
       block: BlocklyBlock,
       generator: BlocklyGenerator
-    ) => [string, unknown];
+    ): [string, unknown] {
+      const uuid = block.getFieldValue("Text");
+      return [
+        `handleText(${quoteJavaScriptString(uuid)})`,
+        generator.ORDER_FUNCTION_CALL,
+      ];
+    };
+    return javascript;
   },
   getLua(
     _parameters: unknown

@@ -42,12 +42,19 @@ const block: BlockDefinition = {
     return data;
   },
   getJavascript(
-    parameters: unknown
+    _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return this.getLua(parameters) as (
+    const javascript = function (
       block: BlocklyBlock,
       generator: BlocklyGenerator
-    ) => string;
+    ): string {
+      const entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+
+      return `point.unexplode(${entity});\n`;
+    };
+    return javascript;
   },
   getLua(
     _parameters: unknown

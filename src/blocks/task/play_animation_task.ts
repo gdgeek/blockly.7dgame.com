@@ -180,22 +180,7 @@ const block: BlockDefinition = {
       const polygen =
         generator.valueToCode(block, "polygen", generator.ORDER_NONE) ||
         "undefined";
-      const parentBlock = (
-        block as unknown as {
-          getParent: () => {
-            type: string;
-            getInputTargetBlock: (name: string) => unknown;
-          } | null;
-        }
-      ).getParent();
-      const isAssignment =
-        parentBlock &&
-        (parentBlock.type === "variables_set" ||
-          parentBlock.type === "math_change" ||
-          (parentBlock.type === "lists_setIndex" &&
-            block === parentBlock.getInputTargetBlock("TO")));
-      const methodName = isAssignment ? "createTask" : "playTask";
-      const code = `animation.${methodName}(${polygen}, ${JSON.stringify(
+      const code = `animation.createTask(${polygen}, ${JSON.stringify(
         animation
       )})`;
       return [code, generator.ORDER_FUNCTION_CALL];
