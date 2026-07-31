@@ -12,6 +12,8 @@ export default mergeConfig(
       coverage: {
         provider: "v8",
         reporter: ["text", "json", "html"],
+        // Vitest 4 only counts loaded files unless include is explicit.
+        include: ["src/**/*.{js,ts,vue}"],
         exclude: ["node_modules/", "src/__tests__/setup.ts"],
       },
       setupFiles: ["./src/__tests__/setup.ts"],

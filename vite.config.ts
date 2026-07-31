@@ -45,6 +45,11 @@ export default defineConfig({
       ],
     }),
   ],
+  build: {
+    // Keep the existing ES2020/WebView compatibility floor when upgrading to
+    // Vite 8, whose default browser baseline is newer than Vite 5's.
+    target: "es2020",
+  },
   server: {
     port: 3000,
   },
