@@ -13,25 +13,25 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-npm install
+pnpm install
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
-npm run start
+pnpm start
 ```
 
 ### Compile and Minify for Production
 
 ```sh
-npm run build
+pnpm build
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-npm run lint
+pnpm lint
 ```
 
 ### External resources

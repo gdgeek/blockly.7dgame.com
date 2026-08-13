@@ -66,11 +66,10 @@ const block: BlockDefinition = {
         "undefined";
       const occupy = block.getFieldValue("occupy") === "TRUE";
 
-      const parameter = video + ", " + JSON.stringify(occupy);
       const callback = generator.statementToCode(block, "callback");
-      return `handleVideo(${JSON.stringify(
-        parameter
-      )}, async () => {\n${callback}});\n`;
+      return `await video.play(${video}, ${JSON.stringify(
+        occupy
+      )});\n${callback}`;
     };
     return script;
   },

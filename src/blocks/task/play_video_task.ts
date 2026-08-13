@@ -53,22 +53,7 @@ const block: BlockDefinition = {
       const video =
         generator.valueToCode(block, "video", generator.ORDER_NONE) ||
         "undefined";
-      const parentBlock = (
-        block as unknown as {
-          getParent: () => {
-            type: string;
-            getInputTargetBlock: (name: string) => unknown;
-          } | null;
-        }
-      ).getParent();
-      const isAssignment =
-        parentBlock &&
-        (parentBlock.type === "variables_set" ||
-          parentBlock.type === "math_change" ||
-          (parentBlock.type === "lists_setIndex" &&
-            block === parentBlock.getInputTargetBlock("TO")));
-      const methodName = isAssignment ? "createTask" : "playTask";
-      const code = `video.${methodName}(${video})`;
+      const code = `video.createTask(${video})`;
       return [code, generator.ORDER_FUNCTION_CALL];
     };
     return javascript;

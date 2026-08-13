@@ -103,7 +103,14 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref, shallowRef, toRaw } from "vue";
+import {
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  shallowRef,
+  toRaw,
+} from "vue";
 import * as Blockly from "blockly/core";
 import "blockly/blocks";
 import * as En from "blockly/msg/en";
@@ -142,7 +149,8 @@ let flyoutObserver: MutationObserver | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let unpatchFlyoutHide: (() => void) | null = null;
 let unpatchToolboxSelection: (() => void) | null = null;
-let toolboxEventListener: ((event: Blockly.Events.Abstract) => void) | null = null;
+let toolboxEventListener: ((event: Blockly.Events.Abstract) => void) | null =
+  null;
 let positionSyncFrame: number | null = null;
 
 defineExpose({ workspace });
@@ -161,9 +169,8 @@ const findCategoryById = (toolbox: unknown, id: string): unknown => {
 };
 
 const getSelectedCategoryId = (toolbox: unknown): string | null => {
-  const getSelectedItem = (
-    toolbox as { getSelectedItem?: () => unknown }
-  ).getSelectedItem;
+  const getSelectedItem = (toolbox as { getSelectedItem?: () => unknown })
+    .getSelectedItem;
   const selected =
     typeof getSelectedItem === "function"
       ? getSelectedItem.call(toolbox)
@@ -238,7 +245,11 @@ const refreshLockButtonPosition = (): void => {
 };
 
 const keepFlyoutOpenWhenLocked = (): void => {
-  if (!flyoutLockState.locked || !lastSelectedCategoryId.value || !workspace.value)
+  if (
+    !flyoutLockState.locked ||
+    !lastSelectedCategoryId.value ||
+    !workspace.value
+  )
     return;
 
   const toolbox = workspace.value.getToolbox?.();
@@ -246,7 +257,10 @@ const keepFlyoutOpenWhenLocked = (): void => {
 
   const getSelectedItem = (toolbox as { getSelectedItem?: () => unknown })
     .getSelectedItem;
-  const current = typeof getSelectedItem === "function" ? getSelectedItem.call(toolbox) : null;
+  const current =
+    typeof getSelectedItem === "function"
+      ? getSelectedItem.call(toolbox)
+      : null;
   const currentId =
     current && typeof (current as { getId?: () => string }).getId === "function"
       ? (current as { getId: () => string }).getId()
@@ -255,10 +269,31 @@ const keepFlyoutOpenWhenLocked = (): void => {
   if (currentId === lastSelectedCategoryId.value) return;
 
   const target = findCategoryById(toolbox, lastSelectedCategoryId.value);
-  const setSelectedItem = (toolbox as { setSelectedItem?: (item: unknown) => void })
-    .setSelectedItem;
+  const setSelectedItem = (
+    toolbox as { setSelectedItem?: (item: unknown) => void }
+  ).setSelectedItem;
   if (target && typeof setSelectedItem === "function") {
     setSelectedItem.call(toolbox, target);
+  }
+};
+
+const clearStaleUnlockedToolboxSelection = (): void => {
+  if (flyoutLockState.locked || !workspace.value) return;
+
+  const toolbox = workspace.value.getToolbox?.();
+  if (!toolbox || !getSelectedCategoryId(toolbox)) return;
+
+  const flyout = (toolbox as { getFlyout?: () => unknown }).getFlyout?.() as {
+    isVisible?: () => boolean;
+  } | null;
+  if (!flyout || typeof flyout.isVisible !== "function" || flyout.isVisible()) {
+    return;
+  }
+
+  const clearSelection = (toolbox as { clearSelection?: () => void })
+    .clearSelection;
+  if (typeof clearSelection === "function") {
+    clearSelection.call(toolbox);
   }
 };
 
@@ -269,6 +304,8 @@ const scheduleLockButtonSync = (): void => {
     positionSyncFrame = null;
     if (flyoutLockState.locked) {
       keepFlyoutOpenWhenLocked();
+    } else {
+      clearStaleUnlockedToolboxSelection();
     }
     refreshLockButtonPosition();
   });
@@ -331,6 +368,24 @@ const setupFlyoutLockBridge = (): void => {
         if (flyoutLockState.locked && item == null) {
           keepFlyoutOpenWhenLocked();
           return;
+        }
+
+        const currentItem = (
+          toolbox as { getSelectedItem?: () => unknown }
+        ).getSelectedItem?.();
+        const flyoutVisible = (
+          flyout as { isVisible?: () => boolean } | null
+        )?.isVisible?.();
+        if (
+          !flyoutLockState.locked &&
+          item != null &&
+          item === currentItem &&
+          flyoutVisible === false
+        ) {
+          // Dragging a block can hide the flyout before Blockly clears its
+          // selected toolbox item. Clear that stale item first so the user's
+          // next click opens the category instead of toggling the stale item off.
+          originalSetSelectedItem.call(toolbox, null);
         }
         originalSetSelectedItem.call(toolbox, item);
       };
@@ -485,7 +540,9 @@ onBeforeUnmount(() => {
   height: 32px;
   cursor: pointer;
   z-index: 15;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 .minimap-toggle-btn img {
@@ -544,7 +601,9 @@ onBeforeUnmount(() => {
 :global(.blockly-minimap) {
   z-index: 15 !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    visibility 0.3s ease;
 }
 
 :global(.blockly-minimap.minimap-hidden) {

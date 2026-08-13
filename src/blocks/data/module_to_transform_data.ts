@@ -15,7 +15,9 @@ const block: BlockDefinition = {
   getBlock(_parameters: unknown): object {
     const block = {
       init: function () {
-        const current = this as unknown as { jsonInit: (_json: object) => void };
+        const current = this as unknown as {
+          jsonInit: (_json: object) => void;
+        };
         current.jsonInit({
           type: data.name,
           message0: "空间数据 %1",
@@ -57,10 +59,16 @@ const block: BlockDefinition = {
     _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => [string, unknown] {
     const javascript = function (
-      _block: BlocklyBlock,
+      block: BlocklyBlock,
       generator: BlocklyGenerator
     ): [string, unknown] {
-      return ["", generator.ORDER_NONE];
+      const entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+      return [
+        `point.toTransformData(${entity})`,
+        generator.ORDER_FUNCTION_CALL,
+      ];
     };
     return javascript;
   },

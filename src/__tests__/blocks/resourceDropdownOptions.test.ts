@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi, type Mock } from "vitest";
 import * as Blockly from "blockly";
 import {
   applyResourceDropdownOptions,
@@ -12,9 +12,9 @@ interface FakeDropdownField extends ResourceDropdownField {
   currentOptions: ResourceDropdownOption[];
   currentValue: string;
   emittedChanges: Array<[string, string]>;
-  setOptions: ReturnType<typeof vi.fn>;
-  setValue: ReturnType<typeof vi.fn>;
-  forceRerender: ReturnType<typeof vi.fn>;
+  setOptions: Mock<(options: ResourceDropdownOption[]) => void>;
+  setValue: Mock<(value: string) => void>;
+  forceRerender: Mock<() => void>;
 }
 
 function createField(
@@ -27,9 +27,9 @@ function createField(
     emittedChanges: [],
     getOptions: () => field.currentOptions,
     getValue: () => field.currentValue,
-    setOptions: vi.fn(),
-    setValue: vi.fn(),
-    forceRerender: vi.fn(),
+    setOptions: vi.fn<(options: ResourceDropdownOption[]) => void>(),
+    setValue: vi.fn<(value: string) => void>(),
+    forceRerender: vi.fn<() => void>(),
   } as FakeDropdownField;
 
   field.setValue.mockImplementation((value: string) => {

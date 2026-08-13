@@ -53,22 +53,7 @@ const block: BlockDefinition = {
       const sound =
         generator.valueToCode(block, "sound", generator.ORDER_NONE) ||
         "undefined";
-      const parentBlock = (
-        block as unknown as {
-          getParent: () => {
-            type: string;
-            getInputTargetBlock: (name: string) => unknown;
-          } | null;
-        }
-      ).getParent();
-      const isAssignment =
-        parentBlock &&
-        (parentBlock.type === "variables_set" ||
-          parentBlock.type === "math_change" ||
-          (parentBlock.type === "lists_setIndex" &&
-            block === parentBlock.getInputTargetBlock("TO")));
-      const methodName = isAssignment ? "createTask" : "playTask";
-      const code = `sound.${methodName}(${sound})`;
+      const code = `sound.createTask(${sound})`;
       return [code, generator.ORDER_FUNCTION_CALL];
     };
     return javascript;
