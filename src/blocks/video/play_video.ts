@@ -64,12 +64,10 @@ const block: BlockDefinition = {
       const sync = block.getFieldValue("sync") === "TRUE";
       const occupy = block.getFieldValue("occupy") === "TRUE";
 
-      const parameter = video + ", " + JSON.stringify(occupy);
-      if (sync) {
-        return `handleVideo(${JSON.stringify(parameter)});\n`;
-      } else {
-        return `handleVideo(${JSON.stringify(parameter)});\n`;
-      }
+      const parameters = video + ", " + JSON.stringify(occupy);
+      return sync
+        ? `await video.play(${parameters});\n`
+        : `void video.play(${parameters});\n`;
     };
     return script;
   },

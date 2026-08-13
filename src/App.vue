@@ -93,6 +93,11 @@ interface WorkspaceSnapshot {
   generation: SafeGeneratedCode;
 }
 
+interface KnownGeneratedCode {
+  js: boolean;
+  lua: boolean;
+}
+
 const SAVE_ACK_TIMEOUT_MS = 30_000;
 
 window.URL = window.URL || window.webkitURL;
@@ -114,6 +119,7 @@ const access = computed<Access>(() => new Access(userInfo.value));
 let oldValue: unknown = null;
 let persistedCode: GeneratedCode = { js: "", lua: "" };
 let lastGeneratedCode: GeneratedCode = { js: "", lua: "" };
+let knownGeneratedCode: KnownGeneratedCode = { js: false, lua: false };
 const saveCoordinator = new SaveCoordinator<PendingPersistedSnapshot>();
 let pendingSaveTimeout: number | null = null;
 let saveSequence = 0;
@@ -144,16 +150,53 @@ const clearPendingSaveTimeout = (): void => {
   }
 };
 
-const captureWorkspaceSnapshot = (
-  workspace: Blockly.Workspace
-): WorkspaceSnapshot => {
-  const data = saveWorkspace(workspace);
-  const generation = generateAllSafely(workspace, lastGeneratedCode);
+const failedGenerationLanguages = (
+  generation: SafeGeneratedCode
+): Set<CodeGenerationWarning["language"]> =>
+  new Set(generation.warnings.map((warning) => warning.language));
+
+/**
+ * A successful generation is a valid fallback even when its code is an empty
+ * string (for example, an intentionally empty workspace).
+ */
+const rememberGeneratedCode = (generation: SafeGeneratedCode): void => {
+  const failedLanguages = failedGenerationLanguages(generation);
+  if (!failedLanguages.has("javascript")) knownGeneratedCode.js = true;
+  if (!failedLanguages.has("lua")) knownGeneratedCode.lua = true;
+
   lastGeneratedCode = generation.generated;
   code.value = {
     javascript: generation.generated.js,
     lua: generation.generated.lua,
   };
+};
+
+/**
+ * Older hosts did not include persisted code in INIT. If a generator then
+ * throws before ever succeeding, its empty fallback is not known to be the
+ * user's real saved code and must not be written back over it.
+ */
+const generationFailuresWithoutFallback = (
+  generation: SafeGeneratedCode
+): CodeGenerationWarning["language"][] => {
+  const missing = new Set<CodeGenerationWarning["language"]>();
+  for (const warning of generation.warnings) {
+    if (warning.language === "javascript" && !knownGeneratedCode.js) {
+      missing.add(warning.language);
+    }
+    if (warning.language === "lua" && !knownGeneratedCode.lua) {
+      missing.add(warning.language);
+    }
+  }
+  return [...missing];
+};
+
+const captureWorkspaceSnapshot = (
+  workspace: Blockly.Workspace
+): WorkspaceSnapshot => {
+  const data = saveWorkspace(workspace);
+  const generation = generateAllSafely(workspace, lastGeneratedCode);
+  rememberGeneratedCode(generation);
 
   const snapshot = { workspace, data, generation };
   lastWorkspaceSnapshot = snapshot;
@@ -256,6 +299,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
   }
 
   const { data, generation } = workspaceSnapshot;
+  const failuresWithoutFallback = generationFailuresWithoutFallback(generation);
   const validation = validateWorkspaceForSave(
     workspace,
     () => generation.generated
@@ -274,6 +318,20 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
   }
 
   const serializedWarnings = serializeWorkspaceWarnings(warnings);
+  if (failuresWithoutFallback.length > 0) {
+    const languageNames = failuresWithoutFallback
+      .map((language) => (language === "javascript" ? "JavaScript" : "Lua"))
+      .join("、");
+    postResponse({
+      action: "save-error",
+      error: true,
+      errorCode: "missing-generated-code-fallback",
+      message: `${languageNames} 代码生成器发生技术异常，且当前旧版主系统未提供可安全回退的历史代码。为避免用空代码覆盖已保存脚本，本次未写入；请刷新主系统后重试。`,
+      warnings: serializedWarnings,
+    });
+    return;
+  }
+
   const hasChanges = hasPersistedChanges(
     data,
     generation.generated,
@@ -304,7 +362,13 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
       console.warn(
         `保存 ${saveId} 在 ${SAVE_ACK_TIMEOUT_MS}ms 内未收到 ACK/NACK，已释放等待状态。`
       );
-      if (settlement.hadQueuedSave) saveQueuedWorkspaceIfChanged();
+      // A missing ACK is not proof of persistence: the legacy host may have
+      // failed after receiving the RESPONSE. Keep the confirmed baseline and
+      // allow the queued request to retry, even when that means an idempotent
+      // duplicate write on legacy hosts.
+      if (settlement.hadQueuedSave) {
+        saveQueuedWorkspace();
+      }
     }, SAVE_ACK_TIMEOUT_MS);
     postResponse({
       action: "save",
@@ -317,7 +381,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
   }
 }
 
-const saveQueuedWorkspaceIfChanged = (): void => {
+const saveQueuedWorkspace = (): void => {
   const workspace = resolveActiveWorkspace(
     editor.value?.workspace,
     activeWorkspace
@@ -326,16 +390,10 @@ const saveQueuedWorkspaceIfChanged = (): void => {
 
   try {
     const snapshot = captureFreshWorkspaceSnapshot(workspace);
-    if (
-      hasPersistedChanges(
-        snapshot.data,
-        snapshot.generation.generated,
-        oldValue,
-        persistedCode
-      )
-    ) {
-      save(snapshot);
-    }
+    // A queued REQUEST always needs a RESPONSE. Passing the snapshot preserves
+    // the coalesced-generation fast path while save() decides between a real
+    // write and an explicit noChange response.
+    save(snapshot);
   } catch {
     // Let save produce the existing technical save-error response.
     save();
@@ -352,7 +410,11 @@ const settlePendingSave = (saveId: string, persisted: boolean): void => {
     persistedCode = settlement.snapshot.code;
   }
 
-  if (settlement.hadQueuedSave) saveQueuedWorkspaceIfChanged();
+  // Every queued REQUEST needs a RESPONSE. Calling save unconditionally lets
+  // it return noChange after ACK, retry after NACK, or report a technical error.
+  if (settlement.hadQueuedSave) {
+    saveQueuedWorkspace();
+  }
 };
 
 const doInit = (config: InitConfig): void => {
@@ -363,6 +425,10 @@ const doInit = (config: InitConfig): void => {
   clearPendingSaveTimeout();
   saveCoordinator.reset();
   oldValue = null;
+  knownGeneratedCode = {
+    js: typeof config.code?.js === "string",
+    lua: typeof config.code?.lua === "string",
+  };
   persistedCode = {
     js: typeof config.code?.js === "string" ? config.code.js : "",
     lua: typeof config.code?.lua === "string" ? config.code.lua : "",
@@ -479,8 +545,7 @@ function luaCode(): void {
         editor.value.workspace,
         lastGeneratedCode
       );
-      lastGeneratedCode = generation.generated;
-      code.value.lua = generation.generated.lua;
+      rememberGeneratedCode(generation);
       console.log("Lua 代码：", code.value);
     }
   }
@@ -498,8 +563,7 @@ function jsCode(): void {
         editor.value.workspace,
         lastGeneratedCode
       );
-      lastGeneratedCode = generation.generated;
-      code.value.javascript = generation.generated.js;
+      rememberGeneratedCode(generation);
       console.log("JavaScript 代码：", code.value);
     }
   }

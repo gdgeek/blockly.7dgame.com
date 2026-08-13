@@ -68,12 +68,30 @@ const block: BlockDefinition = {
     return data;
   },
   getJavascript(
-    parameters: unknown
+    _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return this.getLua(parameters) as (
+    const javascript = function (
       block: BlocklyBlock,
       generator: BlocklyGenerator
-    ) => string;
+    ): string {
+      const entity =
+        generator.valueToCode(block, "entity", generator.ORDER_ATOMIC) ||
+        "undefined";
+      const transform =
+        generator.valueToCode(block, "transform", generator.ORDER_ATOMIC) ||
+        "undefined";
+      const time = block.getFieldValue("time");
+      const sync = block.getFieldValue("sync") === "TRUE";
+      const occupy = block.getFieldValue("occupy") === "TRUE";
+      const parameters = `${entity}, ${transform}, ${time}, ${JSON.stringify(
+        occupy
+      )}`;
+
+      return sync
+        ? `await point.tween(${parameters});\n`
+        : `void point.tween(${parameters});\n`;
+    };
+    return javascript;
   },
   getLua(
     _parameters: unknown

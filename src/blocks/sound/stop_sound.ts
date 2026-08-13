@@ -54,7 +54,7 @@ const block: BlockDefinition = {
       const sound =
         generator.valueToCode(block, "sound", generator.ORDER_NONE) ||
         "undefined";
-      const code = `${sound}.stop();\n`;
+      const code = `await sound.stop(${sound});\n`;
       return code;
     };
     return script;

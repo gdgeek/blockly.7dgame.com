@@ -91,9 +91,11 @@ class ResizeObserverMock {
 
 interface FlyoutHarness {
   callFlyoutHide: () => void;
+  clickCategory: (id?: "category-id" | "other-category-id") => void;
   clearToolboxSelection: () => void;
   changeListener: (event: { type: string; newItem?: string | null }) => void;
   getSelectedCategoryId: () => string | null;
+  isFlyoutVisible: () => boolean;
   loseToolboxSelection: () => void;
   originalFlyoutHide: ReturnType<typeof vi.fn>;
   originalToolboxClearSelection: ReturnType<typeof vi.fn>;
@@ -108,27 +110,45 @@ const mountComponent = (): {
     getId: () => "category-id",
     getName: () => "category-name",
   };
+  const otherCategory = {
+    getId: () => "other-category-id",
+    getName: () => "other-category-name",
+  };
   let selectedCategory: unknown = category;
+  let flyoutVisible = true;
   let changeListener: FlyoutHarness["changeListener"] = () => {};
-  const flyoutHide = vi.fn();
-  const toolboxClearSelection = vi.fn(() => {
-    selectedCategory = null;
-  });
-  const toolboxSetSelectedItem = vi.fn((item: unknown) => {
-    selectedCategory = item;
+  const flyoutHide = vi.fn(() => {
+    flyoutVisible = false;
   });
   const flyout = {
     getWidth: () => 240,
     getX: () => 160,
     getY: () => 20,
     hide: flyoutHide,
-    isVisible: () => true,
+    isVisible: () => flyoutVisible,
+    show: vi.fn(() => {
+      flyoutVisible = true;
+    }),
   };
+  const toolboxSetSelectedItem = vi.fn((item: unknown) => {
+    const oldItem = selectedCategory;
+    if (oldItem !== null) selectedCategory = null;
+    if (item !== null && item !== oldItem) selectedCategory = item;
+
+    if (item !== null && item !== oldItem) {
+      flyout.show();
+    } else {
+      flyout.hide();
+    }
+  });
+  const toolboxClearSelection = vi.fn(() => {
+    toolbox.setSelectedItem(null);
+  });
   const toolbox = {
     clearSelection: toolboxClearSelection,
     getFlyout: () => flyout,
     getSelectedItem: () => selectedCategory,
-    getToolboxItems: () => [category],
+    getToolboxItems: () => [category, otherCategory],
     setSelectedItem: toolboxSetSelectedItem,
   };
   const workspaceRemoveChangeListener = vi.fn();
@@ -154,11 +174,16 @@ const mountComponent = (): {
   return {
     harness: {
       callFlyoutHide: () => flyout.hide(),
+      clickCategory: (id = "category-id") =>
+        toolbox.setSelectedItem(
+          id === "category-id" ? category : otherCategory
+        ),
       clearToolboxSelection: () => toolbox.clearSelection(),
       changeListener: (event) => changeListener(event),
       getSelectedCategoryId: () =>
         (selectedCategory as { getId?: () => string } | null)?.getId?.() ??
         null,
+      isFlyoutVisible: () => flyoutVisible,
       loseToolboxSelection: () => {
         selectedCategory = null;
       },
@@ -261,5 +286,56 @@ describe("BlocklyComponent flyout lock synchronization", () => {
     expect(MutationObserverMock.instances[0].disconnect).toHaveBeenCalledOnce();
     expect(ResizeObserverMock.instances[0].disconnect).toHaveBeenCalledOnce();
     expect(harness.workspaceRemoveChangeListener).toHaveBeenCalledOnce();
+  });
+
+  it("clears a stale unlocked category after the flyout auto-hides", () => {
+    const { harness, wrapper } = mountComponent();
+
+    expect(harness.getSelectedCategoryId()).toBe("category-id");
+    harness.callFlyoutHide();
+    expect(harness.isFlyoutVisible()).toBe(false);
+    expect(harness.getSelectedCategoryId()).toBe("category-id");
+
+    const syncFrame = animationFrames.get(1);
+    animationFrames.delete(1);
+    syncFrame?.(0);
+
+    expect(harness.getSelectedCategoryId()).toBeNull();
+    expect(harness.originalToolboxClearSelection).toHaveBeenCalledOnce();
+    wrapper.unmount();
+  });
+
+  it("opens a stale hidden category on the first click without breaking toggle-off", () => {
+    const { harness, wrapper } = mountComponent();
+    const initialFrame = animationFrames.get(1);
+    animationFrames.delete(1);
+    initialFrame?.(0);
+
+    harness.callFlyoutHide();
+    expect(harness.isFlyoutVisible()).toBe(false);
+    expect(harness.getSelectedCategoryId()).toBe("category-id");
+
+    harness.clickCategory();
+    expect(harness.isFlyoutVisible()).toBe(true);
+    expect(harness.getSelectedCategoryId()).toBe("category-id");
+
+    harness.clickCategory();
+    expect(harness.isFlyoutVisible()).toBe(false);
+    expect(harness.getSelectedCategoryId()).toBeNull();
+    wrapper.unmount();
+  });
+
+  it("switches directly from a stale hidden category to another category", () => {
+    const { harness, wrapper } = mountComponent();
+    const initialFrame = animationFrames.get(1);
+    animationFrames.delete(1);
+    initialFrame?.(0);
+
+    harness.callFlyoutHide();
+    harness.clickCategory("other-category-id");
+
+    expect(harness.isFlyoutVisible()).toBe(true);
+    expect(harness.getSelectedCategoryId()).toBe("other-category-id");
+    wrapper.unmount();
   });
 });

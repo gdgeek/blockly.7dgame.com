@@ -47,12 +47,20 @@ const block: BlockDefinition = {
     return data;
   },
   getJavascript(
-    parameters: unknown
+    _parameters: unknown
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
-    return this.getLua(parameters) as (
+    const javascript = function (
       block: BlocklyBlock,
       generator: BlocklyGenerator
-    ) => string;
+    ): string {
+      const distance = block.getFieldValue("distance");
+      const entity =
+        generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
+        "undefined";
+
+      return `point.explode(${entity}, ${distance});\n`;
+    };
+    return javascript;
   },
   getLua(
     _parameters: unknown

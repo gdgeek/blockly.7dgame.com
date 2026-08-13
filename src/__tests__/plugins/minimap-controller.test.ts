@@ -1,11 +1,19 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type Mock,
+} from "vitest";
 
 interface FakeMinimapWorkspace {
   blocks: Array<Record<string, unknown>>;
   disposed: boolean;
-  clear: ReturnType<typeof vi.fn>;
-  dispose: ReturnType<typeof vi.fn>;
-  zoomToFit: ReturnType<typeof vi.fn>;
+  clear: Mock<() => void>;
+  dispose: Mock<() => void>;
+  zoomToFit: Mock<() => void>;
 }
 
 type FakeWorkspaceListener = (event: unknown) => void;
@@ -18,18 +26,18 @@ interface PrimaryWorkspaceMock {
   emit: (event: unknown) => void;
   listenerCount: () => number;
   getComponentManager: () => {
-    addComponent: ReturnType<typeof vi.fn>;
-    getComponent: ReturnType<typeof vi.fn>;
-    removeComponent: ReturnType<typeof vi.fn>;
+    addComponent: Mock<(entry: { component: { id: string } }) => void>;
+    getComponent: Mock<(id: string) => unknown>;
+    removeComponent: Mock<(id: string) => void>;
   };
   getInjectionDiv: () => HTMLElement;
   getTopBlocks: (ordered: boolean) => Array<Record<string, unknown>>;
-  resize: ReturnType<typeof vi.fn>;
+  resize: Mock<() => void>;
 }
 
 interface MinimapPluginMock {
-  initSpy: ReturnType<typeof vi.fn>;
-  disposeSpy: ReturnType<typeof vi.fn>;
+  initSpy: Mock<() => void>;
+  disposeSpy: Mock<() => void>;
   getMinimapWorkspace: () => FakeMinimapWorkspace | null;
 }
 
@@ -101,8 +109,8 @@ vi.mock("@blockly/workspace-minimap", () => {
 
   class PositionedMinimap {
     readonly id = "minimap";
-    readonly initSpy = vi.fn();
-    readonly disposeSpy = vi.fn();
+    readonly initSpy = vi.fn<() => void>();
+    readonly disposeSpy = vi.fn<() => void>();
     protected readonly primaryWorkspace: PrimaryWorkspaceMock;
     protected minimapWorkspace: FakeMinimapWorkspace | null = null;
     private focusWorkspaceListener: FakeWorkspaceListener | null = null;
