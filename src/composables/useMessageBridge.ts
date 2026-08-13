@@ -9,7 +9,10 @@ export interface StandardMessage {
 }
 
 /** Callback signature for registered message handlers. */
-export type MessageHandler = (payload: unknown, msg: StandardMessage) => void;
+export type MessageHandler = (
+  payload: unknown,
+  msg: StandardMessage
+) => boolean | Promise<boolean | void> | void;
 
 /** Generate a unique message ID. */
 function genId(): string {
@@ -46,8 +49,9 @@ export function useMessageBridge() {
 
   /**
    * Send a RESPONSE message, auto-attaching `lastRequestId` as `requestId`.
-   * When Ctrl+S triggers save, `lastRequestId` is undefined so RESPONSE
-   * won't carry `requestId`.
+   * Session-aware Ctrl+S asks the host to send a real REQUEST, so every save
+   * RESPONSE keeps the same request-correlation path. App keeps a legacy
+   * direct-save fallback while old hosts are still deployed.
    */
   const postResponse = (payload: Record<string, unknown>) => {
     const msg: StandardMessage = { type: "RESPONSE", id: genId(), payload };
@@ -78,14 +82,29 @@ export function useMessageBridge() {
       const msg = event.data as StandardMessage;
       if (!msg || typeof msg.type !== "string") return;
 
-      // Track REQUEST id for RESPONSE pairing
+      const previousRequestId = lastRequestId;
+
+      // Track REQUEST id before dispatch because save may answer synchronously.
       if (msg.type === "REQUEST") {
         lastRequestId = msg.id;
+      } else if (msg.type === "INIT") {
+        // A new editor session must not inherit a request correlation from the
+        // previous session when the host reuses this iframe.
+        lastRequestId = undefined;
       }
 
       const handler = handlers.get(msg.type);
       if (handler) {
-        handler(msg.payload, msg);
+        const result = handler(msg.payload, msg);
+        if (result instanceof Promise) {
+          void result.then((accepted) => {
+            if (msg.type === "REQUEST" && accepted === false) {
+              lastRequestId = previousRequestId;
+            }
+          });
+        } else if (msg.type === "REQUEST" && result === false) {
+          lastRequestId = previousRequestId;
+        }
       }
     } catch (e) {
       console.error(e);
@@ -104,15 +123,15 @@ export function useMessageBridge() {
 
     event.preventDefault();
 
-    // Ctrl+S has no requestId
+    // A shortcut is not itself correlated to an earlier host REQUEST. Legacy
+    // hosts still let Blockly save directly here, so carrying a stale request
+    // id would make them associate this RESPONSE with the previous save.
+    // Session-aware hosts will send a fresh REQUEST immediately afterwards.
     lastRequestId = undefined;
 
-    const handler = handlers.get("REQUEST");
+    const handler = handlers.get("SAVE_SHORTCUT");
     if (handler) {
-      handler(
-        { action: "save" },
-        { type: "REQUEST", id: genId(), payload: { action: "save" } }
-      );
+      handler(undefined, { type: "SAVE_SHORTCUT", id: genId() });
     }
   };
 
