@@ -105,6 +105,11 @@ import App from "@/App.vue";
 interface InitOverrides {
   code?: { js?: string; lua?: string };
   data?: Record<string, unknown>;
+  hostSessionId?: string;
+  persisted?: {
+    data?: Record<string, unknown>;
+    code?: { js?: string; lua?: string };
+  };
 }
 
 const successfulGeneration = (js = "freshJs();", lua = "fresh_lua()") => ({
@@ -139,16 +144,31 @@ async function mountInitializedApp(
       data: overrides.data ?? { blocks: { blocks: [] } },
       userInfo: {},
       ...(overrides.code === undefined ? {} : { code: overrides.code }),
+      ...(overrides.hostSessionId === undefined
+        ? {}
+        : { hostSessionId: overrides.hostSessionId }),
+      ...(overrides.persisted === undefined
+        ? {}
+        : { persisted: overrides.persisted }),
     },
   });
   await flushPromises();
   return wrapper;
 }
 
-function requestSave(): void {
+function requestSave(hostSessionId?: string): void {
   const request = mocks.handlers.get("REQUEST");
   expect(request).toBeDefined();
-  request?.({ action: "save" });
+  request?.({
+    action: "save",
+    ...(hostSessionId === undefined ? {} : { hostSessionId }),
+  });
+}
+
+function requestSaveShortcut(): void {
+  const shortcut = mocks.handlers.get("SAVE_SHORTCUT");
+  expect(shortcut).toBeDefined();
+  shortcut?.(undefined);
 }
 
 function responsePayloads(): Array<Record<string, unknown>> {
@@ -211,6 +231,132 @@ describe("App save orchestration", () => {
       ],
     });
     expect(lastResponse().action).not.toBe("save-error");
+    wrapper.unmount();
+  });
+
+  it("reports initial dirty state from the confirmed persisted baseline", async () => {
+    const baselineData = { blocks: { blocks: [{ id: "persisted" }] } };
+    const draftData = { blocks: { blocks: [{ id: "draft" }] } };
+    mocks.saveWorkspace.mockReturnValue(draftData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("sameJs();", "same_lua()")
+    );
+
+    const wrapper = await mountInitializedApp({
+      data: draftData,
+      hostSessionId: "session-draft",
+      persisted: {
+        data: baselineData,
+        code: { js: "sameJs();", lua: "same_lua()" },
+      },
+    });
+
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        event: "update",
+        dirty: true,
+        hostSessionId: "session-draft",
+        workspaceRevision: 0,
+      })
+    );
+    mocks.postResponse.mockClear();
+
+    requestSave("session-draft");
+
+    expect(lastResponse()).toMatchObject({
+      action: "save",
+      data: draftData,
+      dirty: true,
+      hostSessionId: "session-draft",
+    });
+    expect(lastResponse().noChange).not.toBe(true);
+    wrapper.unmount();
+  });
+
+  it("reports a clean initial update for the confirmed persisted snapshot", async () => {
+    const baselineData = { blocks: { blocks: [{ id: "persisted" }] } };
+    mocks.saveWorkspace.mockReturnValue(baselineData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("sameJs();", "same_lua()")
+    );
+
+    const wrapper = await mountInitializedApp({
+      data: baselineData,
+      hostSessionId: "session-initial-clean",
+      persisted: {
+        data: baselineData,
+        code: { js: "sameJs();", lua: "same_lua()" },
+      },
+    });
+
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        event: "update",
+        dirty: false,
+        blocklyData: baselineData,
+        hostSessionId: "session-initial-clean",
+        workspaceRevision: 0,
+      })
+    );
+    wrapper.unmount();
+  });
+
+  it("returns the exact compared snapshot when save has no changes", async () => {
+    const baselineData = { blocks: { blocks: [{ id: "persisted" }] } };
+    mocks.saveWorkspace.mockReturnValue(baselineData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("sameJs();", "same_lua()")
+    );
+    const wrapper = await mountInitializedApp({
+      data: baselineData,
+      hostSessionId: "session-clean",
+      persisted: {
+        data: baselineData,
+        code: { js: "sameJs();", lua: "same_lua()" },
+      },
+    });
+    mocks.postResponse.mockClear();
+
+    requestSave("session-clean");
+
+    expect(lastResponse()).toMatchObject({
+      action: "save",
+      noChange: true,
+      data: baselineData,
+      js: "sameJs();",
+      lua: "same_lua()",
+      dirty: false,
+      hostSessionId: "session-clean",
+      workspaceRevision: 0,
+    });
+    wrapper.unmount();
+  });
+
+  it("merges a partial persisted code baseline with legacy INIT code", async () => {
+    const baselineData = { blocks: { blocks: [{ id: "persisted" }] } };
+    mocks.saveWorkspace.mockReturnValue(baselineData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("persistedJs();", "legacy_lua()")
+    );
+    const wrapper = await mountInitializedApp({
+      data: baselineData,
+      code: { js: "legacyJs();", lua: "legacy_lua()" },
+      persisted: {
+        data: baselineData,
+        code: { js: "persistedJs();" },
+      },
+    });
+    mocks.postResponse.mockClear();
+
+    requestSave();
+
+    expect(lastResponse()).toMatchObject({
+      action: "save",
+      noChange: true,
+      dirty: false,
+    });
     wrapper.unmount();
   });
 
@@ -286,6 +432,137 @@ describe("App save orchestration", () => {
     expect(lastResponse()).toMatchObject({ action: "save", noChange: true });
     vi.advanceTimersByTime(30_000);
     expect(responsePayloads()).toHaveLength(2);
+    wrapper.unmount();
+  });
+
+  it("keeps a newer workspace revision dirty when ACK confirms an older save", async () => {
+    const firstData = { blocks: { blocks: [{ id: "first" }] } };
+    const secondData = { blocks: { blocks: [{ id: "second" }] } };
+    mocks.saveWorkspace.mockReturnValue(firstData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("firstJs();", "first_lua()")
+    );
+    const wrapper = await mountInitializedApp({
+      data: { blocks: { blocks: [] } },
+      hostSessionId: "session-race",
+      persisted: {
+        data: { blocks: { blocks: [] } },
+        code: { js: "", lua: "" },
+      },
+    });
+    mocks.postMessage.mockClear();
+    mocks.postResponse.mockClear();
+
+    requestSave("session-race");
+    const firstSaveId = lastResponse().saveId as string;
+
+    mocks.saveWorkspace.mockReturnValue(secondData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("secondJs();", "second_lua()")
+    );
+    const listener = mocks.workspace.addChangeListener.mock.calls[0]?.[0] as
+      ((event: Record<string, unknown>) => void) | undefined;
+    expect(listener).toBeDefined();
+    listener?.({ type: "change", element: "field" });
+
+    mocks.handlers.get("SAVE_ACK")?.({
+      saveId: firstSaveId,
+      hostSessionId: "session-race",
+    });
+
+    const eventCalls = mocks.postMessage.mock.calls.filter(
+      ([type]) => type === "EVENT"
+    );
+    const latestUpdate = eventCalls[eventCalls.length - 1]?.[1] as Record<
+      string,
+      unknown
+    >;
+    expect(latestUpdate).toMatchObject({
+      event: "update",
+      dirty: true,
+      js: "secondJs();",
+      blocklyData: secondData,
+      hostSessionId: "session-race",
+      workspaceRevision: 1,
+    });
+    wrapper.unmount();
+  });
+
+  it("ignores save messages from a stale host session", async () => {
+    const wrapper = await mountInitializedApp({
+      hostSessionId: "session-current",
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+    mocks.postResponse.mockClear();
+
+    mocks.handlers.get("REQUEST")?.({
+      action: "save",
+      hostSessionId: "session-stale",
+    });
+
+    expect(mocks.postResponse).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
+  it("rejects a request that omits the active host session", async () => {
+    const wrapper = await mountInitializedApp({
+      hostSessionId: "session-current",
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+    mocks.postResponse.mockClear();
+
+    requestSave();
+
+    expect(mocks.postResponse).not.toHaveBeenCalled();
+    wrapper.unmount();
+  });
+
+  it("asks a session-aware host to initiate Ctrl+S through its save path", async () => {
+    const wrapper = await mountInitializedApp({
+      hostSessionId: "session-current",
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+    mocks.postMessage.mockClear();
+    mocks.postResponse.mockClear();
+
+    requestSaveShortcut();
+
+    expect(mocks.postResponse).not.toHaveBeenCalled();
+    expect(mocks.postMessage).toHaveBeenCalledWith("EVENT", {
+      event: "save-request",
+      hostSessionId: "session-current",
+    });
+    wrapper.unmount();
+  });
+
+  it("keeps direct Ctrl+S saves working for a legacy host", async () => {
+    const wrapper = await mountInitializedApp({
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+    mocks.postResponse.mockClear();
+
+    requestSaveShortcut();
+
+    expect(lastResponse()).toMatchObject({ action: "save" });
+    wrapper.unmount();
+  });
+
+  it("ignores an ACK that does not identify the active host session", async () => {
+    const wrapper = await mountInitializedApp({
+      hostSessionId: "session-current",
+      persisted: {
+        data: { blocks: { blocks: [] } },
+        code: { js: "oldJs();", lua: "old_lua()" },
+      },
+    });
+    mocks.postResponse.mockClear();
+
+    requestSave("session-current");
+    const firstSaveId = lastResponse().saveId as string;
+    mocks.handlers.get("SAVE_ACK")?.({ saveId: firstSaveId });
+    requestSave("session-current");
+
+    expect(responsePayloads()).toHaveLength(1);
     wrapper.unmount();
   });
 

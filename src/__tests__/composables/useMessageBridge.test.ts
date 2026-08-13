@@ -94,6 +94,67 @@ describe("useMessageBridge", () => {
     wrapper.unmount();
   });
 
+  it("does not reuse a requestId after a new INIT session", async () => {
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "REQUEST", id: "req-old", payload: { action: "save" } },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "INIT", id: "init-new", payload: { config: {} } },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    await nextTick();
+
+    result.postResponse({ ok: true });
+
+    const response = postMessageSpy.mock.calls[
+      postMessageSpy.mock.calls.length - 1
+    ]?.[0] as Record<string, unknown>;
+    expect(response).toMatchObject({ type: "RESPONSE", payload: { ok: true } });
+    expect(response).not.toHaveProperty("requestId");
+    wrapper.unmount();
+  });
+
+  it("restores request correlation when a handler rejects a stale request", async () => {
+    const handler = vi
+      .fn()
+      .mockReturnValueOnce(undefined)
+      .mockReturnValueOnce(false);
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    result.onMessage("REQUEST", handler);
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "REQUEST", id: "req-current", payload: {} },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "REQUEST", id: "req-stale", payload: {} },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    await nextTick();
+
+    result.postResponse({ ok: true });
+
+    expect(postMessageSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        type: "RESPONSE",
+        requestId: "req-current",
+      }),
+      "*"
+    );
+    wrapper.unmount();
+  });
+
   it("dispatches incoming message by type via onMessage", async () => {
     const handler = vi.fn();
     const { result, wrapper } = withSetup(() => useMessageBridge());
@@ -131,10 +192,10 @@ describe("useMessageBridge", () => {
     wrapper.unmount();
   });
 
-  it("Ctrl+S triggers REQUEST handler with save action", async () => {
+  it("Ctrl+S triggers the internal save-shortcut handler", async () => {
     const handler = vi.fn();
     const { result, wrapper } = withSetup(() => useMessageBridge());
-    result.onMessage("REQUEST", handler);
+    result.onMessage("SAVE_SHORTCUT", handler);
 
     window.dispatchEvent(
       new KeyboardEvent("keydown", {
@@ -146,15 +207,48 @@ describe("useMessageBridge", () => {
     );
     await nextTick();
 
-    expect(handler).toHaveBeenCalledTimes(1);
     expect(handler).toHaveBeenCalledWith(
-      { action: "save" },
+      undefined,
       expect.objectContaining({
-        type: "REQUEST",
-        payload: { action: "save" },
+        type: "SAVE_SHORTCUT",
         id: expect.any(String),
       })
     );
+
+    wrapper.unmount();
+  });
+
+  it("does not attach a stale requestId to a legacy Ctrl+S response", async () => {
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    result.onMessage("REQUEST", vi.fn());
+    result.onMessage("SAVE_SHORTCUT", () => {
+      result.postResponse({ action: "save", noChange: true });
+    });
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "REQUEST", id: "req-previous", payload: {} },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    window.dispatchEvent(
+      new KeyboardEvent("keydown", {
+        key: "s",
+        ctrlKey: true,
+        bubbles: true,
+        cancelable: true,
+      })
+    );
+    await nextTick();
+
+    const response = postMessageSpy.mock.calls[
+      postMessageSpy.mock.calls.length - 1
+    ]?.[0] as Record<string, unknown>;
+    expect(response).toMatchObject({
+      type: "RESPONSE",
+      payload: { action: "save", noChange: true },
+    });
+    expect(response).not.toHaveProperty("requestId");
 
     wrapper.unmount();
   });
