@@ -44,8 +44,8 @@ import type { BlocklyOptions } from "./composables/useToolboxSetup";
 import { useWorkspace } from "./composables/useWorkspace";
 import { useTheme } from "./composables/useTheme";
 import {
+  cloneWorkspaceValue,
   hasPersistedChanges,
-  prepareWorkspaceInitData,
   SaveCoordinator,
 } from "./utils/saveCoordinator";
 import {
@@ -69,9 +69,25 @@ interface InitConfig {
   parameters: unknown;
   data: unknown;
   userInfo: UserInfo;
+  /**
+   * Opaque host-owned session token. New hosts use it to ignore late messages
+   * emitted by an earlier INIT that reused the same iframe.
+   */
+  hostSessionId?: string;
   code?: {
     js?: string;
     lua?: string;
+  };
+  /**
+   * Confirmed server state. `data` above may instead be an unsaved draft when
+   * the host rebuilds the iframe (for example after a language change).
+   */
+  persisted?: {
+    data?: unknown;
+    code?: {
+      js?: string;
+      lua?: string;
+    };
   };
 }
 
@@ -85,12 +101,14 @@ interface PendingPersistedSnapshot {
   saveId: string;
   data: Record<string, unknown>;
   code: GeneratedCode;
+  hostSessionId?: string;
 }
 
 interface WorkspaceSnapshot {
   workspace: Blockly.Workspace;
   data: Record<string, unknown>;
   generation: SafeGeneratedCode;
+  revision: number;
 }
 
 interface KnownGeneratedCode {
@@ -124,6 +142,8 @@ const saveCoordinator = new SaveCoordinator<PendingPersistedSnapshot>();
 let pendingSaveTimeout: number | null = null;
 let saveSequence = 0;
 let workspaceInitSequence = 0;
+let workspaceRevision = 0;
+let activeHostSessionId: string | undefined;
 let activeWorkspace: Blockly.WorkspaceSvg | null = null;
 let lastWorkspaceSnapshot: WorkspaceSnapshot | null = null;
 const disposedWorkspaces = new WeakSet<Blockly.Workspace>();
@@ -134,6 +154,35 @@ const code = ref<CodeState>({
 });
 
 const options = ref<BlocklyOptions | undefined>();
+
+const withHostSession = (
+  payload: Record<string, unknown>
+): Record<string, unknown> =>
+  activeHostSessionId === undefined
+    ? payload
+    : { ...payload, hostSessionId: activeHostSessionId };
+
+const postSessionResponse = (payload: Record<string, unknown>): void => {
+  postResponse(withHostSession(payload));
+};
+
+const hasSnapshotChanges = (snapshot: WorkspaceSnapshot): boolean =>
+  hasPersistedChanges(
+    snapshot.data,
+    snapshot.generation.generated,
+    oldValue,
+    persistedCode
+  );
+
+const snapshotPayload = (
+  snapshot: WorkspaceSnapshot
+): Record<string, unknown> => ({
+  js: snapshot.generation.generated.js,
+  lua: snapshot.generation.generated.lua,
+  data: snapshot.data,
+  dirty: hasSnapshotChanges(snapshot),
+  workspaceRevision: snapshot.revision,
+});
 
 const generationWarningsToValidationWarnings = (
   warnings: CodeGenerationWarning[]
@@ -198,7 +247,12 @@ const captureWorkspaceSnapshot = (
   const generation = generateAllSafely(workspace, lastGeneratedCode);
   rememberGeneratedCode(generation);
 
-  const snapshot = { workspace, data, generation };
+  const snapshot = {
+    workspace,
+    data,
+    generation,
+    revision: workspaceRevision,
+  };
   lastWorkspaceSnapshot = snapshot;
   return snapshot;
 };
@@ -210,13 +264,18 @@ const updateCode = (
   if (!workspace || editor.value?.workspace !== workspace) return;
 
   const snapshot = captureWorkspaceSnapshot(workspace);
-  postMessage("EVENT", {
-    event: "update",
-    lua: snapshot.generation.generated.lua,
-    js: snapshot.generation.generated.js,
-    blocklyData: snapshot.data,
-    warnings: snapshot.generation.warnings,
-  });
+  postMessage(
+    "EVENT",
+    withHostSession({
+      event: "update",
+      lua: snapshot.generation.generated.lua,
+      js: snapshot.generation.generated.js,
+      blocklyData: snapshot.data,
+      dirty: hasSnapshotChanges(snapshot),
+      workspaceRevision: snapshot.revision,
+      warnings: snapshot.generation.warnings,
+    })
+  );
   return snapshot;
 };
 
@@ -236,6 +295,7 @@ const onWorkspaceChange = (rawEvent: Blockly.Events.Abstract): void => {
   if (!workspace || editor.value?.workspace !== workspace) return;
 
   clearTrackedWorkspaceValidationFeedback(workspace);
+  workspaceRevision += 1;
   lastWorkspaceSnapshot = null;
   workspaceUpdateQueue.schedule();
 };
@@ -271,7 +331,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
     activeWorkspace
   );
   if (!workspace) {
-    postResponse({
+    postSessionResponse({
       action: "save-error",
       error: true,
       message: "Blockly 工作区尚未就绪，无法保存。",
@@ -288,7 +348,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
         ? precomputedSnapshot
         : captureFreshWorkspaceSnapshot(workspace);
   } catch (error) {
-    postResponse({
+    postSessionResponse({
       action: "save-error",
       error: true,
       message: `工作区序列化失败，无法保存：${
@@ -322,7 +382,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
     const languageNames = failuresWithoutFallback
       .map((language) => (language === "javascript" ? "JavaScript" : "Lua"))
       .join("、");
-    postResponse({
+    postSessionResponse({
       action: "save-error",
       error: true,
       errorCode: "missing-generated-code-fallback",
@@ -332,17 +392,15 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
     return;
   }
 
-  const hasChanges = hasPersistedChanges(
-    data,
-    generation.generated,
-    oldValue,
-    persistedCode
-  );
+  const hasChanges = hasSnapshotChanges(workspaceSnapshot);
 
   if (!hasChanges) {
-    postResponse({
+    // Return the exact snapshot that produced noChange. The host can rebase
+    // its own dirty indicator without guessing which update Blockly compared.
+    postSessionResponse({
       action: "save",
       noChange: true,
+      ...snapshotPayload(workspaceSnapshot),
       warnings: serializedWarnings,
     });
   } else {
@@ -351,6 +409,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
       saveId,
       data,
       code: { ...generation.generated },
+      hostSessionId: activeHostSessionId,
     };
     if (!saveCoordinator.begin(snapshot)) return;
     clearPendingSaveTimeout();
@@ -370,12 +429,10 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
         saveQueuedWorkspace();
       }
     }, SAVE_ACK_TIMEOUT_MS);
-    postResponse({
+    postSessionResponse({
       action: "save",
       saveId,
-      js: generation.generated.js,
-      lua: generation.generated.lua,
-      data: data,
+      ...snapshotPayload(workspaceSnapshot),
       warnings: serializedWarnings,
     });
   }
@@ -400,14 +457,41 @@ const saveQueuedWorkspace = (): void => {
   }
 };
 
-const settlePendingSave = (saveId: string, persisted: boolean): void => {
+const settlePendingSave = (
+  saveId: string,
+  persisted: boolean,
+  hostSessionId?: string
+): void => {
+  if (
+    activeHostSessionId !== undefined &&
+    hostSessionId !== activeHostSessionId
+  ) {
+    return;
+  }
+
   const settlement = saveCoordinator.settle(saveId);
   if (!settlement.matched || !settlement.snapshot) return;
+  if (settlement.snapshot.hostSessionId !== activeHostSessionId) return;
 
   clearPendingSaveTimeout();
   if (persisted) {
     oldValue = settlement.snapshot.data;
     persistedCode = settlement.snapshot.code;
+
+    // ACK advances only the snapshot that was actually persisted. If the user
+    // edited while the host request was in flight, the next update remains
+    // dirty relative to this confirmed baseline.
+    const workspace = resolveActiveWorkspace(
+      editor.value?.workspace,
+      activeWorkspace
+    );
+    if (workspace) {
+      try {
+        updateCode(workspace);
+      } catch (error) {
+        console.error("保存确认后刷新工作区状态失败：", error);
+      }
+    }
   }
 
   // Every queued REQUEST needs a RESPONSE. Calling save unconditionally lets
@@ -425,13 +509,24 @@ const doInit = (config: InitConfig): void => {
   clearPendingSaveTimeout();
   saveCoordinator.reset();
   oldValue = null;
+  workspaceRevision = 0;
+  activeHostSessionId =
+    typeof config.hostSessionId === "string" ? config.hostSessionId : undefined;
+  const persistedCodeConfig = {
+    js: config.persisted?.code?.js ?? config.code?.js,
+    lua: config.persisted?.code?.lua ?? config.code?.lua,
+  };
   knownGeneratedCode = {
-    js: typeof config.code?.js === "string",
-    lua: typeof config.code?.lua === "string",
+    js: typeof persistedCodeConfig?.js === "string",
+    lua: typeof persistedCodeConfig?.lua === "string",
   };
   persistedCode = {
-    js: typeof config.code?.js === "string" ? config.code.js : "",
-    lua: typeof config.code?.lua === "string" ? config.code.lua : "",
+    js:
+      typeof persistedCodeConfig?.js === "string" ? persistedCodeConfig.js : "",
+    lua:
+      typeof persistedCodeConfig?.lua === "string"
+        ? persistedCodeConfig.lua
+        : "",
   };
   lastGeneratedCode = { ...persistedCode };
   code.value = {
@@ -442,11 +537,10 @@ const doInit = (config: InitConfig): void => {
   nextTick(() => {
     if (initSequence !== workspaceInitSequence) return;
 
-    const { baseline, loadData } = prepareWorkspaceInitData(
-      config.data,
-      upgradeTweenData
+    const loadData = upgradeTweenData(cloneWorkspaceValue(config.data));
+    oldValue = cloneWorkspaceValue(
+      config.persisted?.data === undefined ? config.data : config.persisted.data
     );
-    oldValue = baseline;
 
     watchWorkspaceReady(
       editor as Parameters<typeof watchWorkspaceReady>[0],
@@ -460,19 +554,25 @@ const doInit = (config: InitConfig): void => {
       },
       () => {
         if (initSequence !== workspaceInitSequence) return;
-        postMessage("EVENT", {
-          event: "error",
-          message: "Workspace failed to initialize within 5 seconds",
-        });
+        postMessage(
+          "EVENT",
+          withHostSession({
+            event: "error",
+            message: "Workspace failed to initialize within 5 seconds",
+          })
+        );
       },
       (error: unknown) => {
         if (initSequence !== workspaceInitSequence) return;
-        postMessage("EVENT", {
-          event: "error",
-          message: `脚本数据加载失败，已停止回写空工作区：${
-            error instanceof Error ? error.message : String(error)
-          }`,
-        });
+        postMessage(
+          "EVENT",
+          withHostSession({
+            event: "error",
+            message: `脚本数据加载失败，已停止回写空工作区：${
+              error instanceof Error ? error.message : String(error)
+            }`,
+          })
+        );
       }
     );
   });
@@ -488,22 +588,65 @@ onMessage("INIT", (payload: unknown) => {
 });
 
 onMessage("REQUEST", (payload: unknown) => {
-  const p = payload as { action?: string };
+  const p = payload as { action?: string; hostSessionId?: unknown };
+  if (
+    activeHostSessionId !== undefined &&
+    p?.hostSessionId !== activeHostSessionId
+  ) {
+    return false;
+  }
   if (p?.action === "save") {
     save();
   }
+  return true;
+});
+
+onMessage("SAVE_SHORTCUT", () => {
+  if (activeHostSessionId === undefined) {
+    // Legacy hosts do not understand save-request. Preserve their existing
+    // direct Ctrl/Cmd+S behavior until both sides support session correlation.
+    save();
+    return;
+  }
+
+  postMessage(
+    "EVENT",
+    withHostSession({
+      event: "save-request",
+    })
+  );
 });
 
 onMessage("SAVE_ACK", (payload: unknown) => {
-  const saveId = (payload as { saveId?: unknown } | null)?.saveId;
+  const acknowledgement = payload as {
+    saveId?: unknown;
+    hostSessionId?: unknown;
+  } | null;
+  const saveId = acknowledgement?.saveId;
   if (typeof saveId !== "string") return;
-  settlePendingSave(saveId, true);
+  settlePendingSave(
+    saveId,
+    true,
+    typeof acknowledgement?.hostSessionId === "string"
+      ? acknowledgement.hostSessionId
+      : undefined
+  );
 });
 
 onMessage("SAVE_NACK", (payload: unknown) => {
-  const saveId = (payload as { saveId?: unknown } | null)?.saveId;
+  const acknowledgement = payload as {
+    saveId?: unknown;
+    hostSessionId?: unknown;
+  } | null;
+  const saveId = acknowledgement?.saveId;
   if (typeof saveId !== "string") return;
-  settlePendingSave(saveId, false);
+  settlePendingSave(
+    saveId,
+    false,
+    typeof acknowledgement?.hostSessionId === "string"
+      ? acknowledgement.hostSessionId
+      : undefined
+  );
 });
 
 onMessage("THEME_CHANGE", (payload: unknown) => {
