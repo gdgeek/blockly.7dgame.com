@@ -30,6 +30,7 @@ describe("useMessageBridge", () => {
   });
 
   afterEach(() => {
+    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -45,6 +46,30 @@ describe("useMessageBridge", () => {
       "*"
     );
 
+    wrapper.unmount();
+  });
+
+  it("retries PLUGIN_READY until the parent answers with INIT", async () => {
+    vi.useFakeTimers();
+    const { wrapper } = withSetup(() => useMessageBridge());
+
+    expect(postMessageSpy).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(1500);
+    expect(postMessageSpy).toHaveBeenCalledTimes(2);
+    expect(postMessageSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ type: "PLUGIN_READY" }),
+      "*"
+    );
+
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "INIT", id: "init-ready", payload: { config: {} } },
+        source: parentMock as unknown as MessageEventSource,
+      })
+    );
+    await vi.advanceTimersByTimeAsync(3000);
+
+    expect(postMessageSpy).toHaveBeenCalledTimes(2);
     wrapper.unmount();
   });
 
