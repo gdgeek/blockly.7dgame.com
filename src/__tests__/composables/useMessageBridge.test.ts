@@ -30,6 +30,7 @@ describe("useMessageBridge", () => {
   });
 
   afterEach(() => {
+    window.history.replaceState({}, "", "/");
     vi.useRealTimers();
     vi.restoreAllMocks();
   });
@@ -70,6 +71,21 @@ describe("useMessageBridge", () => {
     await vi.advanceTimersByTimeAsync(3000);
 
     expect(postMessageSpy).toHaveBeenCalledTimes(2);
+    wrapper.unmount();
+  });
+
+  it("echoes the host session token in PLUGIN_READY", () => {
+    window.history.replaceState({}, "", "/?hostSessionId=session-ready");
+
+    const { wrapper } = withSetup(() => useMessageBridge());
+
+    expect(postMessageSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "PLUGIN_READY",
+        payload: { hostSessionId: "session-ready" },
+      }),
+      "*"
+    );
     wrapper.unmount();
   });
 

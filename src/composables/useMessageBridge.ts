@@ -31,6 +31,10 @@ function genId(): string {
 export function useMessageBridge() {
   const handlers = new Map<string, MessageHandler>();
   const readyRetryIntervalMs = 1500;
+  const hostSessionId =
+    new URLSearchParams(window.location.search).get("hostSessionId") ||
+    undefined;
+  const readyPayload = hostSessionId ? { hostSessionId } : undefined;
 
   /** The id of the last received REQUEST, used for RESPONSE pairing. */
   let lastRequestId: string | undefined;
@@ -152,9 +156,9 @@ export function useMessageBridge() {
   onMounted(() => {
     window.addEventListener("message", handleMessage);
     window.addEventListener("keydown", handleGlobalSaveShortcut);
-    postMessage("PLUGIN_READY");
+    postMessage("PLUGIN_READY", readyPayload);
     readyRetryTimer = setInterval(() => {
-      postMessage("PLUGIN_READY");
+      postMessage("PLUGIN_READY", readyPayload);
     }, readyRetryIntervalMs);
   });
 
