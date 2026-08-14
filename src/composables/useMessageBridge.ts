@@ -30,9 +30,17 @@ function genId(): string {
  */
 export function useMessageBridge() {
   const handlers = new Map<string, MessageHandler>();
+  const readyRetryIntervalMs = 1500;
 
   /** The id of the last received REQUEST, used for RESPONSE pairing. */
   let lastRequestId: string | undefined;
+  let readyRetryTimer: ReturnType<typeof setInterval> | undefined;
+
+  const stopReadyRetry = () => {
+    if (readyRetryTimer === undefined) return;
+    clearInterval(readyRetryTimer);
+    readyRetryTimer = undefined;
+  };
 
   // ── Outgoing ──────────────────────────────────────────────
 
@@ -88,6 +96,10 @@ export function useMessageBridge() {
       if (msg.type === "REQUEST") {
         lastRequestId = msg.id;
       } else if (msg.type === "INIT") {
+        // PLUGIN_READY is intentionally retried until the host answers. This
+        // prevents a fast, cached iframe from losing its one-shot ready signal
+        // before the parent has installed its message listener.
+        stopReadyRetry();
         // A new editor session must not inherit a request correlation from the
         // previous session when the host reuses this iframe.
         lastRequestId = undefined;
@@ -141,9 +153,13 @@ export function useMessageBridge() {
     window.addEventListener("message", handleMessage);
     window.addEventListener("keydown", handleGlobalSaveShortcut);
     postMessage("PLUGIN_READY");
+    readyRetryTimer = setInterval(() => {
+      postMessage("PLUGIN_READY");
+    }, readyRetryIntervalMs);
   });
 
   onBeforeUnmount(() => {
+    stopReadyRetry();
     window.removeEventListener("message", handleMessage);
     window.removeEventListener("keydown", handleGlobalSaveShortcut);
   });
