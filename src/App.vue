@@ -26,7 +26,7 @@
  */
 
 import { ref, nextTick, computed } from "vue";
-import type * as Blockly from "blockly";
+import * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
 import { upgradeTweenData } from "./utils/dataUpgrade";
@@ -45,6 +45,7 @@ import {
   validateWorkspaceForSave,
   type WorkspaceValidationIssue,
 } from "./utils/workspaceValidation";
+import { createWebMcpScriptRequestHandlers } from "./utils/webMcpScriptHandlers";
 
 /** Shape of the INIT config from payload.config. */
 interface InitConfig {
@@ -186,6 +187,17 @@ const onWorkspaceChange = (): void => {
   updateCode();
 };
 
+const webMcpScriptRequestHandlers = createWebMcpScriptRequestHandlers({
+  getWorkspace: () => editor.value?.workspace ?? null,
+  getToolbox: () => options.value?.toolbox,
+  saveWorkspace,
+  loadWorkspace: (data, workspace) => {
+    Blockly.serialization.workspaces.load(data, workspace);
+  },
+  generateAll,
+  onWorkspaceChange,
+});
+
 // Register message handlers
 onMessage("INIT", (payload: unknown) => {
   console.log("blockly-INIT received");
@@ -195,10 +207,21 @@ onMessage("INIT", (payload: unknown) => {
   }
 });
 
-onMessage("REQUEST", (payload: unknown) => {
-  const p = payload as { action?: string };
+onMessage("REQUEST", async (payload: unknown) => {
+  const p = payload as { action?: string; [key: string]: unknown };
   if (p?.action === "save") {
     save();
+    return;
+  }
+
+  const handler = p?.action
+    ? webMcpScriptRequestHandlers[
+        p.action as keyof typeof webMcpScriptRequestHandlers
+      ]
+    : undefined;
+  if (handler) {
+    const result = await Promise.resolve(handler(p));
+    postResponse({ action: p.action!, ...result });
   }
 });
 

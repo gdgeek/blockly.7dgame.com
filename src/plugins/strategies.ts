@@ -3,6 +3,7 @@ import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
 import { registerFieldMultilineInput } from "@blockly/field-multilineinput";
 import * as Blockly from "blockly/core";
 import { createMultiselectController } from "./multiselect-controller";
+import { registerBackpackSerializer } from "./backpack-serializer";
 
 interface DisposablePlugin {
   dispose: () => void;
@@ -19,6 +20,7 @@ export const strategies: PluginStrategies = {
   backpack: (workspace: Blockly.WorkspaceSvg): void => {
     try {
       const backpackOptions = {
+        skipSerializerRegistration: true,
         allowEmptyBackpackOpen: true,
         useFilledBackpackImage: true,
         contextMenu: {
@@ -30,6 +32,7 @@ export const strategies: PluginStrategies = {
         },
       };
       const plugin = new Backpack(workspace, backpackOptions);
+      registerBackpackSerializer();
       plugin.init();
       console.log("Plugin: Backpack loaded");
     } catch (e) {
