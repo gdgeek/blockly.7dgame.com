@@ -1,5 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@/plugins/backpack-serializer", () => ({
+  registerBackpackSerializer: vi.fn(),
+}));
+
 interface FlyoutMock {
   dispose: ReturnType<typeof vi.fn>;
 }

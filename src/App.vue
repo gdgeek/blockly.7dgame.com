@@ -30,6 +30,8 @@ import type * as Blockly from "blockly";
 import BlocklyComponent from "./components/BlocklyComponent.vue";
 import "./blocks/stocks";
 import { upgradeTweenData } from "./utils/dataUpgrade";
+import { createWebMcpScriptRequestHandlers } from "./utils/webMcpScriptHandlers";
+import { createWebMcpRequestDispatcher } from "./utils/webMcpRequestDispatcher";
 import { Access } from "./utils/Access";
 import type { UserInfo } from "./utils/Access";
 import { useMessageBridge } from "./composables/useMessageBridge";
@@ -126,10 +128,14 @@ const { postMessage, postResponse, onMessage } = useMessageBridge();
 const { setDark, isDark } = useTheme();
 
 const buildTime: string = __BUILD_TIME__;
-const { generateAllSafely } = useCodeGenerator();
+const { generateAllSafely, generateAll } = useCodeGenerator();
 const { buildOptions } = useToolboxSetup();
-const { saveWorkspace, watchWorkspaceReady, cancelWorkspaceReadyWatch } =
-  useWorkspace();
+const {
+  saveWorkspace,
+  loadWorkspace,
+  watchWorkspaceReady,
+  cancelWorkspaceReadyWatch,
+} = useWorkspace();
 
 const userInfo = ref<UserInfo>({});
 const access = computed<Access>(() => new Access(userInfo.value));
@@ -142,6 +148,7 @@ const saveCoordinator = new SaveCoordinator<PendingPersistedSnapshot>();
 let pendingSaveTimeout: number | null = null;
 let saveSequence = 0;
 let workspaceInitSequence = 0;
+let queuedSaveRequestIds: Array<string | undefined> = [];
 let workspaceRevision = 0;
 let activeHostSessionId: string | undefined;
 let activeWorkspace: Blockly.WorkspaceSvg | null = null;
@@ -162,8 +169,11 @@ const withHostSession = (
     ? payload
     : { ...payload, hostSessionId: activeHostSessionId };
 
-const postSessionResponse = (payload: Record<string, unknown>): void => {
-  postResponse(withHostSession(payload));
+const postSessionResponse = (
+  payload: Record<string, unknown>,
+  requestId?: string
+): void => {
+  postResponse(withHostSession(payload), requestId ?? null);
 };
 
 const hasSnapshotChanges = (snapshot: WorkspaceSnapshot): boolean =>
@@ -325,13 +335,18 @@ const captureFreshWorkspaceSnapshot = (
   return captureWorkspaceSnapshot(workspace);
 };
 
-function save(precomputedSnapshot?: WorkspaceSnapshot): void {
+function save(
+  precomputedSnapshot?: WorkspaceSnapshot,
+  requestId?: string
+): void {
+  const respond = (payload: Record<string, unknown>) =>
+    postSessionResponse(payload, requestId);
   const workspace = resolveActiveWorkspace(
     editor.value?.workspace,
     activeWorkspace
   );
   if (!workspace) {
-    postSessionResponse({
+    respond({
       action: "save-error",
       error: true,
       message: "Blockly 工作区尚未就绪，无法保存。",
@@ -339,7 +354,10 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
     return;
   }
 
-  if (saveCoordinator.queueIfPending()) return;
+  if (saveCoordinator.queueIfPending()) {
+    queuedSaveRequestIds.push(requestId);
+    return;
+  }
 
   let workspaceSnapshot: WorkspaceSnapshot;
   try {
@@ -348,7 +366,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
         ? precomputedSnapshot
         : captureFreshWorkspaceSnapshot(workspace);
   } catch (error) {
-    postSessionResponse({
+    respond({
       action: "save-error",
       error: true,
       message: `工作区序列化失败，无法保存：${
@@ -382,7 +400,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
     const languageNames = failuresWithoutFallback
       .map((language) => (language === "javascript" ? "JavaScript" : "Lua"))
       .join("、");
-    postSessionResponse({
+    respond({
       action: "save-error",
       error: true,
       errorCode: "missing-generated-code-fallback",
@@ -397,7 +415,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
   if (!hasChanges) {
     // Return the exact snapshot that produced noChange. The host can rebase
     // its own dirty indicator without guessing which update Blockly compared.
-    postSessionResponse({
+    respond({
       action: "save",
       noChange: true,
       ...snapshotPayload(workspaceSnapshot),
@@ -429,7 +447,7 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
         saveQueuedWorkspace();
       }
     }, SAVE_ACK_TIMEOUT_MS);
-    postSessionResponse({
+    respond({
       action: "save",
       saveId,
       ...snapshotPayload(workspaceSnapshot),
@@ -439,22 +457,8 @@ function save(precomputedSnapshot?: WorkspaceSnapshot): void {
 }
 
 const saveQueuedWorkspace = (): void => {
-  const workspace = resolveActiveWorkspace(
-    editor.value?.workspace,
-    activeWorkspace
-  );
-  if (!workspace) return;
-
-  try {
-    const snapshot = captureFreshWorkspaceSnapshot(workspace);
-    // A queued REQUEST always needs a RESPONSE. Passing the snapshot preserves
-    // the coalesced-generation fast path while save() decides between a real
-    // write and an explicit noChange response.
-    save(snapshot);
-  } catch {
-    // Let save produce the existing technical save-error response.
-    save();
-  }
+  const requests = queuedSaveRequestIds.splice(0);
+  for (const requestId of requests) save(undefined, requestId);
 };
 
 const settlePendingSave = (
@@ -508,6 +512,7 @@ const doInit = (config: InitConfig): void => {
   userInfo.value = config.userInfo || {};
   clearPendingSaveTimeout();
   saveCoordinator.reset();
+  queuedSaveRequestIds = [];
   oldValue = null;
   workspaceRevision = 0;
   activeHostSessionId =
@@ -578,6 +583,29 @@ const doInit = (config: InitConfig): void => {
   });
 };
 
+const webMcpHandlers = createWebMcpScriptRequestHandlers({
+  getWorkspace: () =>
+    resolveActiveWorkspace(editor.value?.workspace, activeWorkspace),
+  getGeneration: () => workspaceInitSequence,
+  getToolbox: () => options.value?.toolbox,
+  saveWorkspace,
+  loadWorkspace,
+  generateAll,
+  generateAllSafely,
+  onMutationSettled: () => {
+    workspaceUpdateQueue.flush();
+  },
+});
+const dispatchWebMcpRequest = createWebMcpRequestDispatcher({
+  handlers: webMcpHandlers,
+  getSession: () => ({
+    generation: workspaceInitSequence,
+    hostSessionId: activeHostSessionId,
+    workspace: activeWorkspace,
+  }),
+  respond: (payload, requestId) => postResponse(payload, requestId),
+});
+
 // Register message handlers
 onMessage("INIT", (payload: unknown) => {
   console.log("blockly-INIT received");
@@ -587,7 +615,7 @@ onMessage("INIT", (payload: unknown) => {
   }
 });
 
-onMessage("REQUEST", (payload: unknown) => {
+onMessage("REQUEST", (payload: unknown, message) => {
   const p = payload as { action?: string; hostSessionId?: unknown };
   if (
     activeHostSessionId !== undefined &&
@@ -596,9 +624,10 @@ onMessage("REQUEST", (payload: unknown) => {
     return false;
   }
   if (p?.action === "save") {
-    save();
+    save(undefined, message?.id);
+    return true;
   }
-  return true;
+  return dispatchWebMcpRequest(p as Record<string, unknown>, message?.id ?? "");
 });
 
 onMessage("SAVE_SHORTCUT", () => {
@@ -662,6 +691,7 @@ onMessage("DESTROY", () => {
   resetWorkspaceRuntime();
   clearPendingSaveTimeout();
   saveCoordinator.reset();
+  queuedSaveRequestIds = [];
   if (workspace && !disposedWorkspaces.has(workspace)) {
     disposedWorkspaces.add(workspace);
     workspace.dispose();
@@ -673,6 +703,7 @@ onBeforeUnmount(() => {
   resetWorkspaceRuntime();
   clearPendingSaveTimeout();
   saveCoordinator.reset();
+  queuedSaveRequestIds = [];
 });
 
 // eslint-disable-next-line no-unused-vars -- 保留用于调试和后续功能
