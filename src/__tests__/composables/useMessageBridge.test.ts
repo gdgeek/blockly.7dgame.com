@@ -107,7 +107,7 @@ describe("useMessageBridge", () => {
     wrapper.unmount();
   });
 
-  it("postResponse sends RESPONSE and carries last requestId", async () => {
+  it("postResponse sends RESPONSE with its explicit requestId", async () => {
     const handler = vi.fn();
     const { result, wrapper } = withSetup(() => useMessageBridge());
     result.onMessage("REQUEST", handler);
@@ -120,7 +120,7 @@ describe("useMessageBridge", () => {
     );
     await nextTick();
 
-    result.postResponse({ ok: true });
+    result.postResponse({ ok: true }, "req-123");
 
     expect(postMessageSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -162,7 +162,7 @@ describe("useMessageBridge", () => {
     wrapper.unmount();
   });
 
-  it("restores request correlation when a handler rejects a stale request", async () => {
+  it("does not infer request correlation from previously received requests", async () => {
     const handler = vi
       .fn()
       .mockReturnValueOnce(undefined)
@@ -189,7 +189,7 @@ describe("useMessageBridge", () => {
     expect(postMessageSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
         type: "RESPONSE",
-        requestId: "req-current",
+        payload: { ok: true },
       }),
       "*"
     );
@@ -230,6 +230,34 @@ describe("useMessageBridge", () => {
 
     expect(handler).not.toHaveBeenCalled();
 
+    wrapper.unmount();
+  });
+
+  it("binds the parent origin on INIT and replies to that exact origin", async () => {
+    const { result, wrapper } = withSetup(() => useMessageBridge());
+    const handler = vi.fn();
+    result.onMessage("REQUEST", handler);
+    const source = parentMock as unknown as MessageEventSource;
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "INIT", id: "init" },
+        source,
+        origin: "https://host.example",
+      })
+    );
+    window.dispatchEvent(
+      new MessageEvent("message", {
+        data: { type: "REQUEST", id: "wrong-origin" },
+        source,
+        origin: "https://other.example",
+      })
+    );
+    expect(handler).not.toHaveBeenCalled();
+    result.postResponse({ ok: true }, "reply");
+    expect(postMessageSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({ requestId: "reply" }),
+      "https://host.example"
+    );
     wrapper.unmount();
   });
 

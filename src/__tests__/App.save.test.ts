@@ -435,6 +435,29 @@ describe("App save orchestration", () => {
     wrapper.unmount();
   });
 
+  it("answers every queued save with its captured request ID after ACK", async () => {
+    const wrapper = await mountInitializedApp({
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+    mocks.postResponse.mockClear();
+    const request = mocks.handlers.get("REQUEST")!;
+    request({ action: "save" }, { id: "save-a" });
+    const first = lastResponse();
+    request({ action: "save" }, { id: "save-b" });
+    request({ action: "save" }, { id: "save-c" });
+    mocks.handlers.get("SAVE_ACK")?.({ saveId: first.saveId });
+    expect(mocks.postResponse.mock.calls.map((call) => call[1])).toEqual([
+      "save-a",
+      "save-b",
+      "save-c",
+    ]);
+    expect(responsePayloads().slice(1)).toEqual([
+      expect.objectContaining({ noChange: true }),
+      expect.objectContaining({ noChange: true }),
+    ]);
+    wrapper.unmount();
+  });
+
   it("keeps a newer workspace revision dirty when ACK confirms an older save", async () => {
     const firstData = { blocks: { blocks: [{ id: "first" }] } };
     const secondData = { blocks: { blocks: [{ id: "second" }] } };
