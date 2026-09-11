@@ -2,6 +2,7 @@ import { Backpack } from "@blockly/workspace-backpack";
 import { WorkspaceSearch } from "@blockly/plugin-workspace-search";
 import { registerFieldMultilineInput } from "@blockly/field-multilineinput";
 import * as Blockly from "blockly/core";
+import { registerBackpackSerializer } from "./backpack-serializer";
 import { createMultiselectController } from "./multiselect-controller";
 
 interface DisposablePlugin {
@@ -18,6 +19,8 @@ interface PluginStrategies {
 interface PositionableDisposablePlugin extends DisposablePlugin {
   id: string;
 }
+
+registerBackpackSerializer();
 
 let multilineInputFieldRegistered = false;
 
