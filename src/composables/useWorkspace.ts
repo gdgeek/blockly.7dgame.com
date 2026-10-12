@@ -51,6 +51,20 @@ export function useWorkspace() {
     Blockly.serialization.workspaces.load(data, workspace);
   };
 
+  /** Initialization must neither enqueue edit events nor populate undo history. */
+  const loadWorkspaceForInit = (
+    data: object,
+    workspace: Blockly.Workspace
+  ): void => {
+    Blockly.Events.disable();
+    try {
+      loadWorkspace(data, workspace);
+      workspace.clearUndo();
+    } finally {
+      Blockly.Events.enable();
+    }
+  };
+
   // ── Workspace-ready watcher ─────────────────────────────
 
   /**
@@ -77,7 +91,7 @@ export function useWorkspace() {
     // If the workspace is already available, load immediately.
     if (editorRef.value?.workspace) {
       try {
-        loadWorkspace(data, editorRef.value.workspace);
+        loadWorkspaceForInit(data, editorRef.value.workspace);
       } catch (e) {
         console.error("[useWorkspace] Error loading workspace data:", e);
         onLoadError?.(e);
@@ -115,7 +129,7 @@ export function useWorkspace() {
         }
 
         try {
-          loadWorkspace(data, workspace);
+          loadWorkspaceForInit(data, workspace);
         } catch (e) {
           console.error("[useWorkspace] Error loading workspace data:", e);
           onLoadError?.(e);
@@ -136,6 +150,7 @@ export function useWorkspace() {
   return {
     saveWorkspace,
     loadWorkspace,
+    loadWorkspaceForInit,
     watchWorkspaceReady,
     cancelWorkspaceReadyWatch,
   };

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { upgradeTweenData, type BlocklyJsonData } from "@/utils/dataUpgrade";
 import {
   hasPersistedChanges,
+  hasWorkspaceChanges,
   prepareWorkspaceInitData,
   SaveCoordinator,
 } from "@/utils/saveCoordinator";
@@ -49,6 +50,58 @@ describe("prepareWorkspaceInitData", () => {
         lua: "same",
       })
     ).toBe(false);
+  });
+});
+
+describe("complete workspace comparison", () => {
+  const data = {
+    blocks: { blocks: [{ id: "block-1", x: 12, fields: { VALUE: 1 } }] },
+    backpack: [{ id: "stored-1" }],
+    extension: { version: 1, values: [1, 2] },
+  };
+
+  it("ignores only object key order, including nested data", () => {
+    expect(
+      hasWorkspaceChanges(data, {
+        extension: { values: [1, 2], version: 1 },
+        backpack: [{ id: "stored-1" }],
+        blocks: { blocks: [{ fields: { VALUE: 1 }, x: 12, id: "block-1" }] },
+      })
+    ).toBe(false);
+  });
+
+  it.each([
+    {
+      ...data,
+      blocks: { blocks: [{ id: "block-2", x: 12, fields: { VALUE: 1 } }] },
+    },
+    {
+      ...data,
+      blocks: { blocks: [{ id: "block-1", x: 13, fields: { VALUE: 1 } }] },
+    },
+    { ...data, backpack: [] },
+    { ...data, extension: { version: 1, values: [2, 1] } },
+    { ...data, extension: { version: 2, values: [1, 2] } },
+  ])(
+    "retains IDs, positions, backpacks, extensions and array order",
+    (changed) => {
+      expect(hasWorkspaceChanges(changed, data)).toBe(true);
+    }
+  );
+
+  it("keeps exact generated-code differences even when workspace data is equal", () => {
+    expect(
+      hasPersistedChanges(data, { js: "a();\n", lua: "a()" }, data, {
+        js: "a();",
+        lua: "a()",
+      })
+    ).toBe(true);
+    expect(
+      hasPersistedChanges(data, { js: "a();", lua: "a()\n" }, data, {
+        js: "a();",
+        lua: "a()",
+      })
+    ).toBe(true);
   });
 });
 

@@ -48,6 +48,7 @@ import { useTheme } from "./composables/useTheme";
 import {
   cloneWorkspaceValue,
   hasPersistedChanges,
+  hasWorkspaceChanges,
   SaveCoordinator,
 } from "./utils/saveCoordinator";
 import {
@@ -76,6 +77,8 @@ interface InitConfig {
    * emitted by an earlier INIT that reused the same iframe.
    */
   hostSessionId?: string;
+  /** Normalized editing baseline cached by the host for this editor session. */
+  editingBaseline?: unknown;
   code?: {
     js?: string;
     lua?: string;
@@ -133,6 +136,7 @@ const { buildOptions } = useToolboxSetup();
 const {
   saveWorkspace,
   loadWorkspace,
+  loadWorkspaceForInit,
   watchWorkspaceReady,
   cancelWorkspaceReadyWatch,
 } = useWorkspace();
@@ -141,6 +145,7 @@ const userInfo = ref<UserInfo>({});
 const access = computed<Access>(() => new Access(userInfo.value));
 
 let oldValue: unknown = null;
+let editingBaseline: unknown = undefined;
 let persistedCode: GeneratedCode = { js: "", lua: "" };
 let lastGeneratedCode: GeneratedCode = { js: "", lua: "" };
 let knownGeneratedCode: KnownGeneratedCode = { js: false, lua: false };
@@ -191,6 +196,7 @@ const snapshotPayload = (
   lua: snapshot.generation.generated.lua,
   data: snapshot.data,
   dirty: hasSnapshotChanges(snapshot),
+  editorDirty: hasWorkspaceChanges(snapshot.data, editingBaseline),
   workspaceRevision: snapshot.revision,
 });
 
@@ -269,7 +275,8 @@ const captureWorkspaceSnapshot = (
 
 // Generate and publish the complete state for a single settled workspace turn.
 const updateCode = (
-  workspace: Blockly.WorkspaceSvg | null = activeWorkspace
+  workspace: Blockly.WorkspaceSvg | null = activeWorkspace,
+  includeEditingBaseline = false
 ): WorkspaceSnapshot | undefined => {
   if (!workspace || editor.value?.workspace !== workspace) return;
 
@@ -282,6 +289,10 @@ const updateCode = (
       js: snapshot.generation.generated.js,
       blocklyData: snapshot.data,
       dirty: hasSnapshotChanges(snapshot),
+      editorDirty: hasWorkspaceChanges(snapshot.data, editingBaseline),
+      ...(includeEditingBaseline
+        ? { editingBaseline: cloneWorkspaceValue(editingBaseline) }
+        : {}),
       workspaceRevision: snapshot.revision,
       warnings: snapshot.generation.warnings,
     })
@@ -413,8 +424,9 @@ function save(
   const hasChanges = hasSnapshotChanges(workspaceSnapshot);
 
   if (!hasChanges) {
-    // Return the exact snapshot that produced noChange. The host can rebase
-    // its own dirty indicator without guessing which update Blockly compared.
+    // This exact snapshot already matches confirmed persistence. Converge the
+    // editing baseline too, without including any subsequent workspace edits.
+    editingBaseline = cloneWorkspaceValue(data);
     respond({
       action: "save",
       noChange: true,
@@ -425,7 +437,7 @@ function save(
     const saveId = `save-${Date.now()}-${++saveSequence}`;
     const snapshot: PendingPersistedSnapshot = {
       saveId,
-      data,
+      data: cloneWorkspaceValue(data),
       code: { ...generation.generated },
       hostSessionId: activeHostSessionId,
     };
@@ -479,8 +491,9 @@ const settlePendingSave = (
 
   clearPendingSaveTimeout();
   if (persisted) {
-    oldValue = settlement.snapshot.data;
-    persistedCode = settlement.snapshot.code;
+    oldValue = cloneWorkspaceValue(settlement.snapshot.data);
+    persistedCode = { ...settlement.snapshot.code };
+    editingBaseline = cloneWorkspaceValue(settlement.snapshot.data);
 
     // ACK advances only the snapshot that was actually persisted. If the user
     // edited while the host request was in flight, the next update remains
@@ -514,6 +527,7 @@ const doInit = (config: InitConfig): void => {
   saveCoordinator.reset();
   queuedSaveRequestIds = [];
   oldValue = null;
+  editingBaseline = undefined;
   workspaceRevision = 0;
   activeHostSessionId =
     typeof config.hostSessionId === "string" ? config.hostSessionId : undefined;
@@ -542,44 +556,78 @@ const doInit = (config: InitConfig): void => {
   nextTick(() => {
     if (initSequence !== workspaceInitSequence) return;
 
-    const loadData = upgradeTweenData(cloneWorkspaceValue(config.data));
-    oldValue = cloneWorkspaceValue(
-      config.persisted?.data === undefined ? config.data : config.persisted.data
-    );
+    const failInitialization = (error: unknown): void => {
+      if (initSequence !== workspaceInitSequence) return;
+      resetWorkspaceRuntime();
+      postMessage(
+        "EVENT",
+        withHostSession({
+          event: "error",
+          message: `脚本数据加载失败，已停止回写空工作区：${
+            error instanceof Error ? error.message : String(error)
+          }`,
+        })
+      );
+    };
 
-    watchWorkspaceReady(
-      editor as Parameters<typeof watchWorkspaceReady>[0],
-      loadData as object,
-      (workspace: Blockly.WorkspaceSvg) => {
-        if (initSequence !== workspaceInitSequence) return;
-
-        activeWorkspace = workspace;
-        workspaceChangeListener.attach(workspace);
-        updateCode(workspace);
-      },
-      () => {
-        if (initSequence !== workspaceInitSequence) return;
-        postMessage(
-          "EVENT",
-          withHostSession({
-            event: "error",
-            message: "Workspace failed to initialize within 5 seconds",
-          })
-        );
-      },
-      (error: unknown) => {
-        if (initSequence !== workspaceInitSequence) return;
-        postMessage(
-          "EVENT",
-          withHostSession({
-            event: "error",
-            message: `脚本数据加载失败，已停止回写空工作区：${
-              error instanceof Error ? error.message : String(error)
-            }`,
-          })
-        );
+    try {
+      oldValue = cloneWorkspaceValue(
+        config.persisted?.data === undefined
+          ? config.data
+          : config.persisted.data
+      );
+      const loadData = upgradeTweenData(cloneWorkspaceValue(config.data));
+      const hasCachedBaseline = config.editingBaseline !== undefined;
+      if (hasCachedBaseline) {
+        editingBaseline = cloneWorkspaceValue(config.editingBaseline);
       }
-    );
+      const isUncachedDraft =
+        !hasCachedBaseline && hasWorkspaceChanges(config.data, oldValue);
+      // An ordinary open loads once: migrations can assign new shadow IDs.
+      // A draft needs the normalized persisted state before loading its edits.
+      const initialData = isUncachedDraft
+        ? upgradeTweenData(cloneWorkspaceValue(oldValue))
+        : loadData;
+
+      watchWorkspaceReady(
+        editor as Parameters<typeof watchWorkspaceReady>[0],
+        initialData as object,
+        (workspace: Blockly.WorkspaceSvg) => {
+          if (initSequence !== workspaceInitSequence) return;
+          try {
+            if (!hasCachedBaseline) {
+              editingBaseline = cloneWorkspaceValue(saveWorkspace(workspace));
+            }
+            if (isUncachedDraft) {
+              loadWorkspaceForInit(loadData as object, workspace);
+            }
+            activeWorkspace = workspace;
+            // Publish readiness only after loading, baseline capture and code
+            // generation have all succeeded; errors leave saving unavailable.
+            if (!updateCode(workspace, true)) {
+              throw new Error("Blockly 工作区在初始化期间已被替换");
+            }
+            workspaceChangeListener.attach(workspace);
+          } catch (error) {
+            failInitialization(error);
+          }
+        },
+        () => {
+          if (initSequence !== workspaceInitSequence) return;
+          resetWorkspaceRuntime();
+          postMessage(
+            "EVENT",
+            withHostSession({
+              event: "error",
+              message: "Workspace failed to initialize within 5 seconds",
+            })
+          );
+        },
+        failInitialization
+      );
+    } catch (error) {
+      failInitialization(error);
+    }
   });
 };
 

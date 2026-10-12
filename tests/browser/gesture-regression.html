@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Blockly 画布释放回归</title>
+    <style>
+      body {
+        margin: 0;
+        font:
+          14px/1.5 system-ui,
+          sans-serif;
+        color: #17212d;
+        background: #f2f5f8;
+      }
+      header {
+        padding: 12px 18px;
+        background: white;
+        border-bottom: 1px solid #cbd5e1;
+      }
+      h1 {
+        margin: 0 0 5px;
+        font-size: 18px;
+      }
+      p {
+        margin: 5px 0;
+      }
+      button {
+        margin: 5px 6px 5px 0;
+        padding: 7px 11px;
+        cursor: pointer;
+      }
+      button:disabled {
+        cursor: wait;
+      }
+      main {
+        display: grid;
+        grid-template-columns: minmax(550px, 1fr) 285px;
+        gap: 16px;
+        padding: 16px;
+      }
+      iframe {
+        width: 100%;
+        height: 590px;
+        border: 1px solid #94a3b8;
+        background: white;
+      }
+      aside {
+        padding: 15px;
+        border: 2px dashed #94a3b8;
+        background: white;
+      }
+      pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      #workspace {
+        width: 100%;
+        height: 440px;
+        background: white;
+      }
+      #frame-root {
+        display: none;
+      }
+      .frame-mode #parent-root {
+        display: none;
+      }
+      .frame-mode #frame-root {
+        display: block;
+      }
+      .frame-mode header {
+        padding: 8px 12px;
+      }
+      #viewport {
+        font-family: monospace;
+      }
+      .pass {
+        color: #087b42;
+      }
+      .fail {
+        color: #bd2020;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="parent-root">
+      <header>
+        <h1>Blockly 画布释放回归</h1>
+        <p>
+          iframe 中运行真实 Blockly 13
+          和项目多选策略；自动用例在真实工作区派发可重复的鼠标事件。
+        </p>
+        <button id="run-all" disabled>运行全部回归</button>
+        <span id="overall">正在加载工作区…</span>
+      </header>
+      <main>
+        <iframe id="fixture-frame" title="Blockly 画布回归工作区"></iframe>
+        <aside>
+          <strong>跨 iframe 手动检查</strong>
+          <p>
+            在左侧画布空白处按住鼠标拖动，将鼠标移到此区域后释放，再移回画布。
+          </p>
+          <p>
+            回到画布后的普通移动不应继续平移；下方工作区读数的 Gesture 应为
+            none，坐标应保持不变。
+          </p>
+          <p>也可在拖动时切换窗口或标签页，然后返回检查。</p>
+          <pre id="results">等待运行</pre>
+        </aside>
+      </main>
+    </div>
+    <div id="frame-root">
+      <header>
+        <strong>真实 Blockly + 多选 + 释放兜底</strong>
+        <div id="viewport">初始化中</div>
+        <button data-case="lost-up">漏 pointerup</button>
+        <button data-case="before-threshold">阈值前释放</button>
+        <button data-case="blur">失焦释放</button>
+        <button data-case="hidden">隐藏释放</button>
+        <button data-case="native-up">原生 up 收尾</button>
+      </header>
+      <div id="workspace"></div>
+      <pre id="frame-results">等待运行</pre>
+    </div>
+    <script type="module">
+      import * as Blockly from "blockly/core";
+      import "blockly/blocks";
+      import * as En from "blockly/msg/en";
+      import { strategies } from "/src/plugins/strategies.ts";
+      import { createWorkspaceGestureGuard } from "/src/plugins/workspace-gesture-guard.ts";
+
+      const frameMode = new URLSearchParams(location.search).has("frame");
+      const frame = document.getElementById("fixture-frame");
+      const resultLines = [];
+      const displayResult = (message, failed = false) => {
+        resultLines.push(message);
+        const target = document.getElementById(
+          frameMode ? "frame-results" : "results"
+        );
+        target.textContent = resultLines.join("\n");
+        target.className =
+          failed || resultLines.some((line) => line.startsWith("FAIL"))
+            ? "fail"
+            : "pass";
+      };
+
+      if (!frameMode) {
+        frame.src = `${location.pathname}?frame=1`;
+        document.getElementById("run-all").addEventListener("click", () => {
+          resultLines.length = 0;
+          document.getElementById("overall").textContent = "运行中…";
+          frame.contentWindow.postMessage(
+            { type: "gesture-regression-run-all" },
+            location.origin
+          );
+        });
+        window.addEventListener("message", (event) => {
+          if (
+            event.origin !== location.origin ||
+            event.source !== frame.contentWindow
+          )
+            return;
+          if (event.data?.type === "gesture-regression-ready") {
+            document.getElementById("run-all").disabled = false;
+            document.getElementById("overall").textContent = "就绪";
+          } else if (event.data?.type === "gesture-regression-result") {
+            displayResult(event.data.message, event.data.failed);
+          } else if (event.data?.type === "gesture-regression-complete") {
+            document.getElementById("overall").textContent = event.data.failed
+              ? "FAIL"
+              : "PASS — 5/5";
+            document.getElementById("overall").className = event.data.failed
+              ? "fail"
+              : "pass";
+          }
+        });
+      } else {
+        document.body.classList.add("frame-mode");
+        Blockly.setLocale(En);
+        const container = document.getElementById("workspace");
+        const workspace = Blockly.inject(container, {
+          media: "/media/",
+          toolbox: {
+            kind: "categoryToolbox",
+            contents: [
+              {
+                kind: "category",
+                name: "Math",
+                contents: [{ kind: "block", type: "math_number" }],
+              },
+            ],
+          },
+          move: { scrollbars: true, drag: true, wheel: false },
+          zoom: { controls: false, wheel: false, startScale: 1 },
+          trashcan: false,
+        });
+        const multiselect = strategies.multiselect(workspace);
+        if (!multiselect) throw new Error("项目多选策略初始化失败");
+        const guard = createWorkspaceGestureGuard(workspace, container);
+        const block = workspace.newBlock("math_number");
+        block.initSvg();
+        block.render();
+        block.moveBy(90, 90);
+        workspace.clearUndo();
+        Blockly.svgResize(workspace);
+
+        const report = (message, failed = false) => {
+          displayResult(message, failed);
+          parent.postMessage(
+            { type: "gesture-regression-result", message, failed },
+            location.origin
+          );
+        };
+        const assert = (condition, message) => {
+          if (!condition) throw new Error(message);
+        };
+        const settled = () =>
+          new Promise((resolve) =>
+            requestAnimationFrame(() => requestAnimationFrame(resolve))
+          );
+        const view = () => ({
+          x: workspace.scrollX,
+          y: workspace.scrollY,
+          scale: workspace.scale,
+        });
+        const sameView = (left, right) =>
+          left.x === right.x &&
+          left.y === right.y &&
+          left.scale === right.scale;
+        const background = () =>
+          workspace
+            .getCanvas()
+            .parentElement.querySelector(".blocklyMainBackground");
+        let mouseX = 0;
+        let mouseY = 0;
+        const dispatch = (target, type, dx = 0, dy = 0, buttons = 1) => {
+          target.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              pointerType: "mouse",
+              pointerId: 1,
+              isPrimary: true,
+              button: 0,
+              buttons,
+              clientX: mouseX + dx,
+              clientY: mouseY + dy,
+            })
+          );
+        };
+        const start = async (move = true) => {
+          workspace.cancelCurrentGesture();
+          workspace.scroll(0, 0);
+          Blockly.getFocusManager().focusNode(workspace);
+          await settled();
+          const rect = container.getBoundingClientRect();
+          mouseX = rect.left + rect.width * 0.65;
+          mouseY = rect.top + rect.height * 0.6;
+          const before = view();
+          dispatch(background(), "pointerdown");
+          assert(
+            workspace.getGesture()?.hasStarted(),
+            "pointerdown 未启动真实 Gesture"
+          );
+          if (move) {
+            dispatch(document, "pointermove", 35, 25);
+            assert(
+              workspace.getGesture()?.isDragging(),
+              "pointermove 未启动真实平移"
+            );
+            assert(!sameView(before, view()), "工作区未实际平移");
+          } else {
+            assert(
+              !workspace.getGesture()?.isDragging(),
+              "尚未移动就超过拖拽阈值"
+            );
+          }
+        };
+        const assertReleasedWithoutMovement = (before) => {
+          assert(workspace.getGesture() === null, "释放后仍存在 Gesture");
+          assert(sameView(before, view()), "首次零按键移动仍改变了视图");
+          dispatch(document, "pointermove", 140, 100, 0);
+          assert(sameView(before, view()), "后续普通移动仍改变了视图");
+        };
+        const cases = {
+          "lost-up": async () => {
+            await start();
+            const before = view();
+            dispatch(document, "pointermove", 100, 75, 0);
+            assertReleasedWithoutMovement(before);
+          },
+          "before-threshold": async () => {
+            await start(false);
+            const before = view();
+            dispatch(document, "pointermove", 100, 75, 0);
+            assertReleasedWithoutMovement(before);
+          },
+          blur: async () => {
+            await start();
+            const before = view();
+            window.dispatchEvent(new Event("blur"));
+            assert(workspace.getGesture() === null, "blur 未结束 Gesture");
+            dispatch(document, "pointermove", 100, 75, 0);
+            assertReleasedWithoutMovement(before);
+          },
+          hidden: async () => {
+            await start();
+            const before = view();
+            const previous = Object.getOwnPropertyDescriptor(
+              document,
+              "visibilityState"
+            );
+            try {
+              Object.defineProperty(document, "visibilityState", {
+                configurable: true,
+                value: "hidden",
+              });
+              document.dispatchEvent(new Event("visibilitychange"));
+            } finally {
+              if (previous)
+                Object.defineProperty(document, "visibilityState", previous);
+              else delete document.visibilityState;
+            }
+            assert(workspace.getGesture() === null, "hidden 未结束 Gesture");
+            dispatch(document, "pointermove", 100, 75, 0);
+            assertReleasedWithoutMovement(before);
+          },
+          "native-up": async () => {
+            await start();
+            const beforeUp = view();
+            dispatch(document, "pointerup", 65, 45, 0);
+            assert(workspace.getGesture() === null, "原生 up 未结束 Gesture");
+            const afterUp = view();
+            assert(!sameView(beforeUp, afterUp), "原生 up 的最终坐标未被应用");
+            dispatch(document, "pointermove", 100, 75, 0);
+            assertReleasedWithoutMovement(afterUp);
+          },
+        };
+        let running = false;
+        const run = async (names) => {
+          if (running) return;
+          running = true;
+          let failed = false;
+          for (const name of names) {
+            try {
+              await cases[name]();
+              report(`PASS ${name}`);
+            } catch (error) {
+              failed = true;
+              report(`FAIL ${name}: ${error.message}`, true);
+            } finally {
+              workspace.cancelCurrentGesture();
+            }
+          }
+          running = false;
+          parent.postMessage(
+            { type: "gesture-regression-complete", failed },
+            location.origin
+          );
+        };
+        document.querySelectorAll("button[data-case]").forEach((button) => {
+          button.addEventListener("click", () => {
+            void run([button.dataset.case]);
+          });
+        });
+        window.addEventListener("message", (event) => {
+          if (
+            event.origin === location.origin &&
+            event.source === parent &&
+            event.data?.type === "gesture-regression-run-all"
+          ) {
+            resultLines.length = 0;
+            void run(Object.keys(cases));
+          }
+        });
+        const viewportTimer = setInterval(() => {
+          const state = view();
+          document.getElementById("viewport").textContent =
+            `viewport x=${state.x.toFixed(1)} y=${state.y.toFixed(1)} scale=${state.scale}; Gesture=${workspace.getGesture() ? "active" : "none"}`;
+        }, 120);
+        window.addEventListener(
+          "pagehide",
+          () => {
+            clearInterval(viewportTimer);
+            guard.dispose();
+            multiselect.dispose();
+            workspace.dispose();
+          },
+          { once: true }
+        );
+        parent.postMessage(
+          { type: "gesture-regression-ready" },
+          location.origin
+        );
+      }
+    </script>
+  </body>
+</html>
