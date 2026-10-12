@@ -100,6 +100,30 @@ export function prepareWorkspaceInitData<T>(
   };
 }
 
+/** Compare complete JSON workspace data without depending on object key order. */
+export function canonicalWorkspaceData(value: unknown): string | undefined {
+  return JSON.stringify(value, (_key, item: unknown) => {
+    if (item === null || typeof item !== "object" || Array.isArray(item)) {
+      return item;
+    }
+    const record = item as Record<string, unknown>;
+    return Object.fromEntries(
+      Object.keys(record)
+        .sort()
+        .map((key) => [key, record[key]])
+    );
+  });
+}
+
+export function hasWorkspaceChanges(
+  currentData: unknown,
+  baselineData: unknown
+): boolean {
+  return (
+    canonicalWorkspaceData(currentData) !== canonicalWorkspaceData(baselineData)
+  );
+}
+
 export function hasPersistedChanges(
   currentData: unknown,
   currentCode: PersistedCodeSnapshot,
@@ -107,7 +131,7 @@ export function hasPersistedChanges(
   persistedCode: PersistedCodeSnapshot
 ): boolean {
   return (
-    JSON.stringify(currentData) !== JSON.stringify(baselineData) ||
+    hasWorkspaceChanges(currentData, baselineData) ||
     currentCode.js !== persistedCode.js ||
     currentCode.lua !== persistedCode.lua
   );

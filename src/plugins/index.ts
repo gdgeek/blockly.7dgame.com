@@ -2,6 +2,7 @@ import { onBeforeUnmount } from "vue";
 import { strategies } from "./strategies";
 import { MinimapController } from "./minimap-controller";
 import { createWorkspaceControlHints } from "./workspace-control-hints";
+import { createWorkspaceGestureGuard } from "./workspace-gesture-guard";
 import type Blockly from "blockly";
 
 interface PluginOptions {
@@ -36,8 +37,11 @@ export function usePluginManager(): PluginManager {
   let multiselectPlugin: DisposablePlugin | null = null;
   let searchPlugin: DisposablePlugin | null = null;
   let workspaceControlHints: DisposablePlugin | null = null;
+  let workspaceGestureGuard: DisposablePlugin | null = null;
 
   const disposePlugins = (): void => {
+    workspaceGestureGuard?.dispose();
+    workspaceGestureGuard = null;
     workspaceControlHints?.dispose();
     workspaceControlHints = null;
     minimapCtrl.dispose();
@@ -64,7 +68,8 @@ export function usePluginManager(): PluginManager {
       backpackPlugin ||
       multiselectPlugin ||
       searchPlugin ||
-      workspaceControlHints
+      workspaceControlHints ||
+      workspaceGestureGuard
     ) {
       disposePlugins();
     }
@@ -81,6 +86,7 @@ export function usePluginManager(): PluginManager {
     minimapCtrl.init(workspace, blocklyDiv, options);
 
     workspaceControlHints = createWorkspaceControlHints(workspace, blocklyDiv);
+    workspaceGestureGuard = createWorkspaceGestureGuard(workspace, blocklyDiv);
     activeWorkspace = workspace;
   };
 

@@ -4,6 +4,8 @@ import { mount } from "@vue/test-utils";
 
 const mockSave = vi.fn();
 const mockLoad = vi.fn();
+const mockDisableEvents = vi.fn();
+const mockEnableEvents = vi.fn();
 
 vi.mock("blockly", () => ({
   default: {
@@ -13,6 +15,10 @@ vi.mock("blockly", () => ({
         load: (...args: any[]) => mockLoad(...args),
       },
     },
+  },
+  Events: {
+    disable: (...args: any[]) => mockDisableEvents(...args),
+    enable: (...args: any[]) => mockEnableEvents(...args),
   },
   serialization: {
     workspaces: {
@@ -44,6 +50,8 @@ describe("useWorkspace", () => {
   beforeEach(() => {
     mockSave.mockReset();
     mockLoad.mockReset();
+    mockDisableEvents.mockReset();
+    mockEnableEvents.mockReset();
   });
 
   afterEach(() => {
@@ -80,9 +88,40 @@ describe("useWorkspace", () => {
     });
   });
 
+  describe("loadWorkspaceForInit", () => {
+    it("suppresses edit events and clears undo only during initialization", () => {
+      const { result, wrapper } = withSetup(() => useWorkspace());
+      const fakeWorkspace = { clearUndo: vi.fn() };
+      const data = { blocks: [] };
+      mockLoad.mockImplementation(() => {
+        expect(mockDisableEvents).toHaveBeenCalledOnce();
+        expect(mockEnableEvents).not.toHaveBeenCalled();
+      });
+      result.loadWorkspaceForInit(data, fakeWorkspace);
+      expect(fakeWorkspace.clearUndo).toHaveBeenCalledOnce();
+      expect(mockEnableEvents).toHaveBeenCalledOnce();
+      wrapper.unmount();
+    });
+
+    it("restores event delivery when deserialization fails", () => {
+      const { result, wrapper } = withSetup(() => useWorkspace());
+      const fakeWorkspace = { clearUndo: vi.fn() };
+      mockLoad.mockImplementation(() => {
+        throw new Error("invalid workspace");
+      });
+      expect(() => result.loadWorkspaceForInit({}, fakeWorkspace)).toThrow(
+        "invalid workspace"
+      );
+      expect(mockDisableEvents).toHaveBeenCalledOnce();
+      expect(mockEnableEvents).toHaveBeenCalledOnce();
+      expect(fakeWorkspace.clearUndo).not.toHaveBeenCalled();
+      wrapper.unmount();
+    });
+  });
+
   describe("watchWorkspaceReady", () => {
     it("loads data immediately and calls onReady when editor ref already has workspace", () => {
-      const fakeWorkspace = { id: "ws-3" };
+      const fakeWorkspace = { id: "ws-3", clearUndo: vi.fn() };
       const editorRef = ref({ workspace: fakeWorkspace });
       const data = { blocks: [] };
       const onReady = vi.fn();
@@ -98,7 +137,7 @@ describe("useWorkspace", () => {
     });
 
     it("loads data and calls onReady when editor ref workspace becomes available later", async () => {
-      const fakeWorkspace = { id: "ws-4" };
+      const fakeWorkspace = { id: "ws-4", clearUndo: vi.fn() };
       const editorRef = ref(undefined) as any;
       const data = { blocks: [] };
       const onReady = vi.fn();

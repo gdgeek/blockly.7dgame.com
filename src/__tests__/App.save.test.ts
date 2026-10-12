@@ -20,6 +20,8 @@ const mocks = vi.hoisted(() => {
     postMessage: vi.fn(),
     postResponse: vi.fn(),
     saveWorkspace: vi.fn(),
+    loadWorkspaceForInit: vi.fn(),
+    watchWorkspaceReady: vi.fn(),
     generateAllSafely: vi.fn(),
     validationWarnings: [] as Array<{
       code: string;
@@ -72,11 +74,8 @@ vi.mock("@/composables/useWorkspace", () => ({
   useWorkspace: () => ({
     cancelWorkspaceReadyWatch: vi.fn(),
     saveWorkspace: mocks.saveWorkspace,
-    watchWorkspaceReady: (
-      _editor: unknown,
-      _data: unknown,
-      onReady: (workspace: typeof mocks.workspace) => void
-    ) => onReady(mocks.workspace),
+    loadWorkspaceForInit: mocks.loadWorkspaceForInit,
+    watchWorkspaceReady: mocks.watchWorkspaceReady,
   }),
 }));
 
@@ -106,6 +105,7 @@ interface InitOverrides {
   code?: { js?: string; lua?: string };
   data?: Record<string, unknown>;
   hostSessionId?: string;
+  editingBaseline?: Record<string, unknown>;
   persisted?: {
     data?: Record<string, unknown>;
     code?: { js?: string; lua?: string };
@@ -147,6 +147,9 @@ async function mountInitializedApp(
       ...(overrides.hostSessionId === undefined
         ? {}
         : { hostSessionId: overrides.hostSessionId }),
+      ...(overrides.editingBaseline === undefined
+        ? {}
+        : { editingBaseline: overrides.editingBaseline }),
       ...(overrides.persisted === undefined
         ? {}
         : { persisted: overrides.persisted }),
@@ -189,6 +192,15 @@ describe("App save orchestration", () => {
     mocks.postMessage.mockReset();
     mocks.postResponse.mockReset();
     mocks.saveWorkspace.mockReset();
+    mocks.loadWorkspaceForInit.mockReset();
+    mocks.watchWorkspaceReady.mockReset();
+    mocks.watchWorkspaceReady.mockImplementation(
+      (
+        _editor: unknown,
+        _data: unknown,
+        onReady: (workspace: typeof mocks.workspace) => void
+      ) => onReady(mocks.workspace)
+    );
     mocks.generateAllSafely.mockReset();
     mocks.showWarnings.mockReset();
     mocks.workspace.addChangeListener.mockReset();
@@ -237,7 +249,9 @@ describe("App save orchestration", () => {
   it("reports initial dirty state from the confirmed persisted baseline", async () => {
     const baselineData = { blocks: { blocks: [{ id: "persisted" }] } };
     const draftData = { blocks: { blocks: [{ id: "draft" }] } };
-    mocks.saveWorkspace.mockReturnValue(draftData);
+    mocks.saveWorkspace
+      .mockReturnValueOnce(baselineData)
+      .mockReturnValue(draftData);
     mocks.generateAllSafely.mockReturnValue(
       successfulGeneration("sameJs();", "same_lua()")
     );
@@ -256,6 +270,8 @@ describe("App save orchestration", () => {
       expect.objectContaining({
         event: "update",
         dirty: true,
+        editorDirty: true,
+        editingBaseline: baselineData,
         hostSessionId: "session-draft",
         workspaceRevision: 0,
       })
@@ -268,6 +284,7 @@ describe("App save orchestration", () => {
       action: "save",
       data: draftData,
       dirty: true,
+      editorDirty: true,
       hostSessionId: "session-draft",
     });
     expect(lastResponse().noChange).not.toBe(true);
@@ -295,6 +312,8 @@ describe("App save orchestration", () => {
       expect.objectContaining({
         event: "update",
         dirty: false,
+        editorDirty: false,
+        editingBaseline: baselineData,
         blocklyData: baselineData,
         hostSessionId: "session-initial-clean",
         workspaceRevision: 0,
@@ -302,6 +321,242 @@ describe("App save orchestration", () => {
     );
     wrapper.unmount();
   });
+
+  it("opens migrated data clean for editing and persists migrations only on explicit save", async () => {
+    const persistedData = {};
+    const normalizedData = { backpack: [] };
+    mocks.saveWorkspace.mockReturnValue(normalizedData);
+    const wrapper = await mountInitializedApp({
+      data: persistedData,
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+
+    expect(mocks.watchWorkspaceReady).toHaveBeenCalledOnce();
+    expect(mocks.loadWorkspaceForInit).not.toHaveBeenCalled();
+    expect(mocks.postResponse).not.toHaveBeenCalled();
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        event: "update",
+        blocklyData: normalizedData,
+        editingBaseline: normalizedData,
+        dirty: true,
+        editorDirty: false,
+      })
+    );
+
+    requestSave();
+    expect(lastResponse()).toMatchObject({
+      action: "save",
+      data: normalizedData,
+      dirty: true,
+      editorDirty: false,
+    });
+    mocks.postMessage.mockClear();
+    mocks.handlers.get("SAVE_ACK")?.({ saveId: lastResponse().saveId });
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        dirty: false,
+        editorDirty: false,
+      })
+    );
+    wrapper.unmount();
+  });
+
+  it("keeps regenerated code changes outside the user editing indicator", async () => {
+    const wrapper = await mountInitializedApp({
+      code: { js: "oldJs();", lua: "old_lua()" },
+    });
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        dirty: true,
+        editorDirty: false,
+      })
+    );
+    wrapper.unmount();
+  });
+
+  it("reuses a cached normalized baseline instead of loading persisted data with new IDs", async () => {
+    const persistedData = { blocks: { blocks: [{ id: "legacy" }] } };
+    const cachedBaseline = {
+      blocks: { blocks: [{ id: "legacy", shadowId: "stable-shadow" }] },
+    };
+    mocks.saveWorkspace.mockReturnValue(cachedBaseline);
+    const wrapper = await mountInitializedApp({
+      data: cachedBaseline,
+      editingBaseline: cachedBaseline,
+      persisted: {
+        data: persistedData,
+        code: { js: "freshJs();", lua: "fresh_lua()" },
+      },
+    });
+    expect(mocks.watchWorkspaceReady.mock.calls[0]?.[1]).toEqual(
+      cachedBaseline
+    );
+    expect(mocks.loadWorkspaceForInit).not.toHaveBeenCalled();
+    expect(mocks.saveWorkspace).toHaveBeenCalledOnce();
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        editingBaseline: cachedBaseline,
+        dirty: true,
+        editorDirty: false,
+      })
+    );
+    wrapper.unmount();
+  });
+
+  it("normalizes persisted data before restoring a draft when no cached baseline exists", async () => {
+    const persistedData = { blocks: { blocks: [{ id: "original" }] } };
+    const normalizedData = { ...persistedData, backpack: [] };
+    const draftData = { blocks: { blocks: [{ id: "edited" }] }, backpack: [] };
+    mocks.saveWorkspace
+      .mockReturnValueOnce(normalizedData)
+      .mockReturnValue(draftData);
+    const wrapper = await mountInitializedApp({
+      data: draftData,
+      persisted: {
+        data: persistedData,
+        code: { js: "freshJs();", lua: "fresh_lua()" },
+      },
+    });
+    expect(mocks.watchWorkspaceReady.mock.calls[0]?.[1]).toEqual(persistedData);
+    expect(mocks.loadWorkspaceForInit).toHaveBeenCalledWith(
+      draftData,
+      mocks.workspace
+    );
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        editingBaseline: normalizedData,
+        dirty: true,
+        editorDirty: true,
+      })
+    );
+    wrapper.unmount();
+  });
+
+  it("treats equivalent draft object key order as the same initial workspace", async () => {
+    const persistedData = { blocks: { blocks: [] }, backpack: [] };
+    const draftData = { backpack: [], blocks: { blocks: [] } };
+    mocks.saveWorkspace.mockReturnValue(draftData);
+    const wrapper = await mountInitializedApp({
+      data: draftData,
+      persisted: {
+        data: persistedData,
+        code: { js: "freshJs();", lua: "fresh_lua()" },
+      },
+    });
+    expect(mocks.loadWorkspaceForInit).not.toHaveBeenCalled();
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        dirty: false,
+        editorDirty: false,
+      })
+    );
+    wrapper.unmount();
+  });
+
+  it.each(["NACK", "stale ACK"])(
+    "does not advance either baseline after %s",
+    async (settlement) => {
+      const baselineData = { blocks: { blocks: [{ id: "original" }] } };
+      const draftData = { blocks: { blocks: [{ id: "edited" }] } };
+      mocks.saveWorkspace.mockReturnValue(draftData);
+      const wrapper = await mountInitializedApp({
+        data: draftData,
+        editingBaseline: baselineData,
+        persisted: {
+          data: baselineData,
+          code: { js: "oldJs();", lua: "old_lua()" },
+        },
+      });
+      requestSave();
+      const saveId = lastResponse().saveId;
+      if (settlement === "NACK") {
+        mocks.handlers.get("SAVE_NACK")?.({ saveId });
+      } else {
+        mocks.handlers.get("SAVE_ACK")?.({ saveId: "stale-save" });
+        vi.advanceTimersByTime(30_000);
+      }
+      requestSave();
+      expect(lastResponse()).toMatchObject({ dirty: true, editorDirty: true });
+      expect(lastResponse().saveId).not.toBe(saveId);
+      wrapper.unmount();
+    }
+  );
+
+  it("rebases a noChange result to its exact server-confirmed data", async () => {
+    const persistedData = { blocks: { blocks: [{ id: "persisted" }] } };
+    const cachedBaseline = {
+      blocks: { blocks: [{ id: "earlier-editing-baseline" }] },
+    };
+    mocks.saveWorkspace.mockReturnValue(persistedData);
+    const wrapper = await mountInitializedApp({
+      data: persistedData,
+      editingBaseline: cachedBaseline,
+      code: { js: "freshJs();", lua: "fresh_lua()" },
+    });
+    expect(mocks.postMessage).toHaveBeenCalledWith(
+      "EVENT",
+      expect.objectContaining({
+        dirty: false,
+        editorDirty: true,
+      })
+    );
+    requestSave();
+    expect(lastResponse()).toMatchObject({
+      noChange: true,
+      dirty: false,
+      editorDirty: false,
+    });
+    wrapper.unmount();
+  });
+
+  it.each(["baseline capture", "draft load", "first snapshot"])(
+    "does not publish readiness or allow saving after failed %s",
+    async (failure) => {
+      const persistedData = { blocks: { blocks: [{ id: "persisted" }] } };
+      const draftData = { blocks: { blocks: [{ id: "draft" }] } };
+      if (failure === "baseline capture") {
+        mocks.saveWorkspace.mockImplementation(() => {
+          throw new Error("baseline failed");
+        });
+      } else if (failure === "draft load") {
+        mocks.loadWorkspaceForInit.mockImplementation(() => {
+          throw new Error("draft failed");
+        });
+      } else {
+        mocks.saveWorkspace
+          .mockReturnValueOnce(persistedData)
+          .mockImplementation(() => {
+            throw new Error("snapshot failed");
+          });
+      }
+      const wrapper = await mountInitializedApp({
+        data: draftData,
+        persisted: { data: persistedData },
+      });
+      expect(mocks.postMessage).toHaveBeenCalledWith(
+        "EVENT",
+        expect.objectContaining({ event: "error" })
+      );
+      expect(mocks.postMessage.mock.calls).not.toContainEqual([
+        "EVENT",
+        expect.objectContaining({ event: "update" }),
+      ]);
+      expect(mocks.workspace.addChangeListener).not.toHaveBeenCalled();
+      requestSave();
+      expect(lastResponse()).toMatchObject({
+        action: "save-error",
+        message: expect.stringContaining("尚未就绪"),
+      });
+      wrapper.unmount();
+    }
+  );
 
   it("returns the exact compared snapshot when save has no changes", async () => {
     const baselineData = { blocks: { blocks: [{ id: "persisted" }] } };
@@ -466,7 +721,8 @@ describe("App save orchestration", () => {
       successfulGeneration("firstJs();", "first_lua()")
     );
     const wrapper = await mountInitializedApp({
-      data: { blocks: { blocks: [] } },
+      data: firstData,
+      editingBaseline: { blocks: { blocks: [] } },
       hostSessionId: "session-race",
       persisted: {
         data: { blocks: { blocks: [] } },
@@ -503,10 +759,25 @@ describe("App save orchestration", () => {
     expect(latestUpdate).toMatchObject({
       event: "update",
       dirty: true,
+      editorDirty: true,
       js: "secondJs();",
       blocklyData: secondData,
       hostSessionId: "session-race",
       workspaceRevision: 1,
+    });
+    expect(latestUpdate).not.toHaveProperty("editingBaseline");
+
+    // Returning to the submitted snapshot proves C advanced to that snapshot,
+    // rather than keeping the opening baseline or accepting the newer edit.
+    mocks.saveWorkspace.mockReturnValue(firstData);
+    mocks.generateAllSafely.mockReturnValue(
+      successfulGeneration("firstJs();", "first_lua()")
+    );
+    requestSave("session-race");
+    expect(lastResponse()).toMatchObject({
+      noChange: true,
+      dirty: false,
+      editorDirty: false,
     });
     wrapper.unmount();
   });
