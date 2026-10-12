@@ -5,6 +5,7 @@ import { mount } from "@vue/test-utils";
 const pluginMocks = vi.hoisted(() => ({
   backpack: vi.fn(),
   createWorkspaceControlHints: vi.fn(),
+  createWorkspaceGestureGuard: vi.fn(),
   minimapInstances: [] as unknown[],
   multilineinputfield: vi.fn(),
   multiselect: vi.fn(),
@@ -22,6 +23,10 @@ vi.mock("@/plugins/strategies", () => ({
 
 vi.mock("@/plugins/workspace-control-hints", () => ({
   createWorkspaceControlHints: pluginMocks.createWorkspaceControlHints,
+}));
+
+vi.mock("@/plugins/workspace-gesture-guard", () => ({
+  createWorkspaceGestureGuard: pluginMocks.createWorkspaceGestureGuard,
 }));
 
 vi.mock("@/plugins/minimap-controller", () => ({
@@ -68,10 +73,12 @@ describe("plugin manager lifecycle", () => {
     const multiselect = disposable();
     const search = disposable();
     const hints = disposable();
+    const gestureGuard = disposable();
     pluginMocks.backpack.mockReturnValue(backpack);
     pluginMocks.multiselect.mockReturnValue(multiselect);
     pluginMocks.search.mockReturnValue(search);
     pluginMocks.createWorkspaceControlHints.mockReturnValue(hints);
+    pluginMocks.createWorkspaceGestureGuard.mockReturnValue(gestureGuard);
 
     let manager: ReturnType<typeof usePluginManager> | null = null;
     const wrapper = mount(
@@ -93,21 +100,56 @@ describe("plugin manager lifecycle", () => {
     expect(pluginMocks.search).toHaveBeenCalledOnce();
     expect(pluginMocks.multilineinputfield).toHaveBeenCalledOnce();
     expect(pluginMocks.createWorkspaceControlHints).toHaveBeenCalledOnce();
+    expect(pluginMocks.createWorkspaceGestureGuard).toHaveBeenCalledOnce();
     expect(minimap.init).toHaveBeenCalledOnce();
 
     wrapper.unmount();
 
     expect(hints.dispose).toHaveBeenCalledOnce();
+    expect(gestureGuard.dispose).toHaveBeenCalledOnce();
     expect(minimap.dispose).toHaveBeenCalledOnce();
     expect(search.dispose).toHaveBeenCalledOnce();
     expect(multiselect.dispose).toHaveBeenCalledOnce();
     expect(backpack.dispose).toHaveBeenCalledOnce();
   });
 
+  it("replaces the gesture guard when the workspace changes", () => {
+    const firstGuard = disposable();
+    const secondGuard = disposable();
+    pluginMocks.backpack.mockReturnValue(disposable());
+    pluginMocks.multiselect.mockReturnValue(disposable());
+    pluginMocks.search.mockReturnValue(disposable());
+    pluginMocks.createWorkspaceControlHints.mockReturnValue(disposable());
+    pluginMocks.createWorkspaceGestureGuard
+      .mockReturnValueOnce(firstGuard)
+      .mockReturnValueOnce(secondGuard);
+
+    let manager: ReturnType<typeof usePluginManager> | null = null;
+    const wrapper = mount(
+      defineComponent({
+        setup() {
+          manager = usePluginManager();
+          return () => null;
+        },
+      })
+    );
+    const blocklyDiv = document.createElement("div");
+    manager!.initPlugins({ id: "first" } as Blockly.WorkspaceSvg, blocklyDiv);
+    manager!.initPlugins({ id: "second" } as Blockly.WorkspaceSvg, blocklyDiv);
+
+    expect(firstGuard.dispose).toHaveBeenCalledOnce();
+    expect(secondGuard.dispose).not.toHaveBeenCalled();
+    expect(pluginMocks.createWorkspaceGestureGuard).toHaveBeenCalledTimes(2);
+    wrapper.unmount();
+    expect(firstGuard.dispose).toHaveBeenCalledOnce();
+    expect(secondGuard.dispose).toHaveBeenCalledOnce();
+  });
+
   it("keeps multiselect opt-out behavior unchanged", () => {
     pluginMocks.backpack.mockReturnValue(disposable());
     pluginMocks.search.mockReturnValue(disposable());
     pluginMocks.createWorkspaceControlHints.mockReturnValue(disposable());
+    pluginMocks.createWorkspaceGestureGuard.mockReturnValue(disposable());
 
     let manager: ReturnType<typeof usePluginManager> | null = null;
     const wrapper = mount(
