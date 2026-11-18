@@ -2,6 +2,18 @@
  * Blockly数据升级工具
  * 用于升级旧版task-tween和task-tween-to-data块的数据格式，确保Time字段兼容性
  */
+import { oppositeDissolveDirection } from "../blocks/entity/visual_execute";
+
+function legacyDissolveDirection(
+  showDirection: unknown,
+  hideDirection: unknown,
+  bool: BlocklyShadow | undefined,
+): string {
+  const showing = bool?.type !== "logic_boolean" || bool.fields?.BOOL !== "FALSE";
+  const direction = String(showing ? showDirection ?? "0" : hideDirection ?? "0");
+  const opposite = oppositeDissolveDirection(direction);
+  return showing ? (opposite ? direction : "0") : opposite ?? "4";
+}
 
 /** Shadow block inside an input (e.g. math_number) */
 export interface BlocklyShadow {
@@ -94,6 +106,33 @@ export function upgradeTweenXml(xmlText: string): string {
     }
   });
 
+  for (const block of xmlDoc.querySelectorAll('block[type="visual_execute"]')) {
+    const show = block.querySelector(':scope > field[name="SHOW_DIRECTION"]');
+    const hide = block.querySelector(':scope > field[name="HIDE_DIRECTION"]');
+    if (!show && !hide) continue;
+    if (!block.querySelector(':scope > field[name="DISSOLVE_DIRECTION"]')) {
+      const input = block.querySelector(':scope > value[name="bool"]');
+      const bool = input?.querySelector(':scope > block') ?? input?.querySelector(':scope > shadow');
+      const field = xmlDoc.createElement("field");
+      field.setAttribute("name", "DISSOLVE_DIRECTION");
+      field.textContent = legacyDissolveDirection(show?.textContent, hide?.textContent, bool ? {
+        type: bool.getAttribute("type") ?? "",
+        fields: { BOOL: bool.querySelector(':scope > field[name="BOOL"]')?.textContent },
+      } : undefined);
+      (show ?? hide)?.before(field);
+    }
+    const duration = block.querySelector(':scope > field[name="DURATION"]');
+    if (duration && block.querySelector(':scope > field[name="EFFECT"]')?.textContent === "dissolve"
+      && !block.querySelector(':scope > field[name="DISSOLVE_DURATION"]')) {
+      const field = xmlDoc.createElement("field");
+      field.setAttribute("name", "DISSOLVE_DURATION");
+      field.textContent = duration.textContent;
+      duration.after(field);
+    }
+    show?.remove();
+    hide?.remove();
+  }
+
   const result = new XMLSerializer().serializeToString(xmlDoc);
   return result;
 }
@@ -108,6 +147,20 @@ export function upgradeTweenJson(jsonData: BlocklyJsonData): BlocklyJsonData {
   let tweenCount = 0;
 
   const upgradeBlock = (block: BlocklyBlock): void => {
+    const fields = block.fields;
+    if (block.type === "visual_execute" && fields &&
+      ("SHOW_DIRECTION" in fields || "HIDE_DIRECTION" in fields)) {
+      fields.DISSOLVE_DIRECTION ??= legacyDissolveDirection(
+        fields.SHOW_DIRECTION,
+        fields.HIDE_DIRECTION,
+        block.inputs?.bool?.block ?? block.inputs?.bool?.shadow,
+      );
+      if (fields.EFFECT === "dissolve" && fields.DURATION !== undefined) {
+        fields.DISSOLVE_DURATION ??= fields.DURATION;
+      }
+      delete fields.SHOW_DIRECTION;
+      delete fields.HIDE_DIRECTION;
+    }
     if (block.type === "task-tween" || block.type === "task-tween-to-data") {
       tweenCount++;
 

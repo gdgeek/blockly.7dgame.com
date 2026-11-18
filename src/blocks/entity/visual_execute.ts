@@ -6,12 +6,29 @@ import type {
   BlocklyGenerator,
 } from "../helper";
 
+const defaultDissolveDuration = 1.5;
+const oppositeDirections = new Map([
+  ["0", "4"],
+  ["1", "3"],
+  ["2", "5"],
+  ["3", "1"],
+  ["4", "0"],
+  ["5", "2"],
+]);
+
+export function oppositeDissolveDirection(direction: string): string | undefined {
+  return oppositeDirections.get(direction);
+}
+
 export function fadeDuration(block: BlocklyBlock): number {
-  if (!["fade", "dissolve"].includes(block.getFieldValue?.("EFFECT"))) return 0;
-  const value = Number(block.getFieldValue?.("DURATION"));
-  return Number.isFinite(value)
-    ? Math.max(0.1, Math.min(12.7, Math.round(value * 10) / 10))
-    : 0.5;
+  const effect = block.getFieldValue?.("EFFECT");
+  if (effect !== "fade" && effect !== "dissolve") return 0;
+  const field = effect === "dissolve" ? "DISSOLVE_DURATION" : "DURATION";
+  const value = Number(block.getFieldValue(field) ?? NaN);
+  if (Number.isFinite(value)) {
+    return Math.max(0.1, Math.min(12.7, Math.round(value * 10) / 10));
+  }
+  return effect === "dissolve" ? defaultDissolveDuration : 0.5;
 }
 
 export function transitionArguments(
@@ -20,11 +37,9 @@ export function transitionArguments(
 ): string {
   if (!duration) return "";
   if (block.getFieldValue("EFFECT") !== "dissolve") return `, ${duration}`;
-  const direction = (name: string) =>
-    ["0", "1", "2", "3"].includes(block.getFieldValue(name))
-      ? block.getFieldValue(name)
-      : "0";
-  return `, ${duration}, "dissolve", ${direction("SHOW_DIRECTION")}, ${direction("HIDE_DIRECTION")}`;
+  const direction = block.getFieldValue("DISSOLVE_DIRECTION");
+  const reverse = oppositeDissolveDirection(direction);
+  return `, ${duration}, "dissolve", ${reverse === undefined ? "0" : direction}, ${reverse ?? "4"}`;
 }
 
 const data = {
@@ -71,6 +86,7 @@ const block: BlockDefinition = {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
         const zh = window.lg === "zh-CN" || window.lg === "zh-TW";
+        const durationLabel = zh ? "时长（秒）" : "Duration (seconds)";
         const canAuthor = (parameters as { tourismAuthoring?: boolean } | null)?.tourismAuthoring !== false;
         const effectSettings = this.appendDummyInput("EFFECT_SETTINGS")
           .appendField(zh ? "过渡" : "Transition")
@@ -83,38 +99,34 @@ const block: BlockDefinition = {
             "EFFECT",
           );
         const duration = this.appendDummyInput("FADE_SETTINGS")
-          .appendField(zh ? "时长（秒）" : "Duration (seconds)")
+          .appendField(durationLabel)
           .appendField(
             new Blockly.FieldNumber(0.5, 0.1, 12.7, 0.1),
             "DURATION",
           );
         const directions = this.appendDummyInput("DISSOLVE_SETTINGS")
-          .appendField(zh ? "显示" : "Show")
           .appendField(
             new Blockly.FieldDropdown([
               [zh ? "从左到右" : "Left to right", "0"],
+              [zh ? "从右到左" : "Right to left", "4"],
               [zh ? "从下到上" : "Bottom to top", "1"],
               [zh ? "从上到下" : "Top to bottom", "3"],
               [zh ? "从中间往四周" : "Center outward", "2"],
+              [zh ? "从四周往中间" : "Outside inward", "5"],
             ]),
-            "SHOW_DIRECTION",
+            "DISSOLVE_DIRECTION",
           )
-          .appendField(zh ? "隐藏" : "Hide")
+          .appendField(durationLabel)
           .appendField(
-            new Blockly.FieldDropdown([
-              [zh ? "从右往左" : "Right to left", "0"],
-              [zh ? "从上到下" : "Top to bottom", "1"],
-              [zh ? "从下到上" : "Bottom to top", "3"],
-              [zh ? "从四周往中间" : "Outside inward", "2"],
-            ]),
-            "HIDE_DIRECTION",
+            new Blockly.FieldNumber(defaultDissolveDuration, 0.1, 12.7, 0.1),
+            "DISSOLVE_DURATION",
           );
         this.moveInputBefore("DISSOLVE_SETTINGS", "FADE_SETTINGS");
         this.setInputsInline(true);
         const update = () => {
           const effect = this.getFieldValue("EFFECT");
           const expanded = canAuthor && !this.isCollapsed();
-          const visible = expanded && effect !== "instant";
+          const visible = expanded && effect === "fade";
           const showDirections = expanded && effect === "dissolve";
           if (effectSettings.isVisible() !== expanded) effectSettings.setVisible(expanded);
           if (directions.isVisible() !== showDirections) {
