@@ -1,6 +1,7 @@
 import Type from "./type";
 import PolygenEntity from "./polygen_entity";
 import PlayAnimation from "./play_animation";
+import { SetPalmModel, ClearPalmModel } from "./palm_treasure";
 // eslint-disable-next-line no-unused-vars -- 保留 SetupIt 以备后续使用
 import { RegisterData, SetupIt } from "../helper";
 import type { BlockDefinition, Toolbox } from "../helper";
@@ -14,13 +15,14 @@ import SetVisemeClip from "./set_viseme_clip";
 // Preserve unused import for side effects
 void SetupIt;
 
-import { Access } from "../../utils/Access";
+import { Access, ROLES } from "../../utils/Access";
 
 const Setup = (toolbox: Toolbox, parameters: unknown, access: Access): void => {
   // 根据用户角色过滤内容
   const contents = [
     PolygenEntity.toolbox,
     PlayAnimation.toolbox,
+    ...(access.atLeast(ROLES.ADMIN) ? [SetPalmModel.toolbox, ClearPalmModel.toolbox] : []),
     PolygenHighlight.toolbox,
     PolygenMovable.toolbox,
     PolygenAllMovable.toolbox,
@@ -39,6 +41,8 @@ const Setup = (toolbox: Toolbox, parameters: unknown, access: Access): void => {
 
   RegisterData(PolygenEntity as BlockDefinition, parameters);
   RegisterData(PlayAnimation as BlockDefinition, parameters);
+  RegisterData(SetPalmModel, parameters);
+  RegisterData(ClearPalmModel, parameters);
   RegisterData(PolygenHighlight as BlockDefinition, parameters);
   RegisterData(PolygenMovable as BlockDefinition, parameters);
   RegisterData(PolygenAllMovable as BlockDefinition, parameters);
