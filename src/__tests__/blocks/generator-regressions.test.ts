@@ -22,6 +22,8 @@ import PictureEntity from "@/blocks/picture/picture_entity";
 import AutoPlaySound from "@/blocks/sound/autoplay_sound";
 import PauseSound from "@/blocks/sound/pause_sound";
 import PlaySoundCallback from "@/blocks/sound/play_sound_callback";
+import PlaySound from "@/blocks/sound/play_sound";
+import { subtitleBlocks } from "@/blocks/sound/subtitle";
 import StopSound from "@/blocks/sound/stop_sound";
 import PlayAnimationTask from "@/blocks/task/play_animation_task";
 import PlaySoundTask from "@/blocks/task/play_sound_task";
@@ -245,8 +247,8 @@ describe("custom block generator regressions", () => {
       PlayAnimationTask.getJavascript({})(block, generator)
     );
 
-    expect(soundTask).toBe('sound.createTask(handleSound("sound-id"))');
-    expect(videoTask).toBe('video.createTask(handleVideo("video-id"))');
+    expect(soundTask).toBe('sound.createTask(handleSound("sound-id"), "show")');
+    expect(videoTask).toBe('video.createTask(handleVideo("video-id"), "show")');
     expect(animationTask).toBe(
       'animation.createTask(handlePolygen("model-id"), "idle")'
     );
@@ -412,5 +414,31 @@ describe("custom block generator regressions", () => {
     expect(lua).toContain(quoteLuaString(uuid));
     expectValidJavaScript(`const entity = ${javascript};`);
     expectValidLua(`local entity = ${lua}`);
+  });
+});
+
+describe("subtitle blocks", () => {
+  it("defaults old playback blocks to showing subtitles without node inheritance", () => {
+    const generator = createGenerator({ sound: 'handleSound("guide")' });
+    const oldBlock = createBlock({}, { getSurroundParent: () => null });
+    expect(PlaySound.getLua(null)(oldBlock, generator)).toBe('_G.sound.play(handleSound("guide"), "show")\n');
+    expect(PlaySound.getJavascript(null)(oldBlock, generator)).toBe('await sound.play(handleSound("guide"), false, "show");\n');
+    const muted = createBlock({ SUBTITLE: "hide" }, { getSurroundParent: () => ({ type: "action_trigger" }) });
+    expect(PlaySound.getLua(null)(muted, generator)).toBe('_G.sound.play(handleSound("guide"), "hide")\n');
+    expect(PlaySound.getJavascript(null)(muted, generator)).toBe('await sound.play(handleSound("guide"), true, "hide");\n');
+    expect(PlaySoundTask.getLua(null)(muted, generator)).toEqual(['_G.sound.play_task(handleSound("guide"), "hide")', 99]);
+  });
+
+  it("generates standalone subtitle actions without an audio node", () => {
+    const [show, hide, mode] = subtitleBlocks;
+    const fields = createBlock({ MODE: "stack" });
+    const generator = createGenerator({ TEXT: '"欢迎来到隆兴寺"', SECONDS: "3" });
+    expect(show.getLua(null)(fields, generator)).toBe('_G.sound.show_subtitle("欢迎来到隆兴寺", 3)\n');
+    expect(hide.getLua(null)(fields, generator)).toBe("_G.sound.hide_subtitle()\n");
+    expect(mode.getLua(null)(fields, generator)).toBe("_G.sound.subtitle_mode(true)\n");
+    for (const block of subtitleBlocks) {
+      expectValidJavaScript(expectString(block.getJavascript(null)(fields, generator)));
+      expect(() => luaparse.parse(expectString(block.getLua(null)(fields, generator)))).not.toThrow();
+    }
   });
 });

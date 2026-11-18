@@ -8,11 +8,13 @@ import EntityExplode from "./entity_explode";
 import EntityUnxploded from "./entity_unexploded";
 import { ENTITY_NAME } from "../../localization/index";
 import VisualExecute from "./visual_execute";
+import PlayParticle from "./play_particle";
 import VisualTooltip from "./visual_tooltip";
 import VisualTooltips from "./visual_tooltips";
 import EntityMovable from "./entity_movable";
 import EntityAllmovable from "./entity_allmovable";
 import EntityRotatable from "./entity_rotatable";
+import { ROLES, type Access } from "../../utils/Access";
 
 // Preserve unused imports for block registration side effects
 void LineExecute;
@@ -24,7 +26,7 @@ void EntityAllmovable;
 const Setup = (
   toolbox: Toolbox,
   parameters: unknown,
-  _access: unknown
+  access: Access
 ): void => {
   // 根据用户角色过滤内容
   const contents = [
@@ -32,6 +34,7 @@ const Setup = (
     //  LineExecute.toolbox,
     // TweenExecute.toolbox,
     VisualExecute.toolbox,
+    ...(access?.atLeast?.(ROLES.ADMIN) ? [PlayParticle.toolbox] : []),
     // EntityExplode.toolbox,
     // EntityUnxploded.toolbox
     VisualTooltip.toolbox,
@@ -50,6 +53,7 @@ const Setup = (
 
   RegisterData(Entity as BlockDefinition, parameters);
   RegisterData(VisualExecute as BlockDefinition, parameters);
+  RegisterData(PlayParticle, parameters);
   RegisterData(VisualTooltip as BlockDefinition, parameters);
   RegisterData(VisualTooltips as BlockDefinition, parameters);
   RegisterData(EntityRotatable as BlockDefinition, parameters);

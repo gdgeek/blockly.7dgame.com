@@ -33,6 +33,7 @@ import * as Polygen from "../blocks/polygen";
 import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
 import * as Sound from "../blocks/sound";
+import { SetupSubtitles } from "../blocks/sound/subtitle";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars -- Voxel 模块保留以备后续使用
 import * as Voxel from "../blocks/voxel";
 import * as Command from "../blocks/command";
@@ -145,6 +146,8 @@ javascriptGenerator.forBlock["procedures_defnoreturn"] = function (
 
 const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
   const toolbox = createToolbox();
+  const tourismAuthoring = access?.atLeast(ROLES.ADMIN) ?? false;
+  parameters = { ...(parameters as Record<string, unknown>), tourismAuthoring };
 
   if (style.includes("base")) {
     Data.Setup(toolbox, parameters);
@@ -185,6 +188,7 @@ const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
     //toolbox.contents.push(DataCategory)
   }
   toolbox.contents.push(sep);
+  if (style.includes("meta") || style.includes("verse")) SetupSubtitles(toolbox, parameters, tourismAuthoring);
   toolbox.contents.push(Variable);
   toolbox.contents.push(Procedure);
 

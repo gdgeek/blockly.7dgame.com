@@ -1,5 +1,6 @@
 import DataType from "./type";
 import * as Blockly from "blockly";
+import { setupPlaybackSubtitles, subtitleOverride } from "./subtitle";
 import type {
   BlockDefinition,
   BlocklyBlock,
@@ -37,9 +38,10 @@ const block: BlockDefinition = {
   },
   getBlock(parameters: unknown): object {
     const data = {
-      init: function (this: { jsonInit: (json: object) => void }) {
+      init: function (this: Blockly.Block) {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
+        setupPlaybackSubtitles(this, parameters);
       },
     };
     return data;
@@ -65,8 +67,9 @@ const block: BlockDefinition = {
             getSurroundParent: () => { type: string } | null;
           }
         ).getSurroundParent()?.type === "action_trigger";
+      const subtitle = subtitleOverride(block);
       const code = `await sound.play(${sound}${
-        isInActionTrigger ? ", true" : ""
+        subtitle ? `, ${Boolean(isInActionTrigger)}, "${subtitle}"` : isInActionTrigger ? ", true" : ""
       });\n`;
       return code;
     };
@@ -81,7 +84,8 @@ const block: BlockDefinition = {
     ): string {
       const sound =
         generator.valueToCode(block, "sound", generator.ORDER_NONE) || "nil";
-      return "_G.sound.play(" + sound + ")\n";
+      const subtitle = subtitleOverride(block);
+      return `_G.sound.play(${sound}${subtitle ? `, "${subtitle}"` : ""})\n`;
     };
     return lua;
   },

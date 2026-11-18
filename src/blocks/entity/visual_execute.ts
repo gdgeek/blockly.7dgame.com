@@ -6,6 +6,27 @@ import type {
   BlocklyGenerator,
 } from "../helper";
 
+export function fadeDuration(block: BlocklyBlock): number {
+  if (!["fade", "dissolve"].includes(block.getFieldValue?.("EFFECT"))) return 0;
+  const value = Number(block.getFieldValue?.("DURATION"));
+  return Number.isFinite(value)
+    ? Math.max(0.1, Math.min(12.7, Math.round(value * 10) / 10))
+    : 0.5;
+}
+
+export function transitionArguments(
+  block: BlocklyBlock,
+  duration = fadeDuration(block),
+): string {
+  if (!duration) return "";
+  if (block.getFieldValue("EFFECT") !== "dissolve") return `, ${duration}`;
+  const direction = (name: string) =>
+    ["0", "1", "2", "3"].includes(block.getFieldValue(name))
+      ? block.getFieldValue(name)
+      : "0";
+  return `, ${duration}, "dissolve", ${direction("SHOW_DIRECTION")}, ${direction("HIDE_DIRECTION")}`;
+}
+
 const data = {
   name: "visual_execute",
 } as const;
@@ -28,6 +49,7 @@ const block: BlockDefinition = {
         },
         {
           type: "input_dummy",
+          name: "VISIBILITY_LABEL",
         },
         {
           type: "input_value",
@@ -45,19 +67,79 @@ const block: BlockDefinition = {
   },
   getBlock(parameters: unknown): object {
     const data = {
-      init: function (this: { jsonInit: (json: object) => void }) {
+      init: function (this: Blockly.Block) {
         const json = block.getBlockJson!(parameters);
         this.jsonInit(json);
+        const zh = window.lg === "zh-CN" || window.lg === "zh-TW";
+        const canAuthor = (parameters as { tourismAuthoring?: boolean } | null)?.tourismAuthoring !== false;
+        const effectSettings = this.appendDummyInput("EFFECT_SETTINGS")
+          .appendField(zh ? "过渡" : "Transition")
+          .appendField(
+            new Blockly.FieldDropdown([
+              [zh ? "无" : "None", "instant"],
+              [zh ? "渐变" : "Fade", "fade"],
+              [zh ? "溶解" : "Dissolve", "dissolve"],
+            ]),
+            "EFFECT",
+          );
+        const duration = this.appendDummyInput("FADE_SETTINGS")
+          .appendField(zh ? "时长（秒）" : "Duration (seconds)")
+          .appendField(
+            new Blockly.FieldNumber(0.5, 0.1, 12.7, 0.1),
+            "DURATION",
+          );
+        const directions = this.appendDummyInput("DISSOLVE_SETTINGS")
+          .appendField(zh ? "显示" : "Show")
+          .appendField(
+            new Blockly.FieldDropdown([
+              [zh ? "从左到右" : "Left to right", "0"],
+              [zh ? "从下到上" : "Bottom to top", "1"],
+              [zh ? "从上到下" : "Top to bottom", "3"],
+              [zh ? "从中间往四周" : "Center outward", "2"],
+            ]),
+            "SHOW_DIRECTION",
+          )
+          .appendField(zh ? "隐藏" : "Hide")
+          .appendField(
+            new Blockly.FieldDropdown([
+              [zh ? "从右往左" : "Right to left", "0"],
+              [zh ? "从上到下" : "Top to bottom", "1"],
+              [zh ? "从下到上" : "Bottom to top", "3"],
+              [zh ? "从四周往中间" : "Outside inward", "2"],
+            ]),
+            "HIDE_DIRECTION",
+          );
+        this.moveInputBefore("DISSOLVE_SETTINGS", "FADE_SETTINGS");
+        this.setInputsInline(true);
+        const update = () => {
+          const effect = this.getFieldValue("EFFECT");
+          const expanded = canAuthor && !this.isCollapsed();
+          const visible = expanded && effect !== "instant";
+          const showDirections = expanded && effect === "dissolve";
+          if (effectSettings.isVisible() !== expanded) effectSettings.setVisible(expanded);
+          if (directions.isVisible() !== showDirections) {
+            directions.setVisible(showDirections);
+            if ((this as Blockly.BlockSvg).rendered)
+              void (this as Blockly.BlockSvg).queueRender();
+          }
+          if (duration.isVisible() !== visible) {
+            duration.setVisible(visible);
+            if ((this as Blockly.BlockSvg).rendered)
+              void (this as Blockly.BlockSvg).queueRender();
+          }
+        };
+        this.setOnChange(update);
+        update();
       },
     };
     return data;
   },
   getJavascript(
-    _parameters: unknown
+    _parameters: unknown,
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     const script = function (
       block: BlocklyBlock,
-      generator: BlocklyGenerator
+      generator: BlocklyGenerator,
     ): string {
       const value_entity =
         generator.valueToCode(block, "entity", generator.ORDER_NONE) ||
@@ -65,24 +147,30 @@ const block: BlockDefinition = {
       const value_bool =
         generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
 
-      const code = `point.setVisual(${value_entity}, ${value_bool});\n`;
+      const duration = fadeDuration(block);
+      const code = `point.setVisual(${value_entity}, ${value_bool}${transitionArguments(block, duration)});\n`;
       return code;
     };
     return script;
   },
   getLua(
-    _parameters: unknown
+    _parameters: unknown,
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     const lua = function (
       block: BlocklyBlock,
-      generator: BlocklyGenerator
+      generator: BlocklyGenerator,
     ): string {
       const value_entity =
         generator.valueToCode(block, "entity", generator.ORDER_NONE) || "nil";
       const value_bool =
         generator.valueToCode(block, "bool", generator.ORDER_ATOMIC) || "false";
       const code =
-        "_G.point.set_visual(" + value_entity + ", " + value_bool + ")\n";
+        "_G.point.set_visual(" +
+        value_entity +
+        ", " +
+        value_bool +
+        transitionArguments(block, fadeDuration(block)) +
+        ")\n";
       return code;
     };
     return lua;

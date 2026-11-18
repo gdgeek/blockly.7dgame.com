@@ -14,6 +14,7 @@ import type { BlockDefinition } from "@/blocks/helper";
 import Entity from "@/blocks/entity/entity";
 import EntityMovable from "@/blocks/entity/entity_movable";
 import EntityRotatable from "@/blocks/entity/entity_rotatable";
+import PlayParticle from "@/blocks/entity/play_particle";
 import VisualTooltip from "@/blocks/entity/visual_tooltip";
 import PlayAnimation from "@/blocks/polygen/play_animation";
 import PolygenEntity from "@/blocks/polygen/polygen_entity";
@@ -27,7 +28,11 @@ const resource: ResourceFilterIndex = {
     { name: "Plain entity", uuid: "entity-plain" },
     { name: "Movable entity", uuid: "entity-movable", moved: true },
     { name: "Rotatable entity", uuid: "entity-rotatable", rotate: true },
-    { name: "Tooltip entity", uuid: "entity-tooltip", hasTooltips: true },
+    {
+      name: "Tooltip entity",
+      uuid: "entity-tooltip",
+      hasTooltips: true,
+    },
   ],
   polygen: [
     { name: "Plain polygen", uuid: "polygen-plain", animations: [] },
@@ -61,6 +66,7 @@ const definitions: BlockDefinition[] = [
   Entity,
   EntityMovable,
   EntityRotatable,
+  PlayParticle,
   VisualTooltip,
   PlayAnimation,
   PolygenEntity,
@@ -119,10 +125,10 @@ function getContextInputName(parentType: string): string {
 
 function connectContextBlock(
   parent: Blockly.Block,
-  child: Blockly.Block
+  child: Blockly.Block,
 ): void {
   const parentConnection = parent.getInput(
-    getContextInputName(parent.type)
+    getContextInputName(parent.type),
   )?.connection;
   expect(parentConnection).not.toBeNull();
   expect(child.outputConnection).not.toBeNull();
@@ -154,7 +160,7 @@ async function createConnectedBlocks(
   workspace: Blockly.Workspace,
   parentType: string,
   childType: "entity" | "polygen_entity",
-  order: "parent-first" | "child-first"
+  order: "parent-first" | "child-first",
 ): Promise<{ parent: Blockly.Block; child: Blockly.Block }> {
   if (order === "parent-first") {
     const parent = workspace.newBlock(parentType);
@@ -177,7 +183,7 @@ beforeAll(() => {
     (callback: FrameRequestCallback): number => {
       callback(0);
       return 1;
-    }
+    },
   );
   vi.stubGlobal("cancelAnimationFrame", () => {});
   window.lg = "en-US";
@@ -227,7 +233,7 @@ describe("resource selectors in real Blockly workspaces", () => {
     (["parent-first", "child-first"] as const).map((order) => ({
       ...context,
       order,
-    }))
+    })),
   );
 
   it.each(polygenCreationCases)(
@@ -237,13 +243,13 @@ describe("resource selectors in real Blockly workspaces", () => {
         workspace,
         parentType,
         "polygen_entity",
-        order
+        order,
       );
 
       await flushBlocklyEvents();
 
       expect(optionValues(child, "Polygen")).toEqual(expected);
-    }
+    },
   );
 
   it.each([
@@ -256,6 +262,10 @@ describe("resource selectors in real Blockly workspaces", () => {
       expected: ["", "entity-rotatable"],
     },
     {
+      parentType: "play_particle",
+      expected: ["", "entity-plain", "entity-movable", "entity-rotatable", "entity-tooltip"],
+    },
+    {
       parentType: "visual_tooltip",
       expected: ["", "entity-tooltip"],
     },
@@ -266,7 +276,7 @@ describe("resource selectors in real Blockly workspaces", () => {
         workspace,
         parentType,
         "entity",
-        "parent-first"
+        "parent-first",
       );
       await flushBlocklyEvents();
       expect(optionValues(child, "Entity")).toEqual(expected);
@@ -275,7 +285,7 @@ describe("resource selectors in real Blockly workspaces", () => {
       await flushBlocklyEvents();
 
       expect(optionValues(child, "Entity")).toEqual(allEntityValues);
-    }
+    },
   );
 
   it("uses the current entity connection when contexts switch", async () => {
@@ -358,7 +368,7 @@ describe("resource selectors in real Blockly workspaces", () => {
             ],
           },
         },
-        workspace
+        workspace,
       );
 
       await flushBlocklyEvents();
@@ -368,7 +378,7 @@ describe("resource selectors in real Blockly workspaces", () => {
         .find((block) => block.type === childType);
       expect(child).toBeDefined();
       expect(optionValues(child!, fieldName)).toEqual(expected);
-    }
+    },
   );
 
   it("coalesces parent and child notifications into one option write", async () => {
