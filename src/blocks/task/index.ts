@@ -10,6 +10,8 @@ import TaskCricle from "./task_circle";
 import TaskPlaySound from "./play_sound_task";
 import TaskPlayVideo from "./play_video_task";
 import TaskPlayAnimation from "./play_animation_task";
+import { StartParallelLoop, StopParallelLoop } from "./parallel_loop";
+import type { Toolbox } from "../helper";
 import RunTask from "./run_task";
 import SleepTask from "./sleep_task";
 import "../../localization/index";
@@ -63,6 +65,11 @@ function RegisterLite(parameters: unknown): void {
   RegisterData(SleepTask as BlockDefinition, parameters);
 }
 
-const Setup = SetupIt(FullCategory, RegisterFull);
+function Setup(toolbox: Toolbox, parameters: unknown) {
+  const authoring = (parameters as { tourismAuthoring?: boolean }).tourismAuthoring;
+  SetupIt({ ...FullCategory, contents: authoring ? [...FullCategory.contents, StartParallelLoop.toolbox, StopParallelLoop.toolbox] : FullCategory.contents }, RegisterFull)(toolbox, parameters);
+  RegisterData(StartParallelLoop, parameters);
+  RegisterData(StopParallelLoop, parameters);
+}
 const SetupLite = SetupIt(LiteCategory, RegisterLite);
 export { Setup, SetupLite };

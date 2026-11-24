@@ -1,5 +1,7 @@
+import VideoEnded from "./video_ended";
+import type { Toolbox } from "../helper";
 import Type from "./type";
-import { RegisterData, SetupIt } from "../helper";
+import { RegisterData } from "../helper";
 import type { BlockDefinition } from "../helper";
 import VideoEntity from "./video_entity";
 // eslint-disable-next-line no-unused-vars -- 注册积木块需要导入，当前被注释掉的代码中使用
@@ -37,5 +39,10 @@ function Register(parameters: unknown): void {
   RegisterData(AutoPlay as BlockDefinition, parameters);
 }
 
-const Setup = SetupIt(Category, Register);
+function Setup(toolbox: Toolbox, parameters: unknown): void {
+  const authoring = (parameters as { tourismAuthoring?: boolean }).tourismAuthoring;
+  toolbox.contents.push({ ...Category, contents: authoring ? [...Category.contents, VideoEnded.toolbox] : Category.contents });
+  Register(parameters);
+  RegisterData(VideoEnded, parameters);
+}
 export { Setup };

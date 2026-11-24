@@ -25,7 +25,7 @@ const ANIMATION_PARENT_TYPES = new Set([
 ]);
 
 export function buildNamedResourceOptions(
-  resources: NamedResource[] | undefined
+  resources: NamedResource[] | undefined,
 ): [string, string][] {
   const options: [string, string][] = [["none", ""]];
 
@@ -38,27 +38,27 @@ export function buildNamedResourceOptions(
 
 export function buildPolygenOptions(
   resource: ResourceFilterIndex | undefined,
-  parentType?: string
+  parentType?: string,
 ): [string, string][] {
   const polygens = resource?.polygen;
   if (ANIMATION_PARENT_TYPES.has(parentType || "")) {
     return buildNamedResourceOptions(
       polygens?.filter(
         (polygen) =>
-          Array.isArray(polygen.animations) && polygen.animations.length > 0
-      )
+          Array.isArray(polygen.animations) && polygen.animations.length > 0,
+      ),
     );
   }
 
   if (parentType === "polygen_movable") {
     return buildNamedResourceOptions(
-      polygens?.filter((polygen) => polygen.moved === true)
+      polygens?.filter((polygen) => polygen.moved === true),
     );
   }
 
   if (parentType === "polygen_rotatable") {
     return buildNamedResourceOptions(
-      polygens?.filter((polygen) => polygen.rotate === true)
+      polygens?.filter((polygen) => polygen.rotate === true),
     );
   }
 
@@ -67,19 +67,18 @@ export function buildPolygenOptions(
 
 export function buildEntityOptions(
   resource: ResourceFilterIndex | undefined,
-  parentType?: string
+  parentType?: string,
 ): [string, string][] {
   const entities = resource?.entity;
-
   if (parentType === "entity_movable") {
     return buildNamedResourceOptions(
-      entities?.filter((entity) => entity.moved === true)
+      entities?.filter((entity) => entity.moved === true),
     );
   }
 
   if (parentType === "entity_rotatable") {
     return buildNamedResourceOptions(
-      entities?.filter((entity) => entity.rotate === true)
+      entities?.filter((entity) => entity.rotate === true),
     );
   }
 
@@ -87,7 +86,7 @@ export function buildEntityOptions(
 }
 
 export function collectTooltipParentUuids(
-  resource: ResourceFilterIndex | undefined
+  resource: ResourceFilterIndex | undefined,
 ): Set<string> {
   const parentUuids = new Set<string>();
 
@@ -108,7 +107,7 @@ export function collectTooltipParentUuids(
           parentUuids.add(item.uuid);
         }
       });
-    }
+    },
   );
 
   return parentUuids;
@@ -116,10 +115,10 @@ export function collectTooltipParentUuids(
 
 export function buildTooltipResourceOptions(
   resources: NamedResource[] | undefined,
-  parentUuids: Iterable<string>
+  parentUuids: Iterable<string>,
 ): [string, string][] {
   const allowedUuids = new Set(parentUuids);
   return buildNamedResourceOptions(
-    resources?.filter((resource) => allowedUuids.has(resource.uuid))
+    resources?.filter((resource) => allowedUuids.has(resource.uuid)),
   );
 }

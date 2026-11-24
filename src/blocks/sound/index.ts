@@ -1,10 +1,12 @@
 import Type from "./type";
+import SoundEnded from "./sound_ended";
+import type { Toolbox } from "../helper";
 import SoundEntity from "./sound_entity";
 import PlaySound from "./play_sound";
 import PauseSound from "./pause_sound";
 import StopSound from "./stop_sound";
 import AutoPlay from "./autoplay_sound";
-import { RegisterData, SetupIt } from "../helper";
+import { RegisterData } from "../helper";
 import type { BlockDefinition } from "../helper";
 import { SOUND_NAME } from "../../localization/index";
 
@@ -29,5 +31,13 @@ function Register(parameters: unknown): void {
   RegisterData(AutoPlay as BlockDefinition, parameters);
 }
 
-const Setup = SetupIt(Category, Register);
+function Setup(toolbox: Toolbox, parameters: unknown): void {
+  const { tourismAuthoring } = parameters as { tourismAuthoring?: boolean };
+  toolbox.contents.push({
+    ...Category,
+    contents: tourismAuthoring ? [...Category.contents, SoundEnded.toolbox] : Category.contents,
+  });
+  Register(parameters);
+  RegisterData(SoundEnded, parameters);
+}
 export { Setup };
