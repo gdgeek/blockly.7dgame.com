@@ -29,6 +29,7 @@ import * as Trigger from "../blocks/trigger";
 import * as Event from "../blocks/event";
 import * as Task from "../blocks/task";
 import * as Entity from "../blocks/entity";
+import * as Palm from "../blocks/palm";
 import * as Polygen from "../blocks/polygen";
 import * as Picture from "../blocks/picture";
 import * as Text from "../blocks/text";
@@ -171,6 +172,7 @@ const setup = (style: string, parameters: unknown, access: Access): Toolbox => {
     Entity.Setup(toolbox, parameters, access);
     Text.Setup(toolbox, parameters);
     Polygen.Setup(toolbox, parameters, access);
+    Palm.Setup(toolbox, parameters, tourismAuthoring);
     Picture.Setup(toolbox, parameters);
     Video.Setup(toolbox, parameters);
     Sound.Setup(toolbox, parameters);

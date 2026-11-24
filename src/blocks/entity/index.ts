@@ -8,6 +8,7 @@ import EntityExplode from "./entity_explode";
 import EntityUnxploded from "./entity_unexploded";
 import { ENTITY_NAME } from "../../localization/index";
 import VisualExecute from "./visual_execute";
+import NodeMotion from "./node_motion";
 import PlayParticle from "./play_particle";
 import VisualTooltip from "./visual_tooltip";
 import VisualTooltips from "./visual_tooltips";
@@ -34,7 +35,7 @@ const Setup = (
     //  LineExecute.toolbox,
     // TweenExecute.toolbox,
     VisualExecute.toolbox,
-    ...(access?.atLeast?.(ROLES.ADMIN) ? [PlayParticle.toolbox] : []),
+    ...(access?.atLeast?.(ROLES.ADMIN) ? [PlayParticle.toolbox, NodeMotion.toolbox] : []),
     // EntityExplode.toolbox,
     // EntityUnxploded.toolbox
     VisualTooltip.toolbox,
@@ -54,6 +55,7 @@ const Setup = (
   RegisterData(Entity as BlockDefinition, parameters);
   RegisterData(VisualExecute as BlockDefinition, parameters);
   RegisterData(PlayParticle, parameters);
+  RegisterData(NodeMotion, parameters);
   RegisterData(VisualTooltip as BlockDefinition, parameters);
   RegisterData(VisualTooltips as BlockDefinition, parameters);
   RegisterData(EntityRotatable as BlockDefinition, parameters);

@@ -27,12 +27,12 @@ const block: BlockDefinition = {
         {
           type: "input_value",
           name: "From",
-          check: "Entity",
+          check: ["Entity", "Video", "Picture", "Polygen", "Text", "Voxel", "Sound"],
         },
         {
           type: "input_value",
           name: "To",
-          check: "Entity",
+          check: ["Entity", "Video", "Picture", "Polygen", "Text", "Voxel", "Sound"],
         },
         {
           type: "input_value",

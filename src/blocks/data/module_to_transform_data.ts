@@ -20,12 +20,12 @@ const block: BlockDefinition = {
         };
         current.jsonInit({
           type: data.name,
-          message0: "空间数据 %1",
+          message0: window.lg.startsWith("zh") ? "读取节点 %1 的位置、旋转和大小" : "read local transform of %1",
           args0: [
             {
               type: "input_value",
               name: "entity",
-              check: "Entity",
+              check: ["Entity", "Video", "Picture", "Polygen", "Text", "Voxel", "Sound"],
             },
           ],
           inputsInline: false,
@@ -50,7 +50,7 @@ const block: BlockDefinition = {
         "entity",
         generator.ORDER_NONE
       );
-      const code = "CS.MLua.Point.ToTransformData(" + value_entity + ")\n";
+      const code = "CS.MLua.Point.ToTransformData(" + value_entity + ")";
       return [code, generator.ORDER_NONE];
     };
     return lua;

@@ -1,8 +1,8 @@
 import Type from "./type";
-import { RegisterData, SetupIt } from "../helper";
-import type { BlockDefinition } from "../helper";
+import { RegisterData } from "../helper";
+import type { BlockDefinition, Toolbox } from "../helper";
 import { COMMAND_NAME } from "../../localization/index";
-import VoiceTrigger from "./voice_trigger";
+import VoiceTrigger, { ConditionalVoiceTrigger } from "./voice_trigger";
 import GestureTrigger from "./gesture_trigger";
 
 const Category = {
@@ -17,5 +17,10 @@ function Register(parameters: unknown): void {
   RegisterData(GestureTrigger as BlockDefinition, parameters);
 }
 
-const Setup = SetupIt(Category, Register);
+function Setup(toolbox: Toolbox, parameters: unknown): void {
+  const admin = (parameters as { tourismAuthoring?: boolean }).tourismAuthoring;
+  toolbox.contents.push({ ...Category, contents: admin ? [...Category.contents, ConditionalVoiceTrigger.toolbox] : Category.contents });
+  Register(parameters);
+  RegisterData(ConditionalVoiceTrigger, parameters);
+}
 export { Setup };

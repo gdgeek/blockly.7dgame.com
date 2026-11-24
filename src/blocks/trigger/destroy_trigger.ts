@@ -48,7 +48,7 @@ const block: BlockDefinition = {
     ): string {
       const statements_content = generator.statementToCode(block, "content");
       const code = `
-  meta['@destroy'] = function() {
+  meta['@destroy'] = async function() {
     console.log('@destroy')
     ${statements_content}
   }

@@ -36,6 +36,12 @@ function getLocalizedCommandName(name: string): string {
 
     //教育项目
     nextStep: "下一步",
+    openNext: "打开下一个",
+    openFilm1: "打开第一个",
+    openFilm2: "打开第二个",
+    openFilm3: "打开第三个",
+    openFilm4: "打开第四个",
+    openFilm5: "打开第五个",
     returnMain: "返回主界面",
     closeTooltip: "关闭说明卡",
     openTooltip: "显示说明卡",
@@ -141,8 +147,10 @@ const block: BlockDefinition = {
       const dropdown_option = block.getFieldValue("Voice");
       const statements_content = generator.statementToCode(block, "content");
       const eventKey = quoteJavaScriptString(`@${dropdown_option}`);
+      const condition = block.type === "conditional_voice_trigger" && generator.valueToCode(block, "WHEN", generator.ORDER_NONE);
       const code = `
   meta[${eventKey}] = async function(parameter) {
+    ${condition ? `if (!(${condition})) return;` : ""}
     let isPlaying = true;
     ${statements_content}
     isPlaying = false;
@@ -178,13 +186,31 @@ const block: BlockDefinition = {
   is_playing = false\n\
 end\n";
 
-      return code;
+      const condition = block.type === "conditional_voice_trigger" && generator.valueToCode(block, "WHEN", generator.ORDER_NONE);
+      if (!condition) return code;
+      const guard = quoteLuaString("allow:" + dropdown_option);
+      return `meta[${guard}] = function() return ${condition} end\n` +
+        code.replace("  is_playing = true", `  if not meta[${guard}]() then return end\n  is_playing = true`);
     };
     return lua;
   },
   toolbox: {
     kind: "block",
     type: data.name,
+  },
+};
+
+export const ConditionalVoiceTrigger: BlockDefinition = {
+  ...block,
+  title: "conditional_voice_trigger",
+  toolbox: { kind: "block", type: "conditional_voice_trigger" },
+  getBlock(parameters) {
+    const base = block.getBlockJson!(parameters) as { args0: object[] };
+    return { init(this: { jsonInit(json: object): void }) {
+      this.jsonInit({ ...base, type: "conditional_voice_trigger",
+        message0: "语音指令 %1 仅当 %4 %2 %3",
+        args0: [...base.args0, { type: "input_value", name: "WHEN", check: "Boolean" }] });
+    } };
   },
 };
 

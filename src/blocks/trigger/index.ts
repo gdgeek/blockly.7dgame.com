@@ -4,6 +4,7 @@ import type { BlockDefinition } from "../helper";
 import { TRIGGER_NAME } from "../../localization/index";
 import ActionTrigger from "./action_trigger";
 //import ActionExecute from "./action_execute";
+import DestroyTrigger from "./destroy_trigger";
 import InitTrigger from "./init_trigger";
 
 const Category = {
@@ -21,9 +22,12 @@ const Category = {
 function Register(parameters: unknown): void {
   RegisterData(ActionTrigger as BlockDefinition, parameters);
   RegisterData(InitTrigger as BlockDefinition, parameters);
-  // RegisterData(DestroyTrigger, parameters);
+  RegisterData(DestroyTrigger, parameters);
   // RegisterData(UpdateTrigger, parameters);
   // RegisterData(ActionExecute, parameters);
 }
-const Setup = SetupIt(Category, Register);
+const Setup = (toolbox: import("../helper").Toolbox, parameters: unknown) => {
+  const authoring = (parameters as { tourismAuthoring?: boolean }).tourismAuthoring;
+  SetupIt({ ...Category, contents: authoring ? [...Category.contents, DestroyTrigger.toolbox] : Category.contents }, Register)(toolbox, parameters);
+};
 export { Setup };
