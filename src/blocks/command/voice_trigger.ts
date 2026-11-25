@@ -13,9 +13,11 @@ const data = {
 } as const;
 
 interface ResourceAction {
-  name: string;
+  name: string | null;
   uuid: string;
   type: string;
+  phrase?: unknown;
+  pinyin?: unknown;
 }
 
 interface BlockParameters {
@@ -92,9 +94,25 @@ const block: BlockDefinition = {
             const opt: [string, string][] = [["none", ""]];
             if (resource && resource.action) {
               const action = resource.action;
-              action.forEach(({ name, uuid, type }: ResourceAction) => {
+              action.forEach((entry: ResourceAction) => {
+                const { name, uuid, type } = entry;
                 if (type === "Voice") {
-                  if (name) {
+                  const hasPhrase = Object.prototype.hasOwnProperty.call(
+                    entry,
+                    "phrase",
+                  );
+                  const custom =
+                    hasPhrase ||
+                    Object.prototype.hasOwnProperty.call(entry, "pinyin");
+                  const phrase = hasPhrase ? entry.phrase : name;
+                  if (custom) {
+                    opt.push([
+                      typeof phrase === "string" && phrase.trim()
+                        ? phrase.trim()
+                        : uuid,
+                      uuid,
+                    ]);
+                  } else if (name) {
                     opt.push([getLocalizedCommandName(name), uuid]);
                   } else {
                     opt.push([uuid, uuid]);
@@ -132,11 +150,11 @@ const block: BlockDefinition = {
     return data;
   },
   getJavascript(
-    _parameters: unknown
+    _parameters: unknown,
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     const javascript = function (
       block: BlocklyBlock,
-      generator: BlocklyGenerator
+      generator: BlocklyGenerator,
     ): string {
       const dropdown_option = block.getFieldValue("Voice");
       const statements_content = generator.statementToCode(block, "content");
@@ -153,11 +171,11 @@ const block: BlockDefinition = {
     return javascript;
   },
   getLua(
-    _parameters: unknown
+    _parameters: unknown,
   ): (block: BlocklyBlock, generator: BlocklyGenerator) => string {
     const lua = function (
       block: BlocklyBlock,
-      generator: BlocklyGenerator
+      generator: BlocklyGenerator,
     ): string {
       const dropdown_option = block.getFieldValue("Voice");
       const statements_content = generator.statementToCode(block, "content");
